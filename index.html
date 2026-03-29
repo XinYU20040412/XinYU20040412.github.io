@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>XinYU Personal Knowledge Graph</title>
+<style>
+  *{margin:0;padding:0}
+  body{background:#0b0f1f;color:#e0e0e0;font-family:system-ui}
+  #container{width:100vw;height:100vh}
+  .node-info{position:fixed;top:20px;left:20px;background:#111827;padding:12px;border:1px solid #374151;border-radius:6px;display:none}
+  .node-info.active{display:block}
+</style>
+</head>
+<body>
+<div id="container"></div>
+<div class="node-info" id="nodeInfo"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<script>
+const chart = echarts.init(document.getElementById('container'));
+const option = {
+  backgroundColor: '#0b0f1f',
+  tooltip: { trigger: 'item' },
+  animation: true,
+
+  series: [{
+    type: 'graph',
+    layout: 'force',
+    symbolSize: 50,
+    roam: true,
+    focusNodeAdjacency: true,
+    itemStyle: {
+      color: '#4ccbf5',
+      borderColor: '#2277ff',
+      borderWidth: 2,
+      shadowBlur: 15,
+      shadowColor: '#2277ff'
+    },
+    lineStyle: {
+      color: '#2a72d5',
+      width: 1.5,
+      curveness: 0.1,
+      opacity: 0.6
+    },
+    emphasis: {
+      focus: 'adjacency',
+      itemStyle: { color: '#00e0ff' },
+      lineStyle: { width: 3, color: '#00e0ff' }
+    },
+    force: {
+      repulsion: 800,
+      edgeLength: 180,
+      layoutAnimation: true
+    },
+
+    data: [
+      {
+        name: "我的项目主页", 
+        value: "个人中心", 
+        url: "https://github.com/XinYU20040412",
+        itemStyle: { color: "#ff5e57" }
+      },
+      {
+        name: "无人机投弹优化", 
+        value: "AESAGA-Newton 算法", 
+        url: "https://github.com/XinYU20040412/AESAGA-Newton-Based-UAV-Bombing-Strategy-Optimization"
+      },
+      {
+        name: "机器臂关节角优化", 
+        value: "多目标轨迹优化", 
+        url: "https://github.com/XinYU20040412/你的机械臂项目"
+      },
+      {
+        name: "板凳龙运行调控", 
+        value: "递推模型 + 运动控制", 
+        url: "https://github.com/XinYU20040412/你的板凳龙项目"
+      },
+      {
+        name: "2025数模国赛A题", 
+        value: "烟幕干扰遮蔽优化", 
+        url: "https://github.com/XinYU20040412/你的国赛项目"
+      },
+      {
+        name: "FAHP 模糊层次分析", 
+        value: "多准则决策模型", 
+        url: "https://github.com/XinYU20040412/你的FAHP项目"
+      }
+    ],
+
+    links: [
+      { source: "我的项目主页", target: "无人机投弹优化" },
+      { source: "我的项目主页", target: "机器臂关节角优化" },
+      { source: "我的项目主页", target: "板凳龙运行调控" },
+      { source: "我的项目主页", target: "2025数模国赛A题" },
+      { source: "我的项目主页", target: "FAHP 模糊层次分析" },
+      { source: "无人机投弹优化", target: "2025数模国赛A题" },
+      { source: "无人机投弹优化", target: "FAHP 模糊层次分析" },
+      { source: "机器臂关节角优化", target: "多目标轨迹优化" }
+    ]
+  }]
+};
+
+chart.setOption(option);
+
+chart.on('click', function (params) {
+  if (params.data && params.data.url) {
+    window.open(params.data.url, '_blank');
+  }
+});
+</script>
+</body>
+</html>

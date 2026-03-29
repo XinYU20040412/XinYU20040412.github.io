@@ -139,6 +139,7 @@
           <a href="#research" class="hover:text-neon transition-colors">科研经历</a>
           <a href="#competition" class="hover:text-neon transition-colors">竞赛经历</a>
           <a href="#project-graph" class="hover:text-neon transition-colors">项目图谱</a>
+          <a href="#repo-grid" class="hover:text-neon transition-colors">开源项目库</a>
           <a href="#contact" class="hover:text-neon transition-colors">联系我</a>
         </div>
       </div>
@@ -166,7 +167,7 @@
               <a href="#about" class="px-8 py-3 rounded-xl bg-gradient-to-r from-cosmic to-quantum hover:opacity-90 transition-opacity font-medium">
                 了解我的理念
               </a>
-              <a href="#project-graph" class="px-8 py-3 rounded-xl card-gradient border border-neon/50 hover:border-neon transition-all font-medium">
+              <a href="#repo-grid" class="px-8 py-3 rounded-xl card-gradient border border-neon/50 hover:border-neon transition-all font-medium">
                 查看我的项目
               </a>
             </div>
@@ -440,6 +441,155 @@
         <p class="text-center text-white/70 max-w-2xl mx-auto mb-12">点击节点即可跳转到对应项目GitHub主页，鼠标悬浮可查看项目详情</p>
         
         <div id="graph-container" class="w-full h-[600px] card-gradient rounded-2xl overflow-hidden"></div>
+      </div>
+    </section>
+
+    <!-- 开源项目库卡片区 -->
+    <section id="repo-grid" class="py-20 section-animate">
+      <div class="container mx-auto px-6">
+        <h2 class="text-[clamp(1.8rem,4vw,3rem)] font-bold mb-4 text-center text-gradient">开源项目库</h2>
+        <p class="text-center text-white/70 max-w-2xl mx-auto mb-12">点击卡片即可跳转至对应 GitHub 仓库，悬浮可查看语言构成详情</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+
+          <!-- tooth_decoupled_modeling -->
+          <a href="https://github.com/XinYU20040412/tooth_decoupled_modeling" target="_blank" rel="noopener"
+             class="repo-card card-gradient rounded-2xl p-6 flex flex-col gap-3 hover:-translate-y-2 transition-all duration-300 hover:shadow-[0_0_24px_rgba(0,228,255,0.4)] hover:border-neon/50 cursor-pointer group">
+            <div class="flex items-start gap-3">
+              <span class="mt-0.5 text-neon text-lg shrink-0 group-hover:scale-110 transition-transform duration-300"><i class="fa fa-github"></i></span>
+              <h3 class="font-bold text-white text-sm leading-snug break-all">tooth_decoupled_modeling</h3>
+            </div>
+            <p class="text-white/60 text-xs leading-relaxed flex-1">主项目 DiT + FlowMatch 生成模型；牙冠形态解耦建模与缺陷补齐重建</p>
+            <div class="mt-2 space-y-2">
+              <div class="flex flex-wrap gap-1.5">
+                <span class="text-xs px-2 py-0.5 rounded-full bg-neon/15 text-neon border border-neon/30">Python 86.4%</span>
+                <span class="text-xs px-2 py-0.5 rounded-full bg-quantum/15 text-quantum border border-quantum/30">Jupyter 11.1%</span>
+                <span class="text-xs px-2 py-0.5 rounded-full bg-white/10 text-white/60 border border-white/20">Shell 2.5%</span>
+              </div>
+              <div class="flex h-1.5 rounded-full overflow-hidden gap-px">
+                <div class="bg-neon/70 rounded-l-full" style="width:86.4%"></div>
+                <div class="bg-quantum/70" style="width:11.1%"></div>
+                <div class="bg-white/30 rounded-r-full" style="width:2.5%"></div>
+              </div>
+            </div>
+          </a>
+
+          <!-- AESAGA-Newton -->
+          <a href="https://github.com/XinYU20040412/AESAGA-Newton-Based-UAV-Bombing-Strategy-Optimization" target="_blank" rel="noopener"
+             class="repo-card card-gradient rounded-2xl p-6 flex flex-col gap-3 hover:-translate-y-2 transition-all duration-300 hover:shadow-[0_0_24px_rgba(0,228,255,0.4)] hover:border-neon/50 cursor-pointer group">
+            <div class="flex items-start gap-3">
+              <span class="mt-0.5 text-neon text-lg shrink-0 group-hover:scale-110 transition-transform duration-300"><i class="fa fa-github"></i></span>
+              <h3 class="font-bold text-white text-sm leading-snug break-all">AESAGA-Newton-Based-UAV-Bombing-Strategy-Optimization</h3>
+            </div>
+            <p class="text-white/60 text-xs leading-relaxed flex-1">基于 AESAGAWithNewton 算法的无人机投弹策略优化问题</p>
+            <div class="mt-2 space-y-2">
+              <div class="flex flex-wrap gap-1.5">
+                <span class="text-xs px-2 py-0.5 rounded-full bg-neon/15 text-neon border border-neon/30">Python 100%</span>
+              </div>
+              <div class="flex h-1.5 rounded-full overflow-hidden">
+                <div class="bg-neon/70 rounded-full w-full"></div>
+              </div>
+            </div>
+          </a>
+
+          <!-- Bench Dragon Dance -->
+          <a href="https://github.com/XinYU20040412/Operation-Regulation-of-Bench-Dragon-Dance-Based-on-Recursive-Model" target="_blank" rel="noopener"
+             class="repo-card card-gradient rounded-2xl p-6 flex flex-col gap-3 hover:-translate-y-2 transition-all duration-300 hover:shadow-[0_0_24px_rgba(0,228,255,0.4)] hover:border-neon/50 cursor-pointer group">
+            <div class="flex items-start gap-3">
+              <span class="mt-0.5 text-neon text-lg shrink-0 group-hover:scale-110 transition-transform duration-300"><i class="fa fa-github"></i></span>
+              <h3 class="font-bold text-white text-sm leading-snug break-all">Operation-Regulation-of-Bench-Dragon-Dance-Based-on-Recursive-Model</h3>
+            </div>
+            <p class="text-white/60 text-xs leading-relaxed flex-1">基于递推模型的板凳龙运行调控</p>
+            <div class="mt-2 space-y-2">
+              <div class="flex flex-wrap gap-1.5">
+                <span class="text-xs px-2 py-0.5 rounded-full bg-neon/15 text-neon border border-neon/30">Python 100%</span>
+              </div>
+              <div class="flex h-1.5 rounded-full overflow-hidden">
+                <div class="bg-neon/70 rounded-full w-full"></div>
+              </div>
+            </div>
+          </a>
+
+          <!-- Manipulator Joint Trajectory -->
+          <a href="https://github.com/XinYU20040412/Multi-objective-Optimization-for-Manipulator-Joint-Trajectory" target="_blank" rel="noopener"
+             class="repo-card card-gradient rounded-2xl p-6 flex flex-col gap-3 hover:-translate-y-2 transition-all duration-300 hover:shadow-[0_0_24px_rgba(0,228,255,0.4)] hover:border-neon/50 cursor-pointer group">
+            <div class="flex items-start gap-3">
+              <span class="mt-0.5 text-neon text-lg shrink-0 group-hover:scale-110 transition-transform duration-300"><i class="fa fa-github"></i></span>
+              <h3 class="font-bold text-white text-sm leading-snug break-all">Multi-objective-Optimization-for-Manipulator-Joint-Trajectory</h3>
+            </div>
+            <p class="text-white/60 text-xs leading-relaxed flex-1">机器臂关节角路径的多目标优化设计</p>
+            <div class="mt-2 space-y-2">
+              <div class="flex flex-wrap gap-1.5">
+                <span class="text-xs px-2 py-0.5 rounded-full bg-neon/15 text-neon border border-neon/30">Python 100%</span>
+              </div>
+              <div class="flex h-1.5 rounded-full overflow-hidden">
+                <div class="bg-neon/70 rounded-full w-full"></div>
+              </div>
+            </div>
+          </a>
+
+          <!-- competition_full_source_code -->
+          <a href="https://github.com/XinYU20040412/competition_full_source_code" target="_blank" rel="noopener"
+             class="repo-card card-gradient rounded-2xl p-6 flex flex-col gap-3 hover:-translate-y-2 transition-all duration-300 hover:shadow-[0_0_24px_rgba(0,228,255,0.4)] hover:border-neon/50 cursor-pointer group">
+            <div class="flex items-start gap-3">
+              <span class="mt-0.5 text-neon text-lg shrink-0 group-hover:scale-110 transition-transform duration-300"><i class="fa fa-github"></i></span>
+              <h3 class="font-bold text-white text-sm leading-snug break-all">competition_full_source_code</h3>
+            </div>
+            <p class="text-white/60 text-xs leading-relaxed flex-1">用于存放我参与过的竞赛的源代码（无 Demo 展示，纯源代码）</p>
+            <div class="mt-2 space-y-2">
+              <div class="flex flex-wrap gap-1.5">
+                <span class="text-xs px-2 py-0.5 rounded-full bg-neon/15 text-neon border border-neon/30">Python 96.6%</span>
+                <span class="text-xs px-2 py-0.5 rounded-full bg-gold/15 text-gold border border-gold/30">MATLAB 3.4%</span>
+              </div>
+              <div class="flex h-1.5 rounded-full overflow-hidden gap-px">
+                <div class="bg-neon/70 rounded-l-full" style="width:96.6%"></div>
+                <div class="bg-gold/70 rounded-r-full" style="width:3.4%"></div>
+              </div>
+            </div>
+          </a>
+
+          <!-- -A (华中杯A题) -->
+          <a href="https://github.com/XinYU20040412/-A" target="_blank" rel="noopener"
+             class="repo-card card-gradient rounded-2xl p-6 flex flex-col gap-3 hover:-translate-y-2 transition-all duration-300 hover:shadow-[0_0_24px_rgba(0,228,255,0.4)] hover:border-neon/50 cursor-pointer group">
+            <div class="flex items-start gap-3">
+              <span class="mt-0.5 text-neon text-lg shrink-0 group-hover:scale-110 transition-transform duration-300"><i class="fa fa-github"></i></span>
+              <div>
+                <h3 class="font-bold text-white text-sm leading-snug">华中杯 A 题</h3>
+                <span class="text-white/40 text-xs">repo: -A</span>
+              </div>
+            </div>
+            <p class="text-white/60 text-xs leading-relaxed flex-1">华中杯数学建模竞赛 A 题完整解题代码</p>
+            <div class="mt-2 space-y-2">
+              <div class="flex flex-wrap gap-1.5">
+                <span class="text-xs px-2 py-0.5 rounded-full bg-neon/15 text-neon border border-neon/30">Python 100%</span>
+              </div>
+              <div class="flex h-1.5 rounded-full overflow-hidden">
+                <div class="bg-neon/70 rounded-full w-full"></div>
+              </div>
+            </div>
+          </a>
+
+          <!-- self-creat-great-code -->
+          <a href="https://github.com/XinYU20040412/self-creat-great-code" target="_blank" rel="noopener"
+             class="repo-card card-gradient rounded-2xl p-6 flex flex-col gap-3 hover:-translate-y-2 transition-all duration-300 hover:shadow-[0_0_24px_rgba(0,228,255,0.4)] hover:border-neon/50 cursor-pointer group">
+            <div class="flex items-start gap-3">
+              <span class="mt-0.5 text-neon text-lg shrink-0 group-hover:scale-110 transition-transform duration-300"><i class="fa fa-github"></i></span>
+              <h3 class="font-bold text-white text-sm leading-snug break-all">self-creat-great-code</h3>
+            </div>
+            <p class="text-white/60 text-xs leading-relaxed flex-1">个人代码积累与沉淀</p>
+            <div class="mt-2 space-y-2">
+              <div class="flex flex-wrap gap-1.5">
+                <span class="text-xs px-2 py-0.5 rounded-full bg-quantum/15 text-quantum border border-quantum/30">Jupyter 66.1%</span>
+                <span class="text-xs px-2 py-0.5 rounded-full bg-neon/15 text-neon border border-neon/30">Python 33.9%</span>
+              </div>
+              <div class="flex h-1.5 rounded-full overflow-hidden gap-px">
+                <div class="bg-quantum/70 rounded-l-full" style="width:66.1%"></div>
+                <div class="bg-neon/70 rounded-r-full" style="width:33.9%"></div>
+              </div>
+            </div>
+          </a>
+
+        </div>
       </div>
     </section>
 

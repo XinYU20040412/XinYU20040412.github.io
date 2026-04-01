@@ -7,6 +7,7 @@
   <!-- 外部资源CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
   <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
   
   <!-- Tailwind自定义配置 -->
@@ -61,15 +62,19 @@
       .content-auto {
         content-visibility: auto;
       }
+      /* stylelint-disable-next-line */
       .text-gradient {
         @apply bg-clip-text text-transparent bg-gradient-to-r from-neon via-cosmic to-quantum;
       }
+      /* stylelint-disable-next-line */
       .text-gradient-gold {
         @apply bg-clip-text text-transparent bg-gradient-to-r from-gold to-yellow-300;
       }
+      /* stylelint-disable-next-line */
       .card-gradient {
         @apply bg-gradient-to-br from-dark/80 to-deep/90 backdrop-blur-md border border-white/10;
       }
+      /* stylelint-disable-next-line */
       .glow-border {
         @apply relative before:absolute before:inset-0 before:p-[1px] before:rounded-xl before:bg-gradient-to-r before:from-neon before:via-quantum before:to-gold before:-z-10 before:blur-sm;
       }
@@ -655,6 +660,103 @@
       opacity: 1;
       transform: translateY(0);
     }
+
+    /* ===== 树形图集成样式 ===== */
+    /* 连线样式 生长动画 */
+    .tree-link {
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-dasharray: 1500;
+      stroke-dashoffset: 1500;
+      animation: linkGrow 2s ease forwards;
+      filter: drop-shadow(0 0 6px rgba(0, 228, 255, 0.18));
+    }
+
+    .link-root { stroke: #00E4FF; animation-delay: 0.2s; }
+    .link-level1 { stroke: #722ED1; animation-delay: 0.5s; }
+    .link-level2 { stroke: #165DFF; animation-delay: 0.8s; }
+    .link-level3 { stroke: #00E4FF; animation-delay: 1.1s; }
+
+    @keyframes linkGrow {
+      to { stroke-dashoffset: 0; }
+    }
+
+    /* 球形节点样式 */
+    .node-circle {
+      cursor: pointer;
+      transition: all 0.3s ease;
+      filter: drop-shadow(0 0 8px rgba(0,0,0,0.3));
+      opacity: 0;
+      animation: nodeShow 0.5s ease forwards;
+    }
+
+    .node-circle:hover {
+      filter: drop-shadow(0 0 15px currentColor);
+      transform: scale(1.1);
+    }
+
+    /* 节点大小分级 */
+    .node-root { r: 38; fill: url(#rootGradient); stroke: #00E4FF; stroke-width: 3; color: #00E4FF; animation-delay: 0s; }
+    .node-level1 { r: 30; fill: url(#level1Gradient); stroke: #722ED1; stroke-width: 2; color: #722ED1; animation-delay: 0.3s; }
+    .node-large { r: 26; fill: url(#largeGradient); stroke: #00E4FF; stroke-width: 2; color: #00E4FF; animation-delay: 0.6s; }
+    .node-medium { r: 22; fill: url(#mediumGradient); stroke: #165DFF; stroke-width: 2; color: #165DFF; animation-delay: 0.6s; }
+    .node-small { r: 18; fill: url(#smallGradient); stroke: #FFD700; stroke-width: 2; color: #FFD700; animation-delay: 0.6s; }
+
+    @keyframes nodeShow {
+      to { opacity: 1; }
+    }
+
+    /* 节点文本 */
+    .node-text {
+      fill: rgba(255, 255, 255, 0.92);
+      text-anchor: middle;
+      dominant-baseline: middle;
+      font-size: 13px;
+      font-weight: 500;
+      pointer-events: none;
+      user-select: none;
+      opacity: 0;
+      animation: nodeShow 0.5s ease forwards;
+    }
+
+    .text-root { font-size: 14px; font-weight: 700; animation-delay: 0s; }
+    .text-level1 { font-size: 13px; font-weight: 600; animation-delay: 0.3s; }
+    .text-small { font-size: 11px; animation-delay: 0.6s; }
+
+    /* Tooltip悬浮提示 */
+    .tree-tooltip {
+      position: fixed;
+      background: linear-gradient(135deg, rgba(20, 27, 52, 0.92), rgba(10, 15, 29, 0.92));
+      border: 1px solid #00E4FF;
+      color: rgba(255, 255, 255, 0.92);
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      white-space: nowrap;
+      z-index: 1000;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      backdrop-filter: blur(10px);
+    }
+
+    .tree-tooltip.show { opacity: 1; }
+
+    /* 树形图容器 */
+    #tree-container {
+      width: 100vw;
+      height: 100vh;
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+    }
+
+    .tree-svg {
+      width: 100%;
+      height: 100%;
+    }
   </style>
 </head>
 
@@ -694,13 +796,11 @@
         <div class="geometric-shape geo-line-v"></div>
       </div>
 
-      <!-- 项目知识树 iframe -->
-      <iframe
-        id="hero-tree-iframe"
-        src="./我很满意的个人图谱.html"
-        title="XinYu · 项目知识树（点击节点跳转 GitHub）"
-        loading="eager"
-      ></iframe>
+      <!-- 项目知识树 SVG 容器 -->
+      <div id="tree-container">
+        <svg class="tree-svg" id="treeSvg"></svg>
+        <div class="tree-tooltip" id="tree-tooltip"></div>
+      </div>
 
       <!-- 左侧信息卡片 -->
       <div id="hero-info-card">
@@ -1473,12 +1573,10 @@
         // 首页点击“我的理念”：直接展示完整版《我与“模型学”】【不再显示缩略版】
         modal.classList.remove('hidden');
         document.body.style.overflow = 'hidden';
-        return;
       }
-
-      if (!heroNodeTitles[data.key]) return;
-      openHeroNodeModal(data.key);
     });
-  </script>
-</body>
-</html>
+
+    // 树形图 D3 初始化（已集成）
+    function initTreeVisualization() {
+      // 树数据定义（精简版本 - 同我很满意的个人图谱.html）
+      const treeData = {name:'XinYU20040412 (XinYu)',link:'https://github.com/XinYU20040412',nodeType:'root',children:[{name:'确定性模型',nodeType:'level1',children:[{name:'板凳龙运行调控',fullName:'基于递推模型的板凳龙运行调控',link:'https://github.com/XinYU20040412/Operation-Regulation-of-Bench-Dragon-Dance-Based-on-Recursive-Model',nodeType:'large'},{name:'无人机投弹策略优化',fullName:'基于AESAGA-WITH-Newton算法的无人机投弹策略优化',link:'https://github.com/XinYU20040412/AESAGA-Newton-Based-UAV-Bombing-Strategy-Optimization',nodeType:'large'},{name:'机械臂路径优化',fullName:'机器臂关节角路径的多目标优化设计',link:'https://github.com/XinYU20040412/Multi-objective-Optimization-for-Manipulator-Joint-Trajectory',nodeType:'medium'},{name:'多孔膜光反射优化',fullName:'多孔膜光反射性能的优化与控制',link:'https://github.com/XinYU20040412/Optimization-and-Modulation-of-Optical-Reflectance-Properties-of-Porous-Membranes',nodeType:'medium'},{name:'反射镜优化调控',fullName:'基于重连续化的反射镜优化调控',link:'https://github.com/XinYU20040412/Optimization-and-Modulation-of-Reflector-Based-on-Re-continuation',nodeType:'medium'},{name:'大气能量穿透模型',fullName:'大气能量穿透季节时变模型',link:'https://github.com/XinYU20040412/A-Atmospheric-Energy-Penetration-Seasonal-Model',nodeType:'small'}]},{name:'随机模型-深度学习',nodeType:'level1',children:[{name:'AI for Engineer',nodeType:'level1',children:[{name:'DiT+Flowmatch 3D生成',fullName:'国家超算中心项目',tooltip:'基于DiT+Flowmatch的3D牙冠结构一体优化生成',link:'https://github.com/XinYU20040412/tooth_decoupled_modeling',nodeType:'large'}]},{name:'AI for Materials',nodeType:'level1',children:[{name:'CMOS材料等变网络优化',fullName:'中科院物理所项目',tooltip:'《基于等变神经网络的CMOS管二维栅极材料性能预测以及逆向结构优化生成》',link:'https://github.com/XinYU20040412/equivariant-nn-cmos-2d-op',nodeType:'large'},{name:'布洛赫定理深度学习规范',fullName:'个人科研探索',tooltip:'布洛赫定理在深度学习中的内在规范研究',link:'https://github.com/XinYU20040412/bloch-nn-intrinsic',nodeType:'large'}]}]},{name:'实用代码储藏库',fullName:'自修改实用代码储藏库',link:'https://github.com/XinYU20040412/self-creat-great-code',nodeType:'level1',children:[{name:'优化算法',link:'https://github.com/XinYU20040412/self-creat-great-code/tree/main/优化算法',nodeType:'large'},{name:'多元统计分析',link:'https://github.com/XinYU20040412/self-creat-great-code/tree/main/多元统计分析',nodeType:'large'},{name:'数值计算',link:'https://github.com/XinYU20040412/self-creat-great-code/tree/main/数值计算',nodeType:'large'},{name:'机器学习经典原型',link:'https://github.com/XinYU20040412/self-creat-great-code/tree/main/机器学习经典原型',nodeType:'large'},{name:'自建工具箱',link:'https://github.com/XinYU20040412/self-creat-great-code/tree/main/自建工具箱',nodeType:'large'}]},{name:'关于我',nodeType:'level1',children:[{name:'我的理念',modal:{key:'philosophy',title:'我的理念：我与"模型学"'},nodeType:'large'},{name:'教育背景',modal:{key:'education',title:'教育背景与荣誉奖项'},nodeType:'large'},{name:'科研经历',modal:{key:'research',title:'科研经历与技能'},nodeType:'large'},{name:'竞赛经历',modal:{key:'competition',title:'竞赛经历'},nodeType:'large'}]}]};const svg=d3.select('#treeSvg'),container=document.getElementById('tree-container');if(!container||svg.empty())return;const width=container.clientWidth||window.innerWidth,height=container.clientHeight||window.innerHeight,radius=Math.min(width,height)/2-120,g=svg.attr('viewBox',`0 0 ${width} ${height}`).append('g').attr('transform',`translate(${width/2}, ${height/2})`),defs=g.append('defs');defs.append('radialGradient').attr('id','rootGradient').attr('cx','30%').attr('cy','30%').attr('r','100%').html(`<stop offset="0%" stop-color="#6dd5fa" /><stop offset="100%" stop-color="#2980b9" />`);defs.append('radialGradient').attr('id','level1Gradient').attr('cx','30%').attr('cy','30%').attr('r','100%').html(`<stop offset="0%" stop-color="#a78bfa" /><stop offset="100%" stop-color="#7c3aed" />`);defs.append('radialGradient').attr('id','largeGradient').attr('cx','30%').attr('cy','30%').attr('r','100%').html(`<stop offset="0%" stop-color="#4fc3f7" /><stop offset="100%" stop-color="#0284c7" />`);defs.append('radialGradient').attr('id','mediumGradient').attr('cx','30%').attr('cy','30%').attr('r','100%').html(`<stop offset="0%" stop-color="#6aaf7c" /><stop offset="100%" stop-color="#2d7d46" />`);defs.append('radialGradient').attr('id','smallGradient').attr('cx','30%').attr('cy','30%').attr('r','100%').html(`<stop offset="0%" stop-color="#ffb74d" /><stop offset="100%" stop-color="#f97316" />`);const tree=d3.tree().size([2*Math.PI,radius]).separation((a,b)=>(a.parent===b.parent?1.2:2)/a.depth),root=d3.hierarchy(treeData);tree(root);const link=g.selectAll('.tree-link').data(root.links()).join('path').attr('class',d=>`tree-link link-level${d.source.depth}`).attr('d',d3.linkRadial().angle(d=>d.x).radius(d=>d.y));const node=g.selectAll('.node').data(root.descendants()).join('g').attr('class','node').attr('transform',d=>`rotate(${d.x*180/Math.PI-90}) translate(${d.y},0) rotate(${-(d.x*180/Math.PI-90)})`);node.append('circle').attr('class',d=>`node-circle node-${d.data.nodeType}`).on('mouseover',function(e,d){if(d.data.tooltip||d.data.fullName){const t=document.getElementById('tree-tooltip');t.innerHTML=d.data.fullName||d.data.tooltip,t.classList.add('show'),t.style.left=e.pageX+10+'px',t.style.top=e.pageY+10+'px'}d3.selectAll('.tree-link').style('opacity',0.2);let c=d;for(;c.parent;)d3.selectAll('.tree-link').filter(l=>l.target===c).style('opacity',1).style('stroke-width',3),c=c.parent}).on('mouseout',function(){document.getElementById('tree-tooltip').classList.remove('show'),d3.selectAll('.tree-link').style('opacity',1).style('stroke-width',2)}).on('click',function(e,d){d.data.link&&window.open(d.data.link,'_blank'),d.data.modal&&('philosophy'===d.data.modal.key?(modal.classList.remove('hidden'),document.body.style.overflow='hidden'):openHeroNodeModal(d.data.modal.key))});node.append('text').attr('class',d=>`node-text text-${d.data.nodeType} ${d.data.nodeType==='small'?'text-small':''}`).text(d=>d.data.name);document.addEventListener('mousemove',e=>{const t=document.getElementById('tree-tooltip');t.classList.contains('show')&&(t.style.left=e.pageX+10+'px',t.style.top=e.pageY+10+'px')})}setTimeout(initTreeVisualization,800);

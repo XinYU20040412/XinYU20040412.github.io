@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XinYu | 项目知识树</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        :root {
+            --primary-blue: #4fc3f7;
+            --primary-purple: #7e57c2;
+            --accent-purple: #ab79ff;
+            --accent-green: #6aaf7c;
+            --accent-orange: #ffb74d;
+            --bg-deep: #0a0a0d;
+            --bg-card: #121218;
+            --bg-card-hover: #1a1a24;
+            --border-base: #292938;
+            --text-main: #e8e8ed;
+            --text-sub: #a0a0b8;
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: auto;
+            padding: 40px 20px;
+        }
+
+        /* 标题样式 */
+        .tree-title {
+            text-align: center;
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 80px;
+            background: linear-gradient(90deg, var(--primary-blue), var(--primary-purple));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 1px;
+        }
+
+        /* 树形容器 */
+        .tree-container {
+            position: relative;
+            width: 100%;
+            min-width: 1400px;
+            min-height: 1200px;
+        }
+
+        /* SVG连线画布 */
+        .tree-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .tree-link {
+            fill: none;
+            stroke: var(--primary-blue);
+            stroke-width: 2;
+            stroke-linecap: round;
+            filter: drop-shadow(0 0 4px rgba(79, 195, 247, 0.3));
+            /* 生长动画 */
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+            animation: linkGrow 1.5s ease forwards;
+        }
+
+        .tree-link.level-1 {
+            stroke: var(--primary-purple);
+            animation-delay: 0.3s;
+        }
+
+        .tree-link.level-2 {
+            stroke: var(--accent-purple);
+            animation-delay: 0.6s;
+        }
+
+        .tree-link.level-3 {
+            stroke: var(--primary-blue);
+            animation-delay: 0.9s;
+        }
+
+        @keyframes linkGrow {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        /* 节点通用样式 */
+        .tree-node {
+            position: absolute;
+            z-index: 10;
+            padding: 18px 24px;
+            border-radius: 12px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-base);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--text-main);
+            text-align: center;
+            /* 节点出现动画 */
+            opacity: 0;
+            transform: translateY(20px);
+            animation: nodeShow 0.5s ease forwards;
+        }
+
+        @keyframes nodeShow {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 节点大小分级 严格匹配文档要求 */
+        .node-root {
+            width: 360px;
+            font-size: 20px;
+            font-weight: 600;
+            border: 2px solid var(--primary-blue);
+            box-shadow: 0 0 24px rgba(79, 195, 247, 0.25);
+            animation-delay: 0s;
+        }
+
+        .node-level-1 {
+            width: 280px;
+            font-size: 18px;
+            font-weight: 600;
+            border: 1px solid var(--primary-purple);
+            animation-delay: 0.3s;
+        }
+
+        .node-large {
+            width: 400px;
+            font-size: 16px;
+            border-left: 4px solid var(--primary-blue);
+            animation-delay: 0.6s;
+        }
+
+        .node-medium {
+            width: 360px;
+            font-size: 15px;
+            border-left: 3px solid var(--accent-green);
+            animation-delay: 0.6s;
+        }
+
+        .node-small {
+            width: 300px;
+            font-size: 14px;
+            border-left: 2px solid var(--accent-orange);
+            animation-delay: 0.6s;
+        }
+
+        /* 节点hover效果 */
+        .tree-node:hover {
+            transform: translateY(-4px);
+            background: var(--bg-card-hover);
+            box-shadow: 0 8px 20px rgba(79, 195, 247, 0.15);
+        }
+
+        .node-root:hover {
+            box-shadow: 0 0 32px rgba(79, 195, 247, 0.4);
+        }
+
+        .node-level-1:hover {
+            border-color: var(--accent-purple);
+            box-shadow: 0 8px 20px rgba(126, 87, 194, 0.2);
+        }
+
+        /* Tooltip悬浮提示 */
+        .tree-node[data-tooltip] {
+            position: relative;
+        }
+
+        .tree-node[data-tooltip]:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 110%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #111, #1a1a24);
+            color: var(--text-main);
+            padding: 10px 16px;
+            border-radius: 8px;
+            white-space: nowrap;
+            font-size: 13px;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            border: 1px solid var(--primary-blue);
+        }
+
+        /* 弹窗样式 */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 10, 13, 0.85);
+            backdrop-filter: blur(8px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            width: 90%;
+            max-width: 900px;
+            max-height: 80vh;
+            background: var(--bg-card);
+            border: 1px solid var(--primary-purple);
+            border-radius: 16px;
+            padding: 40px;
+            overflow-y: auto;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            border: 1px solid var(--border-base);
+            color: var(--text-main);
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: var(--primary-purple);
+            border-color: var(--accent-purple);
+        }
+
+        .modal-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            color: var(--accent-purple);
+        }
+
+        .modal-text {
+            font-size: 16px;
+            line-height: 1.8;
+            color: var(--text-sub);
+            margin-bottom: 16px;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="tree-title">XinYu · 项目知识树</h1>
+    <div class="tree-container" id="treeContainer">
+        <svg class="tree-svg" id="treeSvg"></svg>
+    </div>
+
+    <!-- 弹窗组件 -->
+    <div class="modal" id="modal">
+        <button class="modal-close" id="modalClose">×</button>
+        <div class="modal-content">
+            <h2 class="modal-title" id="modalTitle"></h2>
+            <div class="modal-text" id="modalContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // 严格按照文档定义的树形数据结构
+        const treeData = {
+            id: 'root',
+            name: 'XinYU20040412 (XinYu)',
+            link: 'https://github.com/XinYU20040412',
+            className: 'node-root',
+            children: [
+                // 分支一：确定性模型
+                {
+                    id: 'branch1',
+                    name: '确定性模型',
+                    className: 'node-level-1',
+                    level: 1,
+                    children: [
+                        {
+                            id: 'b1-n1',
+                            name: '基于递推模型的板凳龙运行调控',
+                            link: 'https://github.com/XinYU20040412/Operation-Regulation-of-Bench-Dragon-Dance-Based-on-Recursive-Model',
+                            className: 'node-large',
+                            level: 2
+                        },
+                        {
+                            id: 'b1-n2',
+                            name: '基于AESADA-WITH-Newton算法的无人机投弹策略优化',
+                            link: 'https://github.com/XinYU20040412/AESAGA-Newton-Based-UAV-Bombing-Strategy-Optimization',
+                            className: 'node-large',
+                            level: 2
+                        },
+                        {
+                            id: 'b1-n3',
+                            name: '机器臂关节角路径的多目标优化设计',
+                            link: 'https://github.com/XinYU20040412/Multi-objective-Optimization-for-Manipulator-Joint-Trajectory',
+                            className: 'node-medium',
+                            level: 2
+                        },
+                        {
+                            id: 'b1-n4',
+                            name: '多孔膜光反射性能的优化与控制',
+                            link: 'https://github.com/XinYU20040412/Optimization-and-Modulation-of-Optical-Reflectance-Properties-of-Porous-Membranes',
+                            className: 'node-medium',
+                            level: 2
+                        },
+                        {
+                            id: 'b1-n5',
+                            name: '基于重连续化的反射镜优化调控',
+                            link: 'https://github.com/XinYU20040412/Optimization-and-Modulation-of-Reflector-Based-on-Re-continuation',
+                            className: 'node-medium',
+                            level: 2
+                        },
+                        {
+                            id: 'b1-n6',
+                            name: '大气能量穿透季节时变模型',
+                            link: 'https://github.com/XinYU20040412/A-Atmospheric-Energy-Penetration-Seasonal-Model',
+                            className: 'node-small',
+                            level: 2
+                        }
+                    ]
+                },
+                // 分支二：随机模型-深度学习
+                {
+                    id: 'branch2',
+                    name: '随机模型-深度学习',
+                    className: 'node-level-1',
+                    level: 1,
+                    children: [
+                        {
+                            id: 'b2-n1',
+                            name: 'AI for Engineer',
+                            className: 'node-level-1',
+                            level: 2,
+                            children: [
+                                {
+                                    id: 'b2-n1-1',
+                                    name: '国家超算中心',
+                                    link: 'https://github.com/XinYU20040412/tooth_decoupled_modeling',
+                                    tooltip: '基于DiT+Flowmatch的3D生成',
+                                    className: 'node-large',
+                                    level: 3
+                                }
+                            ]
+                        },
+                        {
+                            id: 'b2-n2',
+                            name: 'AI for Materials',
+                            className: 'node-level-1',
+                            level: 2,
+                            children: [
+                                {
+                                    id: 'b2-n2-1',
+                                    name: '中科院物理所（中关村）',
+                                    link: 'https://github.com/XinYU20040412/equivariant-nn-cmos-2d-op',
+                                    tooltip: '《基于等变神经网络的CMOS管二维栅极材料性能预测以及逆向结构优化生成》',
+                                    className: 'node-large',
+                                    level: 3
+                                },
+                                {
+                                    id: 'b2-n2-2',
+                                    name: '个人科研探索',
+                                    link: 'https://github.com/XinYU20040412/bloch-nn-intrinsic',
+                                    tooltip: '布洛赫定理在深度学习中的规范',
+                                    className: 'node-large',
+                                    level: 3
+                                }
+                            ]
+                        }
+                    ]
+                },
+                // 分支三：自修改实用代码储藏库
+                {
+                    id: 'branch3',
+                    name: '自修改实用代码储藏库',
+                    link: 'https://github.com/XinYU20040412/self-creat-great-code',
+                    className: 'node-level-1',
+                    level: 1,
+                    children: [
+                        {
+                            id: 'b3-n1',
+                            name: '优化算法',
+                            link: 'https://github.com/XinYU20040412/self-creat-great-code/tree/main/优化算法',
+                            className: 'node-large',
+                            level: 2
+                        },
+                        {
+                            id: 'b3-n2',
+                            name: '多元统计分析',
+                            link: 'https://github.com/XinYU20040412/self-creat-great-code/tree/main/多元统计分析',
+                            className: 'node-large',
+                            level: 2
+                        },
+                        {
+                            id: 'b3-n3',
+                            name: '数值计算',
+                            link: 'https://github.com/XinYU20040412/self-creat-great-code/tree/main/数值计算',
+                            className: 'node-large',
+                            level: 2
+                        },
+                        {
+                            id: 'b3-n4',
+                            name: '机器学习经典原型',
+                            link: 'https://github.com/XinYU20040412/self-creat-great-code/tree/main/机器学习经典原型',
+                            className: 'node-large',
+                            level: 2
+                        },
+                        {
+                            id: 'b3-n5',
+                            name: '自建工具箱',
+                            link: 'https://github.com/XinYU20040412/self-creat-great-code/tree/main/自建工具箱',
+                            className: 'node-large',
+                            level: 2
+                        }
+                    ]
+                },
+                // 分支四：关于我
+                {
+                    id: 'branch4',
+                    name: '关于我',
+                    className: 'node-level-1',
+                    level: 1,
+                    children: [
+                        {
+                            id: 'b4-n1',
+                            name: '我的理念',
+                            modal: {
+                                title: '我的理念：我与“模型学”',
+                                content: `
+                                    <p>物理授予我的最大特点就是无止境的思索，我也终能够理解为什么科学的起源叫做自然哲学：共同的思考范式，即无止境的探知求索到底什么才是“真”，什么才是“对”。这套深度思考的范式是可以迁移到任何学科任何方向上的，故而数学物理可以称之为“basic”—基础。</p>
+                                    <p>我将数学物理从两个视角切入：<br>
+                                    1. 回溯视角：数学物理的起源是为了“描述”，也就是数学建模——数学提取量化特征，物理描述客观现实，力求对现实世界进行指导。<br>
+                                    2. 演绎视角：数学物理基于建模又远高于建模，核心在于基于公理/定律的逻辑闭环自洽，可在已有体系上延伸出全新的自洽逻辑，共同构建数学物理的完整大厦。</p>
+                                    <p>我找到了我的终生事业——模型学：起于数学建模，深于物理学习，升于深度学习，终于描述性。我以数学物理的“建模描述性”为纲领，不丢掉物理的“屠龙术”，不失去对客观现实的泛化能力，用深度学习处理高维灾难的本领，解决传统确定性模型精度与效率的矛盾。</p>
+                                    <p>核心研究方向：<br>
+                                    1. 用物理建模的确定性收束深度学习的随机概率空间<br>
+                                    2. 用仿物学思想，以模型量化、优化工程与科学问题<br>
+                                    3. 以热统视角审视计算系统，用物理体系指导算法优化<br>
+                                    4. 从底层深度思考、处理问题的数理方向</p>
+                                `
+                            },
+                            className: 'node-large',
+                            level: 2
+                        },
+                        {
+                            id: 'b4-n2',
+                            name: '教育背景',
+                            modal: {
+                                title: '教育背景与荣誉奖项',
+                                content: `
+                                    <p><strong>2023.09-至今</strong> 湖南大学 应用物理学 本科<br>
+                                    GPA：3.95/4.0  专业排名：2/112<br>
+                                    CET4：594 | CET6：500</p>
+                                    <p><strong>核心主修课程</strong><br>
+                                    物理：热力学统计物理（99.5）、数学物理方法（95）、固体物理（96）、量子力学（96）、理论力学（97）<br>
+                                    数学：数学模型、数学建模与实验、反问题建模与求解、数值计算方法、多元统计分析<br>
+                                    计算机：机器学习、模式识别与机器学习、算法设计与分析、人工智能类脑计算</p>
+                                    <p><strong>选拔经历</strong><br>
+                                    中国科学院物理研究所严济慈班项目选拔入选<br>
+                                    国家超算中心科研项目参与经历</p>
+                                    <p><strong>荣誉奖项</strong><br>
+                                    2023-2025 中国科学院物理研究所严济慈班奖学金<br>
+                                    2023-2024 国家奖学金<br>
+                                    2024-2025 国家奖学金<br>
+                                    2023-2025 连续两年湖南大学校优秀学生称号<br>
+                                    全国大学生数学建模竞赛二等奖<br>
+                                    湖南大学数学建模竞赛一等奖<br>
+                                    湖南大学数学竞赛一等奖</p>
+                                `
+                            },
+                            className: 'node-large',
+                            level: 2
+                        },
+                        {
+                            id: 'b4-n3',
+                            name: '科研经历',
+                            modal: {
+                                title: '科研经历与技能',
+                                content: `
+                                    <p><strong>1. 《限定性全集先验收束的dual_block_DiT缺陷补齐重建-内外牙冠结构一体优化生成设计》</strong><br>
+                                    湖南大学超算中心 彭绍亮教授<br>
+                                    针对问题建模为给定全集下的逆转补集重构算法，沿用DiT+流匹配框架，实现了高斯噪声空间定向收束、双模块条件向量拼接、边缘显式条件强化、时空双尺度权重门控设计。</p>
+                                    <p><strong>2. 《基于等变神经网络的CMOS管二维栅极材料性能预测以及逆向结构优化生成》</strong><br>
+                                    中国科学院物理研究所 潘金波教授<br>
+                                    输入二维范德华材料特征与微观坐标，输出带隙与介电常数预测；改进ALIGNN架构，集成KAN算子与注意力机制，基于SE(3)等变框架保障旋转平移对称性，实现材料性能精准预测与逆向生成。</p>
+                                    <p><strong>核心科研技能</strong><br>
+                                    1. 编程与框架：熟练使用Python/PyTorch，熟悉e3nn、ALIGNN等变神经网络仓库，掌握PyG/DGL图神经网络库，熟练使用Linux开发环境与NumPy、SciPy等科学计算库，可复现前沿论文模型与实验。<br>
+                                    2. 建模与算法：具备将物理问题转化为数学模型并数值求解/仿真的能力，熟悉综合分析算法、图论路径规划算法、经典及智能优化算法，拥有偏微分方程数值解经验。</p>
+                                `
+                            },
+                            className: 'node-large',
+                            level: 2
+                        },
+                        {
+                            id: 'b4-n4',
+                            name: '竞赛经历',
+                            modal: {
+                                title: '竞赛经历',
+                                content: `
+                                    <p><strong>2025年 全国大学生数学建模竞赛</strong><br>
+                                    项目：《基于AESAGA WITH Newton算法的无人机投弹策略优化问题》<br>
+                                    担任建模手+编程手，建立无人机运行与投弹轨迹模型、弹道遮掩几何模型、匈牙利算法投弹分配模型，自主设计AESAGA WITH Newton智能优化算法求解复杂组合优化问题。</p>
+                                    <p><strong>2024年 全国大学生数学建模竞赛</strong><br>
+                                    项目：《基于递推模型的板凳龙运行调控》<br>
+                                    担任建模手+编程手，设计动静态对比模型（阿基米德螺线离散点行进模型+速度传递模型+向量碰撞判断模型），通过数理分析锁定最大运行速度节点范围，大幅缩小优化搜索空间，获全国二等奖。</p>
+                                    <p><strong>2024年 华数杯全国大学生数学建模竞赛</strong><br>
+                                    项目：《机器臂关节角路径的多目标优化设计》</p>
+                                    <p><strong>2025年 华数杯全国大学生数学建模竞赛</strong><br>
+                                    项目：《多孔膜光反射性能的优化与控制》</p>
+                                    <p><strong>2024年 华中杯数学建模竞赛</strong><br>
+                                    项目：《大气能量穿透季节时变模型》</p>
+                                    <p><strong>湖南大学数学建模竞赛 一等奖</strong><br>
+                                    <strong>湖南大学数学竞赛 一等奖</strong></p>
+                                `
+                            },
+                            className: 'node-large',
+                            level: 2
+                        }
+                    ]
+                }
+            ]
+        };
+
+        // 布局配置
+        const config = {
+            rootTop: 20,
+            level1Top: 150,
+            level2Top: 300,
+            level3Top: 450,
+            levelGap: 150,
+            containerWidth: document.getElementById('treeContainer').offsetWidth,
+            nodeHeight: 60
+        };
+
+        // 节点位置存储
+        const nodePositions = {};
+
+        // 递归渲染节点
+        function renderNode(node, parentNode = null, left = 0, right = 0, level = 0) {
+            const container = document.getElementById('treeContainer');
+            const nodeEl = document.createElement('a');
+            nodeEl.id = node.id;
+            nodeEl.className = `tree-node ${node.className}`;
+            nodeEl.textContent = node.name;
+
+            // 链接/弹窗处理
+            if (node.link) {
+                nodeEl.href = node.link;
+                nodeEl.target = '_blank';
+            }
+            if (node.tooltip) {
+                nodeEl.setAttribute('data-tooltip', node.tooltip);
+            }
+            if (node.modal) {
+                nodeEl.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    openModal(node.modal.title, node.modal.content);
+                });
+            }
+
+            container.appendChild(nodeEl);
+
+            // 计算节点位置
+            let top;
+            switch (level) {
+                case 0: top = config.rootTop; break;
+                case 1: top = config.level1Top; break;
+                case 2: top = config.level2Top; break;
+                case 3: top = config.level3Top; break;
+                default: top = config.rootTop + level * config.levelGap;
+            }
+
+            const nodeWidth = nodeEl.offsetWidth;
+            const nodeLeft = (left + right) / 2 - nodeWidth / 2;
+
+            nodeEl.style.left = `${nodeLeft}px`;
+            nodeEl.style.top = `${top}px`;
+
+            // 存储位置
+            nodePositions[node.id] = {
+                x: nodeLeft + nodeWidth / 2,
+                y: top + config.nodeHeight / 2,
+                el: nodeEl
+            };
+
+            // 递归渲染子节点
+            if (node.children && node.children.length > 0) {
+                const childCount = node.children.length;
+                const segmentWidth = (right - left) / childCount;
+                node.children.forEach((child, index) => {
+                    const childLeft = left + index * segmentWidth;
+                    const childRight = left + (index + 1) * segmentWidth;
+                    renderNode(child, node, childLeft, childRight, level + 1);
+                    // 绘制父子连线
+                    drawLink(node.id, child.id, child.level);
+                });
+            }
+        }
+
+        // 绘制贝塞尔曲线连线
+        function drawLink(parentId, childId, level) {
+            const svg = document.getElementById('treeSvg');
+            const parent = nodePositions[parentId];
+            const child = nodePositions[childId];
+
+            if (!parent || !child) return;
+
+            // 贝塞尔曲线控制点
+            const controlY = (parent.y + child.y) / 2;
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path.setAttribute('d', `M ${parent.x} ${parent.y} C ${parent.x} ${controlY}, ${child.x} ${controlY}, ${child.x} ${child.y}`);
+            path.setAttribute('class', `tree-link level-${level}`);
+            svg.appendChild(path);
+        }
+
+        // 弹窗控制
+        function openModal(title, content) {
+            const modal = document.getElementById('modal');
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalContent').innerHTML = content;
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('modal');
+            modal.classList.remove('active');
+        }
+
+        // 事件监听
+        document.getElementById('modalClose').addEventListener('click', closeModal);
+        document.getElementById('modal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('modal')) closeModal();
+        });
+
+        // 初始化渲染
+        window.onload = () => {
+            const containerWidth = document.getElementById('treeContainer').offsetWidth;
+            renderNode(treeData, null, 0, containerWidth, 0);
+        };
+
+        // 窗口大小变化重绘
+        window.onresize = () => {
+            const container = document.getElementById('treeContainer');
+            container.innerHTML = '<svg class="tree-svg" id="treeSvg"></svg>';
+            const containerWidth = container.offsetWidth;
+            renderNode(treeData, null, 0, containerWidth, 0);
+        };
+    </script>
+</body>
+</html>

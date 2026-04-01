@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XinYu | 项目图谱</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background: #0a0a0d;
+            color: #e8e8ed;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .title {
+            text-align: center;
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 60px;
+            background: linear-gradient(90deg, #4fc3f7, #7e57c2);
+            -webkit-background-clip: text;
+            color: transparent;
+            letter-spacing: 1px;
+        }
+
+        .graph {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 80px;
+        }
+
+        .root {
+            width: 360px;
+            padding: 20px 24px;
+            background: linear-gradient(135deg, #121217, #1a1a24);
+            border: 2px solid #4fc3f7;
+            border-radius: 16px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 24px rgba(79, 195, 247, 0.25);
+        }
+
+        .root:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 0 32px rgba(79, 195, 247, 0.4);
+        }
+
+        .branch {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 40px;
+            width: 100%;
+        }
+
+        .level1 {
+            font-size: 22px;
+            font-weight: 600;
+            padding: 16px 32px;
+            border-radius: 12px;
+            background: #14141b;
+            border: 1px solid #7e57c2;
+            cursor: pointer;
+            transition: 0.25s;
+        }
+
+        .level1:hover {
+            background: #1b1b26;
+            border-color: #ab79ff;
+        }
+
+        .nodes {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 24px;
+            max-width: 1400px;
+        }
+
+        .node {
+            padding: 18px 24px;
+            border-radius: 12px;
+            background: #121218;
+            border: 1px solid #292938;
+            transition: all 0.25s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: #e8e8ed;
+            position: relative;
+        }
+
+        .node:hover {
+            transform: translateY(-4px);
+            border-color: #4fc3f7;
+            box-shadow: 0 8px 20px rgba(79, 195, 247, 0.15);
+        }
+
+        .node-large {
+            width: 420px;
+            font-size: 16px;
+            border-left: 4px solid #4fc3f7;
+        }
+
+        .node-medium {
+            width: 380px;
+            font-size: 15px;
+            border-left: 3px solid #6aaf7c;
+        }
+
+        .node-small {
+            width: 320px;
+            font-size: 14px;
+            border-left: 2px solid #ffb74d;
+        }
+
+        .node[data-tooltip]:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #111;
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 6px;
+            white-space: nowrap;
+            font-size: 13px;
+            z-index: 10;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">XinYu · 项目图谱</h1>
+        <div class="graph">
+            <!-- 根节点 -->
+            <div class="root" onclick="window.open('https://github.com/XinYU20040412', '_blank')">
+                XinYU20040412 (XinYu)
+            </div>
+
+            <!-- 分支一：确定性模型 -->
+            <div class="branch">
+                <div class="level1">确定性模型</div>
+                <div class="nodes">
+                    <a class="node node-large" href="https://github.com/XinYU20040412/Operation-Regulation-of-Bench-Dragon-Dance-Based-on-Recursive-Model" target="_blank">
+                        基于递推模型的板凳龙运行调控
+                    </a>
+                    <a class="node node-large" href="https://github.com/XinYU20040412/AESAGA-Newton-Based-UAV-Bombing-Strategy-Optimization" target="_blank">
+                        基于AESADA-WITH-Newton算法的无人机投弹策略优化
+                    </a>
+                    <a class="node node-medium" href="https://github.com/XinYU20040412/Multi-objective-Optimization-for-Manipulator-Joint-Trajectory" target="_blank">
+                        机器臂关节角路径的多目标优化设计
+                    </a>
+                    <a class="node node-medium" href="https://github.com/XinYU20040412/Optimization-and-Modulation-of-Optical-Reflectance-Properties-of-Porous-Membranes" target="_blank">
+                        多孔膜光反射性能的优化与控制
+                    </a>
+                    <a class="node node-medium" href="https://github.com/XinYU20040412/Optimization-and-Modulation-of-Reflector-Based-on-Re-continuation" target="_blank">
+                        基于重连续化的反射镜优化调控
+                    </a>
+                    <a class="node node-small" href="https://github.com/XinYU20040412/A-Atmospheric-Energy-Penetration-Seasonal-Model" target="_blank">
+                        大气能量穿透季节时变模型
+                    </a>
+                </div>
+            </div>
+
+            <!-- 分支二：随机模型-深度学习 -->
+            <div class="branch">
+                <div class="level1">随机模型-深度学习</div>
+                <div class="nodes">
+                    <a class="node node-large" href="https://github.com/XinYU20040412/tooth_decoupled_modeling" target="_blank" data-tooltip="基于DiT+Flowmatch的3D生成">
+                        AI for Engineer · 国家超算中心
+                    </a>
+                    <a class="node node-large" href="https://github.com/XinYU20040412/equivariant-nn-cmos-2d-op" target="_blank" data-tooltip="基于等变神经网络的CMOS管二维栅极材料性能预测以及逆向结构优化生成">
+                        AI for Materials · 中科院物理所（中关村）
+                    </a>
+                    <a class="node node-large" href="https://github.com/XinYU20040412/bloch-nn-intrinsic" target="_blank" data-tooltip="布洛赫定理在深度学习中的规范">
+                        AI for Materials · 科研探索
+                    </a>
+                </div>
+            </div>
+
+            <!-- 分支三：自修改实用代码储藏库 -->
+            <div class="branch">
+                <div class="level1">自修改实用代码储藏库</div>
+                <div class="nodes">
+                    <a class="node node-large" href="https://github.com/XinYU20040412/self-creat-great-code/tree/main/优化算法" target="_blank">
+                        优化算法
+                    </a>
+                    <a class="node node-large" href="https://github.com/XinYU20040412/self-creat-great-code/tree/main/多元统计分析" target="_blank">
+                        多元统计分析
+                    </a>
+                    <a class="node node-large" href="https://github.com/XinYU20040412/self-creat-great-code/tree/main/数值计算" target="_blank">
+                        数值计算
+                    </a>
+                    <a class="node node-large" href="https://github.com/XinYU20040412/self-creat-great-code/tree/main/机器学习经典原型" target="_blank">
+                        机器学习经典原型
+                    </a>
+                    <a class="node node-large" href="https://github.com/XinYU20040412/self-creat-great-code/tree/main/自建工具箱" target="_blank">
+                        自建工具箱
+                    </a>
+                </div>
+            </div>
+
+            <!-- 分支四：关于我 -->
+            <div class="branch">
+                <div class="level1">关于我</div>
+                <div class="nodes">
+                    <div class="node node-large" style="cursor: default; border-color: #7e57c2;">我的理念（常驻主页）</div>
+                    <div class="node node-large" onclick="alert('教育背景弹窗')">教育背景（含荣誉奖项）</div>
+                    <div class="node node-large" onclick="alert('科研经历弹窗')">科研经历（含科研技能）</div>
+                    <div class="node node-large" onclick="alert('竞赛经历弹窗')">竞赛经历</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

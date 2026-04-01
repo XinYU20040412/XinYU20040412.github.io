@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>余鑫 | 个人学术主页</title>
+  <!-- 外部资源CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+  <!-- 新增3D渲染库 -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <!-- Tailwind自定义配置 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            deep: '#0A0F1D',
+            quantum: '#722ED1',
+            cosmic: '#165DFF',
+            neon: '#00E4FF',
+            gold: '#FFD700',
+            dark: '#141B34'
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+          animation: {
+            'float': 'float 6s ease-in-out infinite',
+            'glow': 'glow 2s ease-in-out infinite alternate',
+            'slide-up': 'slideUp 0.8s ease-out forwards',
+            'gradient-shift': 'gradientShift 8s ease infinite',
+          },
+          keyframes: {
+            float: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-20px)' },
+            },
+            glow: {
+              '0%': { boxShadow: '0 0 10px rgba(0, 228, 255, 0.3), 0 0 20px rgba(114, 46, 209, 0.3)' },
+              '100%': { boxShadow: '0 0 25px rgba(0, 228, 255, 0.6), 0 0 40px rgba(114, 46, 209, 0.6)' },
+            },
+            slideUp: {
+              '0%': { opacity: '0', transform: 'translateY(30px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            },
+            gradientShift: {
+              '0%': { backgroundPosition: '0% 50%' },
+              '50%': { backgroundPosition: '100% 50%' },
+              '100%': { backgroundPosition: '0% 50%' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- 自定义工具类 -->
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .text-gradient {
+        @apply bg-clip-text text-transparent bg-gradient-to-r from-neon via-cosmic to-quantum;
+      }
+      .text-gradient-gold {
+        @apply bg-clip-text text-transparent bg-gradient-to-r from-gold to-yellow-300;
+      }
+      .card-gradient {
+        @apply bg-gradient-to-br from-dark/80 to-deep/90 backdrop-blur-md border border-white/10;
+      }
+      .glow-border {
+        @apply relative before:absolute before:inset-0 before:p-[1px] before:rounded-xl before:bg-gradient-to-r before:from-neon before:via-quantum before:to-gold before:-z-10 before:blur-sm;
+      }
+      .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+      }
+    }
+  </style>
+  
+  <!-- 全局样式 -->
+  <style>
+    html {
+      scroll-behavior: smooth;
+    }
+    body {
+      overflow-x: hidden;
+      background: #0A0F1D;
+    }
+    #particles-js {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      z-index: 0;
+    }
+    /* 3D容器样式 */
+    #aigc-3d-container {
+      width: 100%;
+      height: 400px;
+      border-radius: 24px;
+      overflow: hidden;
+    }
+    @media (min-width: 768px) {
+      #aigc-3d-container {
+        height: 500px;
+      }
+    }
+    .section-animate {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+    }
+    .section-animate.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+
+<body class="text-white font-sans">
+  <!-- 粒子背景 -->
+  <div id="particles-js"></div>
+  
+  <!-- 内容容器 -->
+  <div class="relative z-10">
+    <!-- 导航栏 -->
+    <nav id="navbar" class="fixed top-0 w-full z-50 transition-all duration-500 py-4">
+      <div class="container mx-auto px-6 flex justify-between items-center">
+        <a href="#" class="text-2xl font-bold text-gradient">余鑫</a>
+        <div class="hidden md:flex gap-8 items-center">
+          <a href="#about" class="hover:text-neon transition-colors">关于我</a>
+          <a href="#education" class="hover:text-neon transition-colors">教育背景</a>
+          <a href="#research" class="hover:text-neon transition-colors">科研经历</a>
+          <a href="#competition" class="hover:text-neon transition-colors">竞赛经历</a>
+          <a href="#project-graph" class="hover:text-neon transition-colors">项目图谱</a>
+          <a href="#repo-grid" class="hover:text-neon transition-colors">开源项目库</a>
+          <a href="#contact" class="hover:text-neon transition-colors">联系我</a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero首屏 新增3D-AIGC块 -->
+    <section class="min-h-screen flex items-center justify-center relative">
+      <div class="container mx-auto px-6 z-10">
+        <div class="grid md:grid-cols-2 gap-10 items-center">
+          <!-- 左侧文字内容 -->
+          <div class="text-center md:text-left">
+            <h1 class="text-[clamp(2.5rem,8vw,5rem)] font-bold leading-tight mb-4">
+              <span class="text-gradient bg-[length:200%_200%] animate-gradient-shift">余鑫</span>
+            </h1>
+            <h2 class="text-[clamp(1.2rem,3vw,2rem)] font-medium text-white/80 mb-6">
+              湖南大学 | 应用物理学本科 | 国家奖学金得主
+            </h2>
+            <div class="flex flex-wrap justify-center md:justify-start gap-4 mb-10">
+              <span class="px-4 py-2 rounded-full card-gradient border border-neon/30 text-neon">GPA 3.95/4.0 | 专业 2/112</span>
+              <span class="px-4 py-2 rounded-full card-gradient border border-quantum/30 text-quantum">物理信息深度学习</span>
+              <span class="px-4 py-2 rounded-full card-gradient border border-gold/30 text-gold">数学建模与智能优化</span>
+              <span class="px-4 py-2 rounded-full card-gradient border border-white/20">等变神经网络</span>
+            </div>
+            <div class="flex flex-wrap justify-center md:justify-start gap-4">
+              <a href="#about" class="px-8 py-3 rounded-xl bg-gradient-to-r from-cosmic to-quantum hover:opacity-90 transition-opacity font-medium">
+                了解我的理念
+              </a>
+              <a href="#repo-grid" class="px-8 py-3 rounded-xl card-gradient border border-neon/50 hover:border-neon transition-all font-medium">
+                查看我的项目
+              </a>
+            </div>
+          </div>
+          <!-- 右侧3D-AIGC生成块 -->
+          <div class="card-gradient glow-border p-1 animate-float">
+            <div id="aigc-3d-container"></div>
+          </div>
+        </div>
+      </div>
+      <!-- 下滑提示 -->
+      <div class="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce">
+        <i class="fa fa-chevron-down text-neon text-2xl"></i>
+      </div>
+    </section>
+
+    <!-- 关于我 & 个人理念 -->
+    <section id="about" class="py-20 section-animate">
+      <div class="container mx-auto px-6">
+        <h2 class="text-[clamp(1.8rem,4vw,3rem)] font-bold mb-12 text-center text-gradient">关于我</h2>
+        
+        <div class="max-w-4xl mx-auto card-gradient rounded-2xl p-8 md:p-10 glow-border">
+          <h3 class="text-2xl font-bold mb-6 text-gradient-gold">我的研究理念</h3>
+          <p class="text-white/80 text-lg leading-relaxed mb-6">
+            物理授予我的最大特点就是无止境的思索，我也终能够理解为什么科学的起源叫做自然哲学：共同的思考范式，即无止境的探知求索到底什么才是“真”，什么才是“对”。这套深度思考的范式是可以迁移到任何学科任何方向上的，故而数学物理可以称之为“基础”。
+          </p>
+          <p class="text-white/80 text-lg leading-relaxed mb-8">
+            我找到了我的兴趣以及终生的事业——<span class="text-neon font-bold">模型学</span>：起于数学建模，深于物理学习，升于深度学习，终于描述性。我想要以数学物理框架中的这份“建模描述性”为我的纲领，深化于我的哲学式深刻思考与求索，富集数学物理的营养，运用新时代深度学习可以处理高维灾难的本领，处理传统确定性模型精度与效率对现实的矛盾。
+          </p>
+          
+          <!-- 打开完整个人思考的按钮 -->
+          <button id="openPhilosophy" class="w-full md:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-neon to-cosmic hover:opacity-90 transition-opacity font-medium">
+            <i class="fa fa-book mr-2"></i> 查看完整《我与“模型学”》个人思考
+          </button>
+        </div>
+        
+        <!-- 核心研究兴趣 -->
+        <div class="grid md:grid-cols-2 gap-6 mt-12">
+          <div class="card-gradient rounded-2xl p-8 hover:animate-glow transition-all duration-500">
+            <div class="text-neon text-3xl mb-4"><i class="fa fa-atom"></i></div>
+            <h4 class="text-xl font-bold mb-3">物理信息深度学习</h4>
+            <p class="text-white/70">高效引入物理建模的确定性，收束深度学习基于数据的随机概率空间，平衡模型的计算效率与可靠、可解释性。</p>
+          </div>
+          <div class="card-gradient rounded-2xl p-8 hover:animate-glow transition-all duration-500">
+            <div class="text-quantum text-3xl mb-4"><i class="fa fa-cubes"></i></div>
+            <h4 class="text-xl font-bold mb-3">仿物学建模思想</h4>
+            <p class="text-white/70">运用“模型”（确定性、随机性模型）去量化、优化工程、科学与客观物理世界问题，从底层深度思考与处理问题。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 教育背景 -->
+    <section id="education" class="py-20 section-animate bg-deep/50">
+      <div class="container mx-auto px-6">
+        <h2 class="text-[clamp(1.8rem,4vw,3rem)] font-bold mb-12 text-center text-gradient">教育背景</h2>
+        
+        <div class="max-w-4xl mx-auto card-gradient rounded-2xl p-8 md:p-10">
+          <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+            <div>
+              <h3 class="text-2xl font-bold text-white">湖南大学</h3>
+              <p class="text-white/70 text-lg">应用物理学 | 本科</p>
+            </div>
+            <div class="mt-2 md:mt-0 px-4 py-2 rounded-full bg-quantum/20 text-quantum font-medium">
+              2023.09 - 至今
+            </div>
+          </div>
+          
+          <div class="grid md:grid-cols-2 gap-4 mb-8">
+            <div class="bg-dark/50 rounded-xl p-4">
+              <p class="text-white/60 text-sm">GPA & 排名</p>
+              <p class="text-xl font-bold text-gold">3.95/4.0 | 专业 2/112</p>
+            </div>
+            <div class="bg-dark/50 rounded-xl p-4">
+              <p class="text-white/60 text-sm">英语能力</p>
+              <p class="text-xl font-bold text-neon">CET4 594 | CET6 500</p>
+            </div>
+          </div>
+          
+          <h4 class="text-xl font-bold mb-4 text-white">主修核心课程</h4>
+          <div class="flex flex-wrap gap-3">
+            <span class="px-3 py-1 rounded-lg bg-cosmic/20 text-cosmic">热力学统计物理 99.5</span>
+            <span class="px-3 py-1 rounded-lg bg-cosmic/20 text-cosmic">理论力学 97</span>
+            <span class="px-3 py-1 rounded-lg bg-cosmic/20 text-cosmic">量子力学 96</span>
+            <span class="px-3 py-1 rounded-lg bg-cosmic/20 text-cosmic">固体物理 96</span>
+            <span class="px-3 py-1 rounded-lg bg-cosmic/20 text-cosmic">数学物理方法 95</span>
+            <span class="px-3 py-1 rounded-lg bg-quantum/20 text-quantum">数学建模与实验</span>
+            <span class="px-3 py-1 rounded-lg bg-quantum/20 text-quantum">数值计算方法</span>
+            <span class="px-3 py-1 rounded-lg bg-quantum/20 text-quantum">多元统计分析</span>
+            <span class="px-3 py-1 rounded-lg bg-neon/20 text-neon">机器学习</span>
+            <span class="px-3 py-1 rounded-lg bg-neon/20 text-neon">算法设计与分析</span>
+            <span class="px-3 py-1 rounded-lg bg-neon/20 text-neon">人工智能类脑计算</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 科研经历 -->
+    <section id="research" class="py-20 section-animate">
+      <div class="container mx-auto px-6">
+        <h2 class="text-[clamp(1.8rem,4vw,3rem)] font-bold mb-12 text-center text-gradient">科研经历</h2>
+        
+        <div class="max-w-5xl mx-auto space-y-8">
+          <!-- 科研项目1 -->
+          <div class="card-gradient rounded-2xl p-8 hover:scale-[1.02] transition-all duration-500">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
+              <h3 class="text-xl md:text-2xl font-bold text-white">限定性全集先验收束的dual_block_DiT缺陷补齐重建</h3>
+              <span class="mt-2 md:mt-0 px-3 py-1 rounded-full bg-neon/20 text-neon text-sm">湖南大学超算中心</span>
+            </div>
+            <p class="text-white/60 mb-4">指导老师：彭绍亮教授</p>
+            <div class="space-y-3 text-white/80">
+              <p>• 针对已有数据建模为给定全集下的逆转补集重构算法，基于DiT+流匹配算法框架，实现牙冠内外结构一体优化生成设计。</p>
+              <p>• 设计算法实现收束高斯噪声全集空间为专向特征全集空间，通过双模块拼接条件向量与多模板训练实现数据扩充与先验特征学习。</p>
+              <p>• 以尖锐采样边缘为显式条件强化细节特征提取，设计双板块transformer_block+动态时间-空间权重门控，实现双尺度细节与先验掌控。</p>
+            </div>
+          </div>
+          
+          <!-- 科研项目2 -->
+          <div class="card-gradient rounded-2xl p-8 hover:scale-[1.02] transition-all duration-500">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
+              <h3 class="text-xl md:text-2xl font-bold text-white">基于等变神经网络的CMOS管二维栅极材料性能预测</h3>
+              <span class="mt-2 md:mt-0 px-3 py-1 rounded-full bg-quantum/20 text-quantum text-sm">中国科学院物理研究所</span>
+            </div>
+            <p class="text-white/60 mb-4">指导老师：潘金波教授 | 严济慈班奖学金项目</p>
+            <div class="space-y-3 text-white/80">
+              <p>• 输入二维范德华材料特征描述符与微观坐标，输出带隙与介电常数预测，改进ALIGNN架构集成KAN算子与注意力机制，增强局部特征提取。</p>
+              <p>• 利用SE(3)等变框架保障模型的旋转平移对称性，以materials_project体材料数据预训练，组内DFT计算数据微调，预测误差达到可接受范围。</p>
+              <p>• 高校校内选拔600人（湖大20人），两轮考查后出线四十人前往中关村物理所70天长期实践。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 竞赛经历 -->
+    <section id="competition" class="py-20 section-animate bg-deep/50">
+      <div class="container mx-auto px-6">
+        <h2 class="text-[clamp(1.8rem,4vw,3rem)] font-bold mb-12 text-center text-gradient">竞赛经历</h2>
+        
+        <div class="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+          <!-- 竞赛1 -->
+          <div class="card-gradient rounded-2xl p-8 h-full hover:animate-glow transition-all duration-500">
+            <div class="text-gold text-3xl mb-4"><i class="fa fa-trophy"></i></div>
+            <h3 class="text-xl font-bold mb-2">2025年全国大学生数学建模竞赛</h3>
+            <p class="text-white/60 mb-4">《基于AESAGA WITH Newton算法的无人机投弹策略优化》</p>
+            <div class="space-y-2 text-white/80">
+              <p>• 身担建模手与编程手，建立无人机运动、投弹轨迹与弹道遮掩几何模型。</p>
+              <p>• 基于匈牙利算法实现投弹分配决策，设计优化目标与混合智能优化算法。</p>
+              <p>• 自主设计AESAGA WITH Newton算法实现复杂组合空间的全局最优求解。</p>
+            </div>
+          </div>
+          
+          <!-- 竞赛2 -->
+          <div class="card-gradient rounded-2xl p-8 h-full hover:animate-glow transition-all duration-500">
+            <div class="text-gold text-3xl mb-4"><i class="fa fa-trophy"></i></div>
+            <h3 class="text-xl font-bold mb-2">2024年全国大学生数学建模竞赛</h3>
+            <p class="text-white/60 mb-4">《基于递推模型的板凳龙运行调控》 | 全国二等奖</p>
+            <div class="space-y-2 text-white/80">
+              <p>• 身担建模手与编程手，设计动静态对比模型，实现阿基米德螺线离散点行进模型、速度传递模型与向量碰撞判断模型。</p>
+              <p>• 通过数学物理分析确定最大运行速度空间节点范围，大幅缩小优化搜索阈。</p>
+            </div>
+          </div>
+          
+          <!-- 竞赛3 -->
+          <div class="card-gradient rounded-2xl p-8 h-full hover:animate-glow transition-all duration-500">
+            <div class="text-neon text-3xl mb-4"><i class="fa fa-award"></i></div>
+            <h3 class="text-xl font-bold mb-2">湖南大学数学建模竞赛</h3>
+            <p class="text-gold font-bold">一等奖（仅六名）</p>
+          </div>
+          
+          <!-- 竞赛4 -->
+          <div class="card-gradient rounded-2xl p-8 h-full hover:animate-glow transition-all duration-500">
+            <div class="text-neon text-3xl mb-4"><i class="fa fa-award"></i></div>
+            <h3 class="text-xl font-bold mb-2">湖南大学数学竞赛</h3>
+            <p class="text-gold font-bold">一等奖</p>
+          </div>
+        </div>
+        
+        <!-- 荣誉奖项 -->
+        <div class="mt-16 max-w-5xl mx-auto">
+          <h3 class="text-2xl font-bold mb-8 text-center text-gradient-gold">荣誉奖项</h3>
+          <div class="grid md:grid-cols-2 gap-6">
+            <div class="card-gradient rounded-xl p-6 text-center hover:scale-[1.05] transition-all">
+              <p class="text-xl font-bold text-gold">国家奖学金</p>
+              <p class="text-white/70">2023-2024学年 | 2024-2025学年</p>
+            </div>
+            <div class="card-gradient rounded-xl p-6 text-center hover:scale-[1.05] transition-all">
+              <p class="text-xl font-bold text-neon">中国科学院物理研究所严济慈班奖学金</p>
+              <p class="text-white/70">2023-2025学年</p>
+            </div>
+            <div class="card-gradient rounded-xl p-6 text-center hover:scale-[1.05] transition-all">
+              <p class="text-xl font-bold text-white">连续两年湖南大学校优秀学生</p>
+              <p class="text-white/70">2023-2024学年 | 2024-2025学年</p>
+            </div>
+            <div class="card-gradient rounded-xl p-6 text-center hover:scale-[1.05] transition-all">
+              <p class="text-xl font-bold text-quantum">全国大学生数学建模竞赛全国二等奖</p>
+              <p class="text-white/70">2024年</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 技能栈 -->
+    <section class="py-20 section-animate">
+      <div class="container mx-auto px-6">
+        <h2 class="text-[clamp(1.8rem,4vw,3rem)] font-bold mb-12 text-center text-gradient">科研技能</h2>
+        
+        <div class="max-w-4xl mx-auto grid md:grid-cols-2 gap-8">
+          <div class="card-gradient rounded-2xl p-8">
+            <h3 class="text-xl font-bold mb-6 text-neon">编程与框架</h3>
+            <div class="space-y-4">
+              <div>
+                <p class="text-white mb-2">Python / PyTorch</p>
+                <div class="w-full h-2 bg-dark rounded-full overflow-hidden">
+                  <div class="h-full w-[95%] bg-gradient-to-r from-neon to-cosmic"></div>
+                </div>
+              </div>
+              <div>
+                <p class="text-white mb-2">等变神经网络（e3nn/ALIGNN）</p>
+                <div class="w-full h-2 bg-dark rounded-full overflow-hidden">
+                  <div class="h-full w-[90%] bg-gradient-to-r from-neon to-cosmic"></div>
+                </div>
+              </div>
+              <div>
+                <p class="text-white mb-2">图神经网络（PyG/DGL）</p>
+                <div class="w-full h-2 bg-dark rounded-full overflow-hidden">
+                  <div class="h-full w-[85%] bg-gradient-to-r from-neon to-cosmic"></div>
+                </div>
+              </div>
+              <div>
+                <p class="text-white mb-2">Linux 开发环境</p>
+                <div class="w-full h-2 bg-dark rounded-full overflow-hidden">
+                  <div class="h-full w-[90%] bg-gradient-to-r from-neon to-cosmic"></div>
+                </div>
+              </div>
+              <div>
+                <p class="text-white mb-2">科学计算库（NumPy/SciPy）</p>
+                <div class="w-full h-2 bg-dark rounded-full overflow-hidden">
+                  <div class="h-full w-[95%] bg-gradient-to-r from-neon to-cosmic"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="card-gradient rounded-2xl p-8">
+            <h3 class="text-xl font-bold mb-6 text-quantum">建模与算法</h3>
+            <div class="flex flex-wrap gap-3">
+              <span class="px-4 py-2 rounded-lg bg-quantum/20 text-quantum">物理问题数学建模</span>
+              <span class="px-4 py-2 rounded-lg bg-quantum/20 text-quantum">偏微分方程数值解</span>
+              <span class="px-4 py-2 rounded-lg bg-quantum/20 text-quantum">模糊层次分析</span>
+              <span class="px-4 py-2 rounded-lg bg-quantum/20 text-quantum">图论路径规划</span>
+              <span class="px-4 py-2 rounded-lg bg-neon/20 text-neon">遗传算法</span>
+              <span class="px-4 py-2 rounded-lg bg-neon/20 text-neon">模拟退火算法</span>
+              <span class="px-4 py-2 rounded-lg bg-neon/20 text-neon">牛顿法优化</span>
+              <span class="px-4 py-2 rounded-lg bg-neon/20 text-neon">混合智能优化算法</span>
+              <span class="px-4 py-2 rounded-lg bg-gold/20 text-gold">多目标优化</span>
+              <span class="px-4 py-2 rounded-lg bg-gold/20 text-gold">匈牙利算法</span>
+              <span class="px-4 py-2 rounded-lg bg-gold/20 text-gold">DiT扩散模型</span>
+              <span class="px-4 py-2 rounded-lg bg-gold/20 text-gold">流匹配</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 项目图谱交互区 已更新真实GitHub地址 -->
+    <section id="project-graph" class="py-20 section-animate bg-deep/50">
+      <div class="container mx-auto px-6">
+        <h2 class="text-[clamp(1.8rem,4vw,3rem)] font-bold mb-8 text-center text-gradient">项目图谱</h2>
+        <p class="text-center text-white/70 max-w-2xl mx-auto mb-12">点击节点即可跳转到对应项目GitHub主页，鼠标悬浮可查看项目详情</p>
+        
+        <div id="graph-container" class="w-full h-[600px] card-gradient rounded-2xl overflow-hidden"></div>
+      </div>
+    </section>
+
+    <!-- 开源项目库卡片区 -->
+    <section id="repo-grid" class="py-20 section-animate">
+      <div class="container mx-auto px-6">
+        <h2 class="text-[clamp(1.8rem,4vw,3rem)] font-bold mb-4 text-center text-gradient">开源项目库</h2>
+        <p class="text-center text-white/70 max-w-2xl mx-auto mb-12">点击卡片即可跳转至对应 GitHub 仓库，悬浮可查看语言构成详情</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+
+          <!-- tooth_decoupled_modeling -->
+          <a href="https://github.com/XinYU20040412/tooth_decoupled_modeling" target="_blank" rel="noopener"
+             class="repo-card card-gradient rounded-2xl p-6 flex flex-col gap-3 hover:-translate-y-2 transition-all duration-300 hover:shadow-[0_0_24px_rgba(0,228,255,0.4)] hover:border-neon/50 cursor-pointer group">
+            <div class="flex items-start gap-3">
+              <span class="mt-0.5 text-neon text-lg shrink-0 group-hover:scale-110 transition-transform duration-300"><i class="fa fa-github"></i></span>
+              <h3 class="font-bold text-white text-sm leading-snug break-all">tooth_decoupled_modeling</h3>
+            </div>
+            <p class="text-white/60 text-xs leading-relaxed flex-1">主项目 DiT + FlowMatch 生成模型；牙冠形态解耦建模与缺陷补齐重建</p>
+            <div class="mt-2 space-y-2">
+              <div class="flex flex-wrap gap-1.5">
+                <span class="text-xs px-2 py-0.5 rounded-full bg-neon/15 text-neon border border-neon/30">Python 86.4%</span>
+                <span class="text-xs px-2 py-0.5 rounded-full bg-quantum/15 text-quantum border border-quantum/30">Jupyter 11.1%</span>
+                <span class="text-xs px-2 py-0.5 rounded-full bg-white/10 text-white/60 border border-white/20">Shell 2.5%</span>
+              </div>
+              <div class="flex h-1.5 rounded-full overflow-hidden gap-px">
+                <div class="bg-neon/70 rounded-l-full" style="width:86.4%"></div>
+                <div class="bg-quantum/70" style="width:11.1%"></div>
+                <div class="bg-white/30 rounded-r-full" style="width:2.5%"></div>
+              </div>
+            </div>
+          </a>
+
+          <!-- AESAGA-Newton -->
+          <a href="https://github.com/XinYU20040412/AESAGA-Newton-Based-UAV-Bombing-Strategy-Optimization" target="_blank" rel="noopener"
+             class="repo-card card-gradient rounded-2xl p-6 flex flex-col gap-3 hover:-translate-y-2 transition-all duration-300 hover:shadow-[0_0_24px_rgba(0,228,255,0.4)] hover:border-neon/50 cursor-pointer group">
+            <div class="flex items-start gap-3">
+              <span class="mt-0.5 text-neon text-lg shrink-0 group-hover:scale-110 transition-transform duration-300"><i class="fa fa-github"></i></span>
+              <h3 class="font-bold text-white text-sm leading-snug break-all">AESAGA-Newton-Based-UAV-Bombing-Strategy-Optimization</h3>
+            </div>
+            <p class="text-white/60 text-xs leading-relaxed flex-1">基于 AESAGAWithNewton 算法的无人机投弹策略优化问题</p>
+            <div class="mt-2 space-y-2">
+              <div class="flex flex-wrap gap-1.5">
+                <span class="text-xs px-2 py-0.5 rounded-full bg-neon/15 text-neon border border-neon/30">Python 100%</span>
+              </div>
+              <div class="flex h-1.5 rounded-full overflow-hidden">
+                <div class="bg-neon/70 rounded-full w-full"></div>
+              </div>
+            </div>
+          </a>
+
+          <!-- Bench Dragon Dance -->
+          <a href="https://github.com/XinYU20040412/Operation-Regulation-of-Bench-Dragon-Dance-Based-on-Recursive-Model" target="_blank" rel="noopener"
+             class="repo-card card-gradient rounded-2xl p-6 flex flex-col gap-3 hover:-translate-y-2 transition-all duration-300 hover:shadow-[0_0_24px_rgba(0,228,255,0.4)] hover:border-neon/50 cursor-pointer group">
+            <div class="flex items-start gap-3">
+              <span class="mt-0.5 text-neon text-lg shrink-0 group-hover:scale-110 transition-transform duration-300"><i class="fa fa-github"></i></span>
+              <h3 class="font-bold text-white text-sm leading-snug break-all">Operation-Regulation-of-Bench-Dragon-Dance-Based-on-Recursive-Model</h3>
+            </div>
+            <p class="text-white/60 text-xs leading-relaxed flex-1">基于递推模型的板凳龙运行调控</p>
+            <div class="mt-2 space-y-2">
+              <div class="flex flex-wrap gap-1.5">
+                <span class="text-xs px-2 py-0.5 rounded-full bg-neon/15 text-neon border border-neon/30">Python 100%</span>
+              </div>
+              <div class="flex h-1.5 rounded-full overflow-hidden">
+                <div class="bg-neon/70 rounded-full w-full"></div>
+              </div>
+            </div>
+          </a>
+
+          <!-- Manipulator Joint Trajectory -->
+          <a href="https://github.com/XinYU20040412/Multi-objective-Optimization-for-Manipulator-Joint-Trajectory" target="_blank" rel="noopener"
+             class="repo-card card-gradient rounded-2xl p-6 flex flex-col gap-3 hover:-translate-y-2 transition-all duration-300 hover:shadow-[0_0_24px_rgba(0,228,255,0.4)] hover:border-neon/50 cursor-pointer group">
+            <div class="flex items-start gap-3">
+              <span class="mt-0.5 text-neon text-lg shrink-0 group-hover:scale-110 transition-transform duration-300"><i class="fa fa-github"></i></span>
+              <h3 class="font-bold text-white text-sm leading-snug break-all">Multi-objective-Optimization-for-Manipulator-Joint-Trajectory</h3>
+            </div>
+            <p class="text-white/60 text-xs leading-relaxed flex-1">机器臂关节角路径的多目标优化设计</p>
+            <div class="mt-2 space-y-2">
+              <div class="flex flex-wrap gap-1.5">
+                <span class="text-xs px-2 py-0.5 rounded-full bg-neon/15 text-neon border border-neon/30">Python 100%</span>
+              </div>
+              <div class="flex h-1.5 rounded-full overflow-hidden">
+                <div class="bg-neon/70 rounded-full w-full"></div>
+              </div>
+            </div>
+          </a>
+
+          <!-- competition_full_source_code -->
+          <a href="https://github.com/XinYU20040412/competition_full_source_code" target="_blank" rel="noopener"
+             class="repo-card card-gradient rounded-2xl p-6 flex flex-col gap-3 hover:-translate-y-2 transition-all duration-300 hover:shadow-[0_0_24px_rgba(0,228,255,0.4)] hover:border-neon/50 cursor-pointer group">
+            <div class="flex items-start gap-3">
+              <span class="mt-0.5 text-neon text-lg shrink-0 group-hover:scale-110 transition-transform duration-300"><i class="fa fa-github"></i></span>
+              <h3 class="font-bold text-white text-sm leading-snug break-all">competition_full_source_code</h3>
+            </div>
+            <p class="text-white/60 text-xs leading-relaxed flex-1">用于存放我参与过的竞赛的源代码（无 Demo 展示，纯源代码）</p>
+            <div class="mt-2 space-y-2">
+              <div class="flex flex-wrap gap-1.5">
+                <span class="text-xs px-2 py-0.5 rounded-full bg-neon/15 text-neon border border-neon/30">Python 96.6%</span>
+                <span class="text-xs px-2 py-0.5 rounded-full bg-gold/15 text-gold border border-gold/30">MATLAB 3.4%</span>
+              </div>
+              <div class="flex h-1.5 rounded-full overflow-hidden gap-px">
+                <div class="bg-neon/70 rounded-l-full" style="width:96.6%"></div>
+                <div class="bg-gold/70 rounded-r-full" style="width:3.4%"></div>
+              </div>
+            </div>
+          </a>
+
+          <!-- -A (华中杯A题) -->
+          <a href="https://github.com/XinYU20040412/-A" target="_blank" rel="noopener"
+             class="repo-card card-gradient rounded-2xl p-6 flex flex-col gap-3 hover:-translate-y-2 transition-all duration-300 hover:shadow-[0_0_24px_rgba(0,228,255,0.4)] hover:border-neon/50 cursor-pointer group">
+            <div class="flex items-start gap-3">
+              <span class="mt-0.5 text-neon text-lg shrink-0 group-hover:scale-110 transition-transform duration-300"><i class="fa fa-github"></i></span>
+              <div>
+                <h3 class="font-bold text-white text-sm leading-snug">华中杯 A 题</h3>
+                <span class="text-white/40 text-xs">repo: -A</span>
+              </div>
+            </div>
+            <p class="text-white/60 text-xs leading-relaxed flex-1">华中杯数学建模竞赛 A 题完整解题代码</p>
+            <div class="mt-2 space-y-2">
+              <div class="flex flex-wrap gap-1.5">
+                <span class="text-xs px-2 py-0.5 rounded-full bg-neon/15 text-neon border border-neon/30">Python 100%</span>
+              </div>
+              <div class="flex h-1.5 rounded-full overflow-hidden">
+                <div class="bg-neon/70 rounded-full w-full"></div>
+              </div>
+            </div>
+          </a>
+
+          <!-- self-creat-great-code -->
+          <a href="https://github.com/XinYU20040412/self-creat-great-code" target="_blank" rel="noopener"
+             class="repo-card card-gradient rounded-2xl p-6 flex flex-col gap-3 hover:-translate-y-2 transition-all duration-300 hover:shadow-[0_0_24px_rgba(0,228,255,0.4)] hover:border-neon/50 cursor-pointer group">
+            <div class="flex items-start gap-3">
+              <span class="mt-0.5 text-neon text-lg shrink-0 group-hover:scale-110 transition-transform duration-300"><i class="fa fa-github"></i></span>
+              <h3 class="font-bold text-white text-sm leading-snug break-all">self-creat-great-code</h3>
+            </div>
+            <p class="text-white/60 text-xs leading-relaxed flex-1">个人代码积累与沉淀</p>
+            <div class="mt-2 space-y-2">
+              <div class="flex flex-wrap gap-1.5">
+                <span class="text-xs px-2 py-0.5 rounded-full bg-quantum/15 text-quantum border border-quantum/30">Jupyter 66.1%</span>
+                <span class="text-xs px-2 py-0.5 rounded-full bg-neon/15 text-neon border border-neon/30">Python 33.9%</span>
+              </div>
+              <div class="flex h-1.5 rounded-full overflow-hidden gap-px">
+                <div class="bg-quantum/70 rounded-l-full" style="width:66.1%"></div>
+                <div class="bg-neon/70 rounded-r-full" style="width:33.9%"></div>
+              </div>
+            </div>
+          </a>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- 联系我 -->
+    <section id="contact" class="py-20 section-animate">
+      <div class="container mx-auto px-6">
+        <h2 class="text-[clamp(1.8rem,4vw,3rem)] font-bold mb-12 text-center text-gradient">联系我</h2>
+        
+        <div class="max-w-3xl mx-auto grid md:grid-cols-3 gap-6">
+          <a href="mailto:2698043274@qq.com" class="card-gradient rounded-xl p-6 text-center hover:scale-[1.05] transition-all hover:border-neon/50">
+            <div class="text-neon text-3xl mb-4"><i class="fa fa-envelope"></i></div>
+            <p class="text-lg font-bold mb-1">邮箱</p>
+            <p class="text-white/70 text-sm">2698043274@qq.com</p>
+          </a>
+          
+          <div class="card-gradient rounded-xl p-6 text-center hover:scale-[1.05] transition-all hover:border-gold/50">
+            <div class="text-gold text-3xl mb-4"><i class="fa fa-phone"></i></div>
+            <p class="text-lg font-bold mb-1">电话</p>
+            <p class="text-white/70 text-sm">13995951764</p>
+          </div>
+          
+          <a href="https://github.com/XinYU20040412" target="_blank" class="card-gradient rounded-xl p-6 text-center hover:scale-[1.05] transition-all hover:border-quantum/50">
+            <div class="text-quantum text-3xl mb-4"><i class="fa fa-github"></i></div>
+            <p class="text-lg font-bold mb-1">GitHub</p>
+            <p class="text-white/70 text-sm">XinYU20040412</p>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="py-8 border-t border-white/10">
+      <div class="container mx-auto px-6 text-center">
+        <p class="text-white/50">© 2026 余鑫 | 湖南大学应用物理学</p>
+      </div>
+    </footer>
+
+    <!-- 《我与模型学》全屏模态框 -->
+    <div id="philosophyModal" class="fixed inset-0 z-[100] bg-deep/95 backdrop-blur-md hidden flex items-center justify-center p-6">
+      <div class="w-full max-w-4xl max-h-[90vh] card-gradient rounded-2xl p-8 overflow-y-auto scrollbar-hide relative">
+        <button id="closeModal" class="absolute top-6 right-6 text-white/70 hover:text-neon text-2xl">
+          <i class="fa fa-times"></i>
+        </button>
+        
+        <h2 class="text-3xl font-bold mb-6 text-gradient-gold text-center">我与“模型学”</h2>
+        <div class="space-y-6 text-white/80 text-lg leading-relaxed">
+          <h3 class="text-2xl font-bold text-white">引入—学科理解</h3>
+          <p>
+            物理授予我的最大特点就是无止境的思索，我也终能够理解为什么科学的起源叫做自然哲学：共同的思考范式，即无止境的探知求索到底什么才是“真”，什么才是“对”。这套深度思考的范式是可以迁移到任何学科任何方向上的，故而数学物理可以称之为“basic”—基础。
+          </p>
+          <p>
+            我将数学物理从两个视角切入：<br>
+            1， 我们采取回溯的视角去观测。数学物理的起源其实是为了“描述”，也就是我们的数学建模：数学描述生活中的一切量化特征（突出我们关心的核心特征而忽略其他特性，就如1+1=2就高效的提取了“量的特征”），物理为了描述客观物理现实中的各种现象、实验，力求对现实世界进行指导。<br>
+            2， 我们再采用演绎的视角去审视。数学物理基于数学建模的描述但是又远高于数学建模，总结起来，原因在于：基于公理（数学）/定律（物理）的逻辑包闭自洽，形象的说就是我画一个圆之后要可以实现首尾相接，并且画的这个圆要足够大以至于包含的住我所有现代物理现实/数学逻辑体系。另外，画这个圆的起点是没有被固定的，我完全可以在已有圆上去做出其他的“外切圆”同样实现逻辑包闭自洽（这就导致数学体系超出现实，落于抽象空间），所有“圆”的全集就是我们的数学物理“大厦”。
+          </p>
+          
+          <h3 class="text-2xl font-bold text-white mt-8">兴趣落点与未来方向</h3>
+          <p>
+            而我在不断的思考后，发现人的兴趣和热爱可以由几个字概括：兴趣以能力为激发点，但一定会最终收束回（在你富集信息后，进行尝试、试错后的）认知框架。而我认为我已经找到了我的兴趣以及终生的事业——模型学：起于数学建模，深于物理学习，升于深度学习，终于描述性。
+          </p>
+          <p>
+            我想要以数学物理框架中的这份“建模描述性”为我的纲领（因为物理的本质更偏“描述”，我不想因为进入某个行业就丢掉物理的“屠龙术”，失去我作为一个物理专业学生对客观物理现实的“泛化性”），深化于我的哲学式深刻思考与求索，富集数学物理的营养，运用新时代深度学习可以处理高维灾难的本领，处理传统确定性模型精度与效率对现实的矛盾。
+          </p>
+          <p>
+            我想我的研究兴趣或者未来研究方向或许可以由下述几点概括：<br>
+            1， 如何高效引入物理建模的确定性去收束深度学习基于数据的随机概率空间？<br>
+            2， 我们的很多技术，灵感都是源于仿生学，仿自然学建模（如attention，退火机制~），我不想“拼积木”，更想运用仿物学思想，运用“模型”（确定性，随机性）去解决，量化，优化工程、科学。客观物理世界的问题！（想法源于我对数学建模竞赛的参与：以物理机制为主导，以数学为语言，以计算机为工具，居然可以“泛化/不拘泥的”“解决”生活中的那么多问题！这太有趣了不是吗）<br>
+            3， 在试探，操作过程中我有了一些形而上学的想法：现代计算已经不像是费米黄金定则那般的简单映射，而是一个复杂的系统，内部存在着数据流以及参数信息的交互。我以热统的视角去观察：他是一个系统，我可以用“粗粒化”的视角去审视（用流来表示数据的传递，用熵或者其他指标来描述体系的性质——决策树不就是这么做的嘛），我可否将其归于物理系统学并且期于运用此理论体系对其进行数据实验的指导、调控？可否以一套体系具体评估一个算法“系统”的好坏？可否评估好坏后再反向去确定输入参数的范围以减小调参的经验性（如同人类科学史的发展：由经验性试错到有理论的定向指引）？<br>
+            4， 可以从底层思考，底层处理问题，深度思考，比较包含数理的方向
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JS脚本 -->
+  <script>
+    // 粒子背景初始化
+    particlesJS('particles-js', {
+      "particles": {
+        "number": { "value": 80, "density": { "enable": true, "value_area": 800 } },
+        "color": { "value": ["#00E4FF", "#722ED1", "#165DFF"] },
+        "shape": { "type": "circle" },
+        "opacity": { "value": 0.5, "random": true },
+        "size": { "value": 3, "random": true },
+        "line_linked": { "enable": true, "distance": 150, "color": "#165DFF", "opacity": 0.2, "width": 1 },
+        "move": { "enable": true, "speed": 1, "direction": "none", "random": true, "straight": false, "out_mode": "out", "bounce": false }
+      },
+      "interactivity": {
+        "detect_on": "canvas",
+        "events": {
+          "onhover": { "enable": true, "mode": "grab" },
+          "onclick": { "enable": true, "mode": "push" },
+          "resize": true
+        },
+        "modes": {
+          "grab": { "distance": 140, "line_linked": { "opacity": 0.5 } },
+          "push": { "particles_nb": 3 }
+        }
+      },
+      "retina_detect": true
+    });
+
+    // 导航栏滚动效果
+    window.addEventListener('scroll', () => {
+      const navbar = document.getElementById('navbar');
+      if (window.scrollY > 50) {
+        navbar.classList.add('bg-deep/80', 'backdrop-blur-md', 'shadow-lg');
+        navbar.classList.remove('py-4');
+        navbar.classList.add('py-3');
+      } else {
+        navbar.classList.remove('bg-deep/80', 'backdrop-blur-md', 'shadow-lg');
+        navbar.classList.remove('py-3');
+        navbar.classList.add('py-4');
+      }
+    });
+
+    // 滚动动画触发
+    const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -100px 0px' };
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, observerOptions);
+
+    document.querySelectorAll('.section-animate').forEach(section => {
+      observer.observe(section);
+    });
+
+    // 模态框控制
+    const openModal = document.getElementById('openPhilosophy');
+    const closeModal = document.getElementById('closeModal');
+    const modal = document.getElementById('philosophyModal');
+
+    openModal.addEventListener('click', () => {
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    });
+
+    closeModal.addEventListener('click', () => {
+      modal.classList.add('hidden');
+      document.body.style.overflow = 'auto';
+    });
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.classList.add('hidden');
+        document.body.style.overflow = 'auto';
+      }
+    });
+
+    // ========== 新增：3D-AIGC神经网络模型渲染 ==========
+    function initAIGC3D() {
+      const container = document.getElementById('aigc-3d-container');
+      // 场景初始化
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setSize(container.clientWidth, container.clientHeight);
+      renderer.setClearColor(0x000000, 0);
+      container.appendChild(renderer.domElement);
+
+      // 神经网络节点与连线
+      const nodeCount = 120;
+      const nodes = [];
+      const edges = [];
+      const maxDistance = 3.5;
+
+      // 生成随机节点（模拟神经网络神经元）
+      for (let i = 0; i < nodeCount; i++) {
+        const geometry = new THREE.SphereGeometry(0.04, 16, 16);
+        // 节点颜色匹配页面主题色
+        const colors = [0x00E4FF, 0x722ED1, 0x165DFF, 0xFFD700];
+        const material = new THREE.MeshBasicMaterial({
+          color: colors[Math.floor(Math.random() * colors.length)],
+          transparent: true,
+          opacity: 0.8
+        });
+        const sphere = new THREE.Mesh(geometry, material);
+        // 随机分布在3D空间内
+        sphere.position.set(
+          (Math.random() - 0.5) * 8,
+          (Math.random() - 0.5) * 6,
+          (Math.random() - 0.5) * 4
+        );
+        sphere.userData.velocity = new THREE.Vector3(
+          (Math.random() - 0.5) * 0.008,
+          (Math.random() - 0.5) * 0.008,
+          (Math.random() - 0.5) * 0.008
+        );
+        scene.add(sphere);
+        nodes.push(sphere);
+      }
+
+      // 生成连线几何体
+      const edgeGeometry = new THREE.BufferGeometry();
+      const edgeMaterial = new THREE.LineBasicMaterial({
+        color: 0x00E4FF,
+        transparent: true,
+        opacity: 0.2
+      });
+      const edgesLine = new THREE.LineSegments(edgeGeometry, edgeMaterial);
+      scene.add(edgesLine);
+
+      // 更新连线
+      function updateEdges() {
+        const positions = [];
+        for (let i = 0; i < nodes.length; i++) {
+          for (let j = i + 1; j < nodes.length; j++) {
+            const distance = nodes[i].position.distanceTo(nodes[j].position);
+            if (distance < maxDistance) {
+              positions.push(nodes[i].position.x, nodes[i].position.y, nodes[i].position.z);
+              positions.push(nodes[j].position.x, nodes[j].position.y, nodes[j].position.z);
+            }
+          }
+        }
+        edgeGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+      }
+
+      // 相机位置
+      camera.position.z = 6;
+
+      // 鼠标交互
+      let mouseX = 0, mouseY = 0;
+      container.addEventListener('mousemove', (e) => {
+        const rect = container.getBoundingClientRect();
+        mouseX = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+        mouseY = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+      });
+
+      // 窗口自适应
+      window.addEventListener('resize', () => {
+        camera.aspect = container.clientWidth / container.clientHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(container.clientWidth, container.clientHeight);
+      });
+
+      // 动画循环
+      function animate() {
+        requestAnimationFrame(animate);
+        // 节点移动
+        nodes.forEach(node => {
+          node.position.add(node.userData.velocity);
+          // 边界反弹
+          if (Math.abs(node.position.x) > 4) node.userData.velocity.x *= -1;
+          if (Math.abs(node.position.y) > 3) node.userData.velocity.y *= -1;
+          if (Math.abs(node.position.z) > 2) node.userData.velocity.z *= -1;
+        });
+        // 更新连线
+        updateEdges();
+        // 相机跟随鼠标
+        camera.position.x += (mouseX * 2 - camera.position.x) * 0.05;
+        camera.position.y += (mouseY * 2 - camera.position.y) * 0.05;
+        camera.lookAt(scene.position);
+        // 渲染
+        renderer.render(scene, camera);
+      }
+      animate();
+    }
+    // 页面加载完成后初始化3D模型
+    window.addEventListener('load', initAIGC3D);
+
+    // ========== 项目图谱ECharts初始化 已更新真实GitHub地址 ==========
+    const graphChart = echarts.init(document.getElementById('graph-container'));
+    const graphOption = {
+      backgroundColor: 'transparent',
+      tooltip: {
+        trigger: 'item',
+        formatter: '{b}: {c}'
+      },
+      animationDuration: 1500,
+      animationEasingUpdate: 'quinticInOut',
+      series: [{
+        type: 'graph',
+        layout: 'force',
+        symbolSize: 60,
+        roam: true,
+        draggable: true,
+        focusNodeAdjacency: true,
+        itemStyle: {
+          color: function(params) {
+            const colors = ['#00E4FF', '#722ED1', '#165DFF', '#FFD700', '#36CFC9', '#722ED1'];
+            return colors[params.dataIndex % colors.length];
+          },
+          borderColor: '#fff',
+          borderWidth: 2,
+          shadowBlur: 20,
+          shadowColor: 'rgba(0, 228, 255, 0.5)'
+        },
+        lineStyle: {
+          color: 'rgba(114, 46, 209, 0.6)',
+          width: 2,
+          curveness: 0.2,
+          opacity: 0.6
+        },
+        emphasis: {
+          focus: 'adjacency',
+          lineStyle: {
+            width: 4,
+            color: '#00E4FF'
+          },
+          label: {
+            show: true,
+            fontSize: 14,
+            color: '#fff'
+          }
+        },
+        label: {
+          show: true,
+          position: 'inside',
+          fontSize: 10,
+          color: '#fff',
+          formatter: '{b}'
+        },
+        force: {
+          repulsion: 1200,
+          edgeLength: 200,
+          gravity: 0.1,
+          layoutAnimation: true
+        },
+        // 已更新你的真实GitHub项目地址
+        data: [
+          {
+            name: "个人主页",
+            value: "核心",
+            url: "https://github.com/XinYU20040412",
+            symbolSize: 80,
+            itemStyle: { color: '#FFD700' }
+          },
+          {
+            name: "无人机投弹优化",
+            value: "AESAGA-Newton算法",
+            url: "https://github.com/XinYU20040412/AESAGA-Newton-Based-UAV-Bombing-Strategy-Optimization"
+          },
+          {
+            name: "板凳龙运行调控",
+            value: "递推模型",
+            url: "https://github.com/XinYU20040412/Operation-Regulation-of-Bench-Dragon-Dance-Based-on-Recursive-Model"
+          },
+          {
+            name: "机械臂路径优化",
+            value: "多目标轨迹优化",
+            url: "https://github.com/XinYU20040412/Multi-objective-Optimization-for-Manipulator-Joint-Trajectory"
+          },
+          {
+            name: "DiT牙冠生成",
+            value: "缺陷补齐重建",
+            url: "https://github.com/XinYU20040412"
+          },
+          {
+            name: "材料性能预测",
+            value: "等变神经网络",
+            url: "https://github.com/XinYU20040412"
+          }
+        ],
+        // 项目连线逻辑
+        links: [
+          { source: "个人主页", target: "无人机投弹优化" },
+          { source: "个人主页", target: "板凳龙运行调控" },
+          { source: "个人主页", target: "机械臂路径优化" },
+          { source: "个人主页", target: "DiT牙冠生成" },
+          { source: "个人主页", target: "材料性能预测" },
+          // 数学建模类项目关联
+          { source: "无人机投弹优化", target: "板凳龙运行调控" },
+          { source: "无人机投弹优化", target: "机械臂路径优化" },
+          // 深度学习类项目关联
+          { source: "DiT牙冠生成", target: "材料性能预测" }
+        ]
+      }]
+    };
+
+    graphChart.setOption(graphOption);
+    // 点击节点跳转GitHub
+    graphChart.on('click', function (params) {
+      if (params.data && params.data.url) {
+        window.open(params.data.url, '_blank');
+      }
+    });
+
+    // 窗口大小变化自适应
+    window.addEventListener('resize', () => {
+      graphChart.resize();
+    });
+  </script>
+</body>
+</html>

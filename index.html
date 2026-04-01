@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>余鑫 | 个人学术主页</title>
+  <title>余鑫 | 个人学术主页（删减版）</title>
   <!-- 外部资源CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
@@ -669,10 +669,6 @@
       <div class="container mx-auto px-6 flex justify-between items-center">
         <a href="#" class="text-2xl font-bold text-gradient">余鑫</a>
         <div class="hidden md:flex gap-8 items-center">
-          <a href="#about" class="hover:text-neon transition-colors">关于我</a>
-          <a href="#education" class="hover:text-neon transition-colors">教育背景</a>
-          <a href="#research" class="hover:text-neon transition-colors">科研经历</a>
-          <a href="#competition" class="hover:text-neon transition-colors">竞赛经历</a>
           <a href="#repo-grid" class="hover:text-neon transition-colors">开源项目库</a>
           <a href="#contact" class="hover:text-neon transition-colors">联系我</a>
         </div>
@@ -737,7 +733,7 @@
           <span class="hero-badge purple">AESAGA-Newton算法</span>
         </div>
         <div class="hero-cta">
-          <a href="#about" class="hero-cta-primary">了解我</a>
+          <a href="#" data-open-philosophy class="hero-cta-primary">我的理念</a>
           <a href="#repo-grid" class="hero-cta-secondary">项目库</a>
         </div>
       </div>
@@ -752,7 +748,7 @@
     </section>
 
     <!-- 关于我 & 个人理念 -->
-    <section id="about" class="py-20 section-animate">
+    <section id="about" class="py-20 section-animate hidden">
       <div class="container mx-auto px-6">
         <h2 class="text-[clamp(1.8rem,4vw,3rem)] font-bold mb-12 text-center text-gradient">关于我</h2>
         
@@ -788,7 +784,7 @@
     </section>
 
     <!-- 教育背景 -->
-    <section id="education" class="py-20 section-animate bg-deep/50">
+    <section id="education" class="py-20 section-animate bg-deep/50 hidden">
       <div class="container mx-auto px-6">
         <h2 class="text-[clamp(1.8rem,4vw,3rem)] font-bold mb-12 text-center text-gradient">教育背景</h2>
         
@@ -833,7 +829,7 @@
     </section>
 
     <!-- 科研经历 -->
-    <section id="research" class="py-20 section-animate">
+    <section id="research" class="py-20 section-animate hidden">
       <div class="container mx-auto px-6">
         <h2 class="text-[clamp(1.8rem,4vw,3rem)] font-bold mb-12 text-center text-gradient">科研经历</h2>
         
@@ -870,7 +866,7 @@
     </section>
 
     <!-- 竞赛经历 -->
-    <section id="competition" class="py-20 section-animate bg-deep/50">
+    <section id="competition" class="py-20 section-animate bg-deep/50 hidden">
       <div class="container mx-auto px-6">
         <h2 class="text-[clamp(1.8rem,4vw,3rem)] font-bold mb-12 text-center text-gradient">竞赛经历</h2>
         
@@ -939,7 +935,7 @@
     </section>
 
     <!-- 技能栈 -->
-    <section id="skills" class="py-20 section-animate">
+    <section id="skills" class="py-20 section-animate hidden">
       <div class="container mx-auto px-6">
         <h2 class="text-[clamp(1.8rem,4vw,3rem)] font-bold mb-12 text-center text-gradient">科研技能</h2>
         

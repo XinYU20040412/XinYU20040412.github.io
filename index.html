@@ -1,1722 +1,981 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>XinYU20040412 | 个人图谱</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet" />
-  <style>
-    :root {
-      --bg: #0A0A0F;
-      --core: #165DFF;
-      --branch-a: #7B2FFD;
-      --branch-b: #00E4FF;
-      --branch-c: #FF9F1C;
-      --branch-d: #F2F2F5;
-      --g1: #333338;
-      --g2: #66666E;
-      --g3: #9999A3;
-      --text: #E9ECF7;
-      --muted: #AAB0C8;
-    }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>余鑫 | 个人学术主页</title>
 
-    * {
-      box-sizing: border-box;
-    }
-
-    html,
-    body {
-      margin: 0;
-      padding: 0;
-      background: var(--bg);
-      color: var(--text);
-      font-family: "Inter", "Noto Sans SC", "Microsoft YaHei", sans-serif;
-      scroll-behavior: smooth;
-      overflow-x: hidden;
-    }
-
-    body {
-      min-height: 100vh;
-      background:
-        radial-gradient(1200px 700px at 15% 15%, rgba(22, 93, 255, 0.16), transparent 55%),
-        radial-gradient(1000px 600px at 85% 18%, rgba(0, 228, 255, 0.14), transparent 60%),
-        radial-gradient(900px 600px at 20% 85%, rgba(255, 159, 28, 0.12), transparent 62%),
-        var(--bg);
-      position: relative;
-    }
-
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      background-image:
-        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-      background-size: 40px 40px;
-      opacity: 0.28;
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    .hero {
-      position: relative;
-      min-height: 100vh;
-      padding: 18px 18px 12px;
-      z-index: 1;
-    }
-
-    .hero-meta {
-      position: absolute;
-      top: 18px;
-      left: 22px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      z-index: 6;
-      pointer-events: none;
-    }
-
-    .hero-meta .name {
-      font-size: 18px;
-      font-weight: 900;
-      letter-spacing: 0.5px;
-      color: #DDE6FF;
-    }
-
-    .hero-meta .hint {
-      font-size: 12px;
-      color: var(--muted);
-      max-width: 360px;
-      line-height: 1.55;
-    }
-
-    .hero-controls {
-      position: absolute;
-      top: 18px;
-      right: 22px;
-      display: flex;
-      gap: 10px;
-      z-index: 7;
-    }
-
-    .hero-controls button {
-      border: 1px solid rgba(255, 255, 255, 0.22);
-      color: #EAF2FF;
-      background: rgba(12, 13, 22, 0.62);
-      backdrop-filter: blur(10px);
-      border-radius: 999px;
-      padding: 10px 14px;
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 0.2px;
-      cursor: pointer;
-      transition: 0.25s ease;
-    }
-
-    .hero-controls button:hover {
-      border-color: rgba(0, 228, 255, 0.72);
-      box-shadow: 0 0 0 1px rgba(0, 228, 255, 0.2), 0 10px 24px rgba(0, 228, 255, 0.22);
-      transform: translateY(-1px);
-    }
-
-    .graph-wrap {
-      position: absolute;
-      inset: 0;
-      overflow: hidden;
-      border-radius: 16px;
-      touch-action: none;
-    }
-
-    #treeSvg {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
-
-    .legend {
-      position: absolute;
-      left: 22px;
-      bottom: 18px;
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 8px 16px;
-      padding: 12px 14px;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 14px;
-      background: rgba(10, 10, 15, 0.58);
-      backdrop-filter: blur(10px);
-      z-index: 8;
-      max-width: 420px;
-    }
-
-    .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 12px;
-      color: #C8CDE2;
-      white-space: nowrap;
-    }
-
-    .legend-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      box-shadow: 0 0 10px currentColor;
-    }
-
-    .link {
-      fill: none;
-      stroke-width: 2.4;
-      stroke-linecap: round;
-      opacity: 0.86;
-      transition: opacity 0.25s ease, stroke-width 0.25s ease;
-    }
-
-    .link.dim {
-      opacity: 0.12;
-      stroke-width: 1.2;
-    }
-
-    .link.active {
-      opacity: 1;
-      stroke-width: 3.8;
-      filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.28));
-    }
-
-    .node {
-      cursor: pointer;
-      transform-origin: center;
-      transition: opacity 0.2s ease;
-    }
-
-    .node.dim {
-      opacity: 0.18;
-    }
-
-    .node-circle {
-      transition: transform 0.2s ease, filter 0.2s ease, stroke-width 0.2s ease;
-    }
-
-    .node:hover .node-circle,
-    .node.active .node-circle {
-      transform: scale(1.1);
-      stroke-width: 2.8;
-      filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.32));
-    }
-
-    .node-text {
-      text-anchor: middle;
-      dominant-baseline: middle;
-      pointer-events: none;
-      fill: #F9FBFF;
-      letter-spacing: 0.12px;
-    }
-
-    .node-text.root {
-      font-weight: 900;
-      font-size: 18px;
-    }
-
-    .node-text.level1 {
-      font-weight: 700;
-      font-size: 15px;
-    }
-
-    .node-text.level2 {
-      font-weight: 500;
-      font-size: 13px;
-    }
-
-    .node-text.level3 {
-      font-weight: 400;
-      font-size: 12px;
-    }
-
-    .node.branch-d .node-text {
-      fill: #121318;
-      font-weight: 700;
-    }
-
-    .node-intro {
-      opacity: 0;
-      transform: scale(0.6);
-      animation: nodeGrow 0.8s cubic-bezier(0.2, 0.85, 0.24, 1) forwards;
-    }
-
-    @keyframes nodeGrow {
-      from {
-        opacity: 0;
-        transform: scale(0.6);
-      }
-      to {
-        opacity: 1;
-        transform: scale(1);
+  <!-- 外部资源CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+  <!-- 新增3D渲染库 -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <!-- Tailwind自定义配置 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            deep: '#0A0F1D',
+            quantum: '#722ED1',
+            cosmic: '#165DFF',
+            neon: '#00E4FF',
+            gold: '#FFD700',
+            dark: '#141B34'
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+          animation: {
+            'float': 'float 6s ease-in-out infinite',
+            'glow': 'glow 2s ease-in-out infinite alternate',
+            'slide-up': 'slideUp 0.8s ease-out forwards',
+            'gradient-shift': 'gradientShift 8s ease infinite',
+          },
+          keyframes: {
+            float: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-20px)' },
+            },
+            glow: {
+              '0%': { boxShadow: '0 0 10px rgba(0, 228, 255, 0.3), 0 0 20px rgba(114, 46, 209, 0.3)' },
+              '100%': { boxShadow: '0 0 25px rgba(0, 228, 255, 0.6), 0 0 40px rgba(114, 46, 209, 0.6)' },
+            },
+            slideUp: {
+              '0%': { opacity: '0', transform: 'translateY(30px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            },
+            gradientShift: {
+              '0%': { backgroundPosition: '0% 50%' },
+              '50%': { backgroundPosition: '100% 50%' },
+              '100%': { backgroundPosition: '0% 50%' },
+            }
+          }
+        }
       }
     }
-
-    .link-intro {
-      opacity: 0;
-      animation: linkGrow 0.8s ease forwards;
-    }
-
-    @keyframes linkGrow {
-      from {
-        opacity: 0;
+  </script>
+  
+  <!-- 自定义工具类 -->
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
       }
-      to {
-        opacity: 0.86;
+      .text-gradient {
+        @apply bg-clip-text text-transparent bg-gradient-to-r from-neon via-cosmic to-quantum;
       }
-    }
-
-    .root-pulse {
-      animation: rootPulse 3s ease-in-out infinite;
-    }
-
-    @keyframes rootPulse {
-      0%,
-      100% {
-        filter: drop-shadow(0 0 8px rgba(22, 93, 255, 0.38));
+      .text-gradient-gold {
+        @apply bg-clip-text text-transparent bg-gradient-to-r from-gold to-yellow-300;
       }
-      50% {
-        filter: drop-shadow(0 0 18px rgba(22, 93, 255, 0.68));
+      .card-gradient {
+        @apply bg-gradient-to-br from-dark/80 to-deep/90 backdrop-blur-md border border-white/10;
       }
-    }
-
-    .branch-collapsed {
-      opacity: 0.05;
-      pointer-events: none;
-      transform: scale(0.84);
-      transition: 0.26s ease;
-    }
-
-    .branch-expanded {
-      opacity: 1;
-      pointer-events: auto;
-      transform: scale(1);
-    }
-
-    #tooltip {
-      position: fixed;
-      z-index: 30;
-      max-width: 360px;
-      padding: 10px 12px;
-      border-radius: 10px;
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      background: rgba(10, 10, 15, 0.92);
-      color: #E6EBFF;
-      font-size: 12px;
-      line-height: 1.45;
-      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.42);
-      backdrop-filter: blur(8px);
-      pointer-events: none;
-      opacity: 0;
-      transform: translateY(8px);
-      transition: opacity 0.1s ease, transform 0.1s ease;
-    }
-
-    #tooltip.show {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .section {
-      position: relative;
-      z-index: 2;
-      padding: 92px 22px;
-    }
-
-    .section-inner {
-      max-width: 1180px;
-      margin: 0 auto;
-    }
-
-    .title {
-      font-size: clamp(28px, 4vw, 44px);
-      font-weight: 900;
-      letter-spacing: 0.5px;
-      margin: 0 0 18px;
-      line-height: 1.2;
-    }
-
-    .title .accent {
-      color: var(--core);
-      text-shadow: 0 0 24px rgba(22, 93, 255, 0.35);
-    }
-
-    .lead {
-      margin: 0;
-      max-width: 960px;
-      color: #C7CCE2;
-      line-height: 1.92;
-      font-size: 17px;
-    }
-
-    .philosophy-card {
-      margin-top: 30px;
-      border-radius: 22px;
-      border: 1px solid rgba(22, 93, 255, 0.38);
-      background: linear-gradient(145deg, rgba(22, 93, 255, 0.18), rgba(8, 18, 46, 0.72));
-      backdrop-filter: blur(9px);
-      padding: clamp(24px, 4vw, 38px);
-      box-shadow: 0 24px 50px rgba(8, 18, 46, 0.45);
-    }
-
-    .philosophy-card p {
-      margin: 0 0 16px;
-      color: #D9E3FF;
-      line-height: 1.88;
-      font-size: 16px;
-    }
-
-    .philosophy-card p:last-child {
-      margin-bottom: 0;
-    }
-
-    .repo-grid {
-      margin-top: 28px;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 16px;
-    }
-
-    .repo-card {
-      border-radius: 16px;
-      border: 1px solid rgba(255, 255, 255, 0.14);
-      background: linear-gradient(145deg, rgba(20, 22, 35, 0.95), rgba(10, 10, 15, 0.82));
-      padding: 18px;
-      text-decoration: none;
-      color: inherit;
-      transition: 0.28s ease;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .repo-card::after {
-      content: "";
-      position: absolute;
-      top: -120px;
-      right: -120px;
-      width: 220px;
-      height: 220px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(22, 93, 255, 0.16), transparent 68%);
-      pointer-events: none;
-      transition: 0.28s ease;
-    }
-
-    .repo-card:hover {
-      transform: translateY(-5px);
-      border-color: rgba(0, 228, 255, 0.58);
-      box-shadow: 0 18px 34px rgba(0, 228, 255, 0.16);
-    }
-
-    .repo-card:hover::after {
-      transform: scale(1.12);
-    }
-
-    .repo-card h4 {
-      margin: 0 0 8px;
-      font-size: 15px;
-      font-weight: 700;
-      line-height: 1.45;
-      color: #F5F7FF;
-    }
-
-    .repo-card p {
-      margin: 0;
-      color: #B6BDDA;
-      font-size: 13px;
-      line-height: 1.65;
-    }
-
-    .tag {
-      display: inline-flex;
-      align-items: center;
-      padding: 4px 9px;
-      border-radius: 999px;
-      margin-top: 12px;
-      font-size: 11px;
-      letter-spacing: 0.2px;
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      color: #E8EEFF;
-      background: rgba(255, 255, 255, 0.05);
-    }
-
-    footer {
-      position: relative;
-      z-index: 2;
-      padding: 24px 22px 36px;
-      color: #8D94B4;
-      text-align: center;
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
-      font-size: 13px;
-      letter-spacing: 0.2px;
-    }
-
-    .fade-in {
-      opacity: 0;
-      transform: translateY(26px);
-      transition: opacity 0.7s ease, transform 0.7s ease;
-    }
-
-    .fade-in.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .modal-backdrop {
-      position: fixed;
-      inset: 0;
-      z-index: 50;
-      background: rgba(6, 7, 12, 0.7);
-      backdrop-filter: blur(20px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.25s ease;
-    }
-
-    .modal-backdrop.open {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .modal-card {
-      width: min(980px, 95vw);
-      max-height: min(86vh, 880px);
-      overflow: auto;
-      border-radius: 22px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      background: linear-gradient(145deg, rgba(16, 18, 28, 0.95), rgba(10, 10, 15, 0.96));
-      box-shadow: 0 24px 66px rgba(0, 0, 0, 0.46);
-      padding: 22px 22px 28px;
-      transform: scale(0.72);
-      opacity: 0;
-      transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.24, 1), opacity 0.26s ease;
-      color: #EAEFFF;
-    }
-
-    .modal-backdrop.open .modal-card {
-      transform: scale(1);
-      opacity: 1;
-    }
-
-    .modal-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 14px;
-      margin-bottom: 16px;
-    }
-
-    .modal-title {
-      margin: 0;
-      font-size: clamp(22px, 3vw, 30px);
-      font-weight: 800;
-      letter-spacing: 0.3px;
-    }
-
-    .modal-close {
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      color: #EEF2FF;
-      background: rgba(255, 255, 255, 0.06);
-      border-radius: 999px;
-      width: 34px;
-      height: 34px;
-      font-size: 16px;
-      cursor: pointer;
-      transition: 0.2s ease;
-    }
-
-    .modal-close:hover {
-      border-color: rgba(0, 228, 255, 0.7);
-      box-shadow: 0 0 0 1px rgba(0, 228, 255, 0.2);
-    }
-
-    .modal-content {
-      color: #CCD3EE;
-      line-height: 1.86;
-      font-size: 15px;
-    }
-
-    .modal-content h4 {
-      margin: 22px 0 10px;
-      color: #F4F7FF;
-      font-size: 18px;
-    }
-
-    .modal-content p {
-      margin: 0 0 10px;
-    }
-
-    .modal-content .chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 10px;
-    }
-
-    .modal-content .chip {
-      display: inline-flex;
-      align-items: center;
-      padding: 5px 10px;
-      border-radius: 999px;
-      font-size: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      background: rgba(255, 255, 255, 0.05);
-      color: #E8EEFF;
-    }
-
-    .time-line {
-      margin-top: 8px;
-      padding-left: 0;
-      list-style: none;
-      display: grid;
-      gap: 10px;
-    }
-
-    .time-line li {
-      border-left: 2px solid rgba(242, 242, 245, 0.45);
-      padding: 6px 0 6px 14px;
-      position: relative;
-    }
-
-    .time-line li::before {
-      content: "";
-      width: 9px;
-      height: 9px;
-      border-radius: 50%;
-      background: #F2F2F5;
-      position: absolute;
-      left: -6px;
-      top: 11px;
-    }
-
-    @media (max-width: 980px) {
-      .hero-meta {
-        max-width: calc(100vw - 40px);
+      .glow-border {
+        @apply relative before:absolute before:inset-0 before:p-[1px] before:rounded-xl before:bg-gradient-to-r before:from-neon before:via-quantum before:to-gold before:-z-10 before:blur-sm;
       }
-
-      .hero-meta .hint {
-        font-size: 11px;
-      }
-
-      .legend {
-        left: 12px;
-        right: 12px;
-        bottom: 10px;
-        max-width: none;
-      }
-
-      .hero-controls {
-        top: 12px;
-        right: 12px;
-      }
-
-      .hero-controls button {
-        padding: 8px 10px;
-        font-size: 11px;
-      }
-
-      .section {
-        padding: 78px 14px;
+      .scrollbar-hide::-webkit-scrollbar {
+        display: none;
       }
     }
   </style>
+  
+  <!-- 全局样式 -->
+  <style>
+    html {
+      scroll-behavior: smooth;
+    }
+    body {
+      overflow-x: hidden;
+      background: #0A0F1D;
+    }
+    #particles-js {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      z-index: 0;
+    }
+    /* 3D容器样式 */
+    #aigc-3d-container {
+      width: 100%;
+      height: 400px;
+      border-radius: 24px;
+      overflow: hidden;
+    }
+    @media (min-width: 768px) {
+      #aigc-3d-container {
+        height: 500px;
+      }
+    }
+    .section-animate {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+    }
+    .section-animate.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
 </head>
-<body>
-  <section id="hero" class="hero">
-    <div class="hero-meta">
-      <div class="name">XinYU20040412 · Personal Graph</div>
-      <div class="hint">首屏聚焦个人图谱：中心根节点向四象限辐射，支持拖拽平移、滚轮缩放、双指缩放，节点 hover 看详情，点击跳转项目或打开弹窗。</div>
-    </div>
 
-    <div class="hero-controls">
-      <button id="toTopBtn" type="button">回到顶部</button>
-      <button id="fullscreenBtn" type="button">全屏展开图谱</button>
-    </div>
-
-    <div id="graphWrap" class="graph-wrap" aria-label="个人图谱交互画布">
-      <!-- 优化：紧凑可视区域，适配全局显示 -->
-      <svg id="treeSvg" viewBox="-700 -500 1400 1000" preserveAspectRatio="xMidYMid meet">
-        <defs>
-          <linearGradient id="grad-core" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stop-color="#3A84FF" />
-            <stop offset="100%" stop-color="#165DFF" />
-          </linearGradient>
-          <linearGradient id="grad-a" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stop-color="#9B5CFF" />
-            <stop offset="100%" stop-color="#7B2FFD" />
-          </linearGradient>
-          <linearGradient id="grad-b" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stop-color="#68F3FF" />
-            <stop offset="100%" stop-color="#00E4FF" />
-          </linearGradient>
-          <linearGradient id="grad-c" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stop-color="#FFBF66" />
-            <stop offset="100%" stop-color="#FF9F1C" />
-          </linearGradient>
-          <linearGradient id="grad-d" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stop-color="#FFFFFF" />
-            <stop offset="100%" stop-color="#F2F2F5" />
-          </linearGradient>
-          <linearGradient id="link-a" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stop-color="#B48AFF" />
-            <stop offset="100%" stop-color="#7B2FFD" />
-          </linearGradient>
-          <linearGradient id="link-b" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stop-color="#8AF7FF" />
-            <stop offset="100%" stop-color="#00E4FF" />
-          </linearGradient>
-          <linearGradient id="link-c" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stop-color="#FFD49B" />
-            <stop offset="100%" stop-color="#FF9F1C" />
-          </linearGradient>
-          <linearGradient id="link-d" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stop-color="#FFFFFF" />
-            <stop offset="100%" stop-color="#CFCFD9" />
-          </linearGradient>
-        </defs>
-        <g id="viewportLayer">
-          <g id="linksLayer"></g>
-          <g id="nodesLayer"></g>
-        </g>
-      </svg>
-      <div id="tooltip" role="status" aria-live="polite"></div>
-    </div>
-
-    <div class="legend" aria-hidden="true">
-      <div class="legend-item"><span class="legend-dot" style="color:#7B2FFD;background:#7B2FFD"></span>确定性模型</div>
-      <div class="legend-item"><span class="legend-dot" style="color:#00E4FF;background:#00E4FF"></span>随机模型-深度学习</div>
-      <div class="legend-item"><span class="legend-dot" style="color:#FF9F1C;background:#FF9F1C"></span>自修改实用代码储藏库</div>
-      <div class="legend-item"><span class="legend-dot" style="color:#F2F2F5;background:#F2F2F5"></span>关于我</div>
-    </div>
-  </section>
-
-  <section id="philosophy-section" class="section fade-in">
-    <div class="section-inner">
-      <h2 class="title"><span class="accent">我的理念</span> | 确定性与智能系统融合</h2>
-      <p class="lead">我坚持以数理建模为骨架，以工程问题为落点，以深度学习为工具链，持续构建可解释、可验证、可迁移的算法系统。核心方向是“确定性信息深度学习”：在高维模型中引入物理与结构先验，收束随机搜索空间，平衡精度、效率与可靠性。</p>
-      <div class="philosophy-card">
-        <p>物理训练带给我的不是单点知识，而是一种长期有效的思维范式：从假设出发、用模型描述、用数据校验、再回到机制修正。这种方法可以跨学科迁移，并在建模竞赛、科研项目和工程实现中形成稳定闭环。</p>
-        <p>我始终坚信，模型的本质是对客观世界的结构化抽象，而非单纯的函数拟合。无论是确定性的微分方程、递推关系，还是随机性的统计学习、深度网络，最终都要服务于“可解释、可复现、可落地”的工程目标。</p>
-        <p>我把“模型学”理解为一个持续进化的系统工程：起于确定性建模，拓展到随机优化，再融合深度学习进行高维特征学习与逆向设计。目标不是堆叠算法，而是在复杂问题中构造清晰的结构、可控的路径和可复现的结果。</p>
-        <p>在学习与科研的过程中，我逐渐形成了自己的核心方法论：以物理机制为锚点约束模型，以数学工具为手段求解问题，以工程实践为标准验证效果。拒绝黑箱，追求本质，在确定性与随机性之间找到最优平衡。</p>
-        <p>未来我会继续在两个方向深耕：其一，用数学物理先验约束深度学习的随机性，让AI更可控、更可信；其二，面向实际工程场景构建“可解释 + 可部署 + 可拓展”的智能优化框架，让前沿算法真正落地创造价值。</p>
+<body class="text-white font-sans">
+  <!-- 粒子背景 -->
+  <div id="particles-js"></div>
+  
+  <!-- 内容容器 -->
+  <div class="relative z-10">
+    <!-- 导航栏 -->
+    <nav id="navbar" class="fixed top-0 w-full z-50 transition-all duration-500 py-4">
+      <div class="container mx-auto px-6 flex justify-between items-center">
+        <a href="#" class="text-2xl font-bold text-gradient">余鑫</a>
+        <div class="hidden md:flex gap-8 items-center">
+          <a href="#about" class="hover:text-neon transition-colors">关于我</a>
+          <a href="#education" class="hover:text-neon transition-colors">教育背景</a>
+          <a href="#research" class="hover:text-neon transition-colors">科研经历</a>
+          <a href="#competition" class="hover:text-neon transition-colors">竞赛经历</a>
+          <a href="#project-graph" class="hover:text-neon transition-colors">项目图谱</a>
+          <a href="#repo-grid" class="hover:text-neon transition-colors">开源项目库</a>
+          <a href="#contact" class="hover:text-neon transition-colors">联系我</a>
+        </div>
       </div>
-    </div>
-  </section>
+    </nav>
 
-  <section id="opensource" class="section fade-in" style="padding-top:62px;">
-    <div class="section-inner">
-      <h2 class="title"><span class="accent">开源项目库</span> | 项目图谱补充视图</h2>
-      <p class="lead">首屏图谱强调结构与关系，这里提供卡片式浏览入口，便于快速定位仓库、阅读说明与直接跳转。</p>
-      <div class="repo-grid">
-        <a class="repo-card" href="https://github.com/XinYU20040412/Operation-Regulation-of-Bench-Dragon-Dance-Based-on-Recursive-Model" target="_blank" rel="noopener">
-          <h4>基于递推模型的板凳龙运行调控</h4>
-          <p>2024 国赛核心建模项目，递推与碰撞约束耦合优化。</p>
-          <span class="tag">确定性模型</span>
-        </a>
-        <a class="repo-card" href="https://github.com/XinYU20040412/AESAGA-Newton-Based-UAV-Bombing-Strategy-Optimization" target="_blank" rel="noopener">
-          <h4>AESAGAWithNewton 无人机投弹策略优化</h4>
-          <p>融合遗传、退火与牛顿局部搜索的混合优化框架。</p>
-          <span class="tag">确定性模型</span>
-        </a>
-        <a class="repo-card" href="https://github.com/XinYU20040412/tooth_decoupled_modeling" target="_blank" rel="noopener">
-          <h4>DiT + FlowMatch 3D 生成</h4>
-          <p>国家超算中心方向项目，聚焦结构缺陷补齐重建。</p>
-          <span class="tag">随机模型-深度学习</span>
-        </a>
-        <a class="repo-card" href="https://github.com/XinYU20040412/equivariant-nn-cmos-2d-op" target="_blank" rel="noopener">
-          <h4>等变神经网络 CMOS 二维栅极材料预测</h4>
-          <p>中科院物理所方向，连接物理先验与材料性能建模。</p>
-          <span class="tag">随机模型-深度学习</span>
-        </a>
-        <a class="repo-card" href="https://github.com/XinYU20040412/self-creat-great-code" target="_blank" rel="noopener">
-          <h4>self-creat-great-code</h4>
-          <p>长期竞赛与实践积累的算法仓库，按主题分区沉淀。</p>
-          <span class="tag">实用代码储藏库</span>
-        </a>
-        <a class="repo-card" href="https://github.com/XinYU20040412/Optimization-and-Modulation-of-Reflector-Based-on-Re-continuation" target="_blank" rel="noopener">
-          <h4>基于重连续化的反射镜优化调控</h4>
-          <p>自训练项目，强调降维平面化与非线性拟合组合策略。</p>
-          <span class="tag">确定性模型</span>
-        </a>
+    <!-- Hero首屏 新增3D-AIGC块 -->
+    <section class="min-h-screen flex items-center justify-center relative">
+      <div class="container mx-auto px-6 z-10">
+        <div class="grid md:grid-cols-2 gap-10 items-center">
+          <!-- 左侧文字内容 -->
+          <div class="text-center md:text-left">
+            <h1 class="text-[clamp(2.5rem,8vw,5rem)] font-bold leading-tight mb-4">
+              <span class="text-gradient bg-[length:200%_200%] animate-gradient-shift">余鑫</span>
+            </h1>
+            <h2 class="text-[clamp(1.2rem,3vw,2rem)] font-medium text-white/80 mb-6">
+              湖南大学 | 应用物理学本科 | 国家奖学金得主
+            </h2>
+            <div class="flex flex-wrap justify-center md:justify-start gap-4 mb-10">
+              <span class="px-4 py-2 rounded-full card-gradient border border-neon/30 text-neon">GPA 3.95/4.0 | 专业 2/112</span>
+              <span class="px-4 py-2 rounded-full card-gradient border border-quantum/30 text-quantum">物理信息深度学习</span>
+              <span class="px-4 py-2 rounded-full card-gradient border border-gold/30 text-gold">数学建模与智能优化</span>
+              <span class="px-4 py-2 rounded-full card-gradient border border-white/20">等变神经网络</span>
+            </div>
+            <div class="flex flex-wrap justify-center md:justify-start gap-4">
+              <a href="#about" class="px-8 py-3 rounded-xl bg-gradient-to-r from-cosmic to-quantum hover:opacity-90 transition-opacity font-medium">
+                了解我的理念
+              </a>
+              <a href="#repo-grid" class="px-8 py-3 rounded-xl card-gradient border border-neon/50 hover:border-neon transition-all font-medium">
+                查看我的项目
+              </a>
+            </div>
+          </div>
+          <!-- 右侧3D-AIGC生成块 -->
+          <div class="card-gradient glow-border p-1 animate-float">
+            <div id="aigc-3d-container"></div>
+          </div>
+        </div>
       </div>
-    </div>
-  </section>
-
-  <footer>© 2026 XinYU20040412 · Personal Graph Portfolio</footer>
-
-  <div id="modalBackdrop" class="modal-backdrop" aria-hidden="true">
-    <div id="modalCard" class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-      <div class="modal-head">
-        <h3 id="modalTitle" class="modal-title"></h3>
-        <button id="modalClose" class="modal-close" type="button" aria-label="关闭">×</button>
+      <!-- 下滑提示 -->
+      <div class="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce">
+        <i class="fa fa-chevron-down text-neon text-2xl"></i>
       </div>
-      <div id="modalContent" class="modal-content"></div>
+    </section>
+
+    <!-- 关于我 & 个人理念 -->
+    <section id="about" class="py-20 section-animate">
+      <div class="container mx-auto px-6">
+        <h2 class="text-[clamp(1.8rem,4vw,3rem)] font-bold mb-12 text-center text-gradient">关于我</h2>
+        
+        <div class="max-w-4xl mx-auto card-gradient rounded-2xl p-8 md:p-10 glow-border">
+          <h3 class="text-2xl font-bold mb-6 text-gradient-gold">我的研究理念</h3>
+          <p class="text-white/80 text-lg leading-relaxed mb-6">
+            物理授予我的最大特点就是无止境的思索，我也终能够理解为什么科学的起源叫做自然哲学：共同的思考范式，即无止境的探知求索到底什么才是“真”，什么才是“对”。这套深度思考的范式是可以迁移到任何学科任何方向上的，故而数学物理可以称之为“基础”。
+          </p>
+          <p class="text-white/80 text-lg leading-relaxed mb-8">
+            我找到了我的兴趣以及终生的事业——<span class="text-neon font-bold">模型学</span>：起于数学建模，深于物理学习，升于深度学习，终于描述性。我想要以数学物理框架中的这份“建模描述性”为我的纲领，深化于我的哲学式深刻思考与求索，富集数学物理的营养，运用新时代深度学习可以处理高维灾难的本领，处理传统确定性模型精度与效率对现实的矛盾。
+          </p>
+          
+          <!-- 打开完整个人思考的按钮 -->
+          <button id="openPhilosophy" class="w-full md:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-neon to-cosmic hover:opacity-90 transition-opacity font-medium">
+            <i class="fa fa-book mr-2"></i> 查看完整《我与“模型学”》个人思考
+          </button>
+        </div>
+        
+        <!-- 核心研究兴趣 -->
+        <div class="grid md:grid-cols-2 gap-6 mt-12">
+          <div class="card-gradient rounded-2xl p-8 hover:animate-glow transition-all duration-500">
+            <div class="text-neon text-3xl mb-4"><i class="fa fa-atom"></i></div>
+            <h4 class="text-xl font-bold mb-3">物理信息深度学习</h4>
+            <p class="text-white/70">高效引入物理建模的确定性，收束深度学习基于数据的随机概率空间，平衡模型的计算效率与可靠、可解释性。</p>
+          </div>
+          <div class="card-gradient rounded-2xl p-8 hover:animate-glow transition-all duration-500">
+            <div class="text-quantum text-3xl mb-4"><i class="fa fa-cubes"></i></div>
+            <h4 class="text-xl font-bold mb-3">仿物学建模思想</h4>
+            <p class="text-white/70">运用“模型”（确定性、随机性模型）去量化、优化工程、科学与客观物理世界问题，从底层深度思考与处理问题。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 教育背景 -->
+    <section id="education" class="py-20 section-animate bg-deep/50">
+      <div class="container mx-auto px-6">
+        <h2 class="text-[clamp(1.8rem,4vw,3rem)] font-bold mb-12 text-center text-gradient">教育背景</h2>
+        
+        <div class="max-w-4xl mx-auto card-gradient rounded-2xl p-8 md:p-10">
+          <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+            <div>
+              <h3 class="text-2xl font-bold text-white">湖南大学</h3>
+              <p class="text-white/70 text-lg">应用物理学 | 本科</p>
+            </div>
+            <div class="mt-2 md:mt-0 px-4 py-2 rounded-full bg-quantum/20 text-quantum font-medium">
+              2023.09 - 至今
+            </div>
+          </div>
+          
+          <div class="grid md:grid-cols-2 gap-4 mb-8">
+            <div class="bg-dark/50 rounded-xl p-4">
+              <p class="text-white/60 text-sm">GPA & 排名</p>
+              <p class="text-xl font-bold text-gold">3.95/4.0 | 专业 2/112</p>
+            </div>
+            <div class="bg-dark/50 rounded-xl p-4">
+              <p class="text-white/60 text-sm">英语能力</p>
+              <p class="text-xl font-bold text-neon">CET4 594 | CET6 500</p>
+            </div>
+          </div>
+          
+          <h4 class="text-xl font-bold mb-4 text-white">主修核心课程</h4>
+          <div class="flex flex-wrap gap-3">
+            <span class="px-3 py-1 rounded-lg bg-cosmic/20 text-cosmic">热力学统计物理 99.5</span>
+            <span class="px-3 py-1 rounded-lg bg-cosmic/20 text-cosmic">理论力学 97</span>
+            <span class="px-3 py-1 rounded-lg bg-cosmic/20 text-cosmic">量子力学 96</span>
+            <span class="px-3 py-1 rounded-lg bg-cosmic/20 text-cosmic">固体物理 96</span>
+            <span class="px-3 py-1 rounded-lg bg-cosmic/20 text-cosmic">数学物理方法 95</span>
+            <span class="px-3 py-1 rounded-lg bg-quantum/20 text-quantum">数学建模与实验</span>
+            <span class="px-3 py-1 rounded-lg bg-quantum/20 text-quantum">数值计算方法</span>
+            <span class="px-3 py-1 rounded-lg bg-quantum/20 text-quantum">多元统计分析</span>
+            <span class="px-3 py-1 rounded-lg bg-neon/20 text-neon">机器学习</span>
+            <span class="px-3 py-1 rounded-lg bg-neon/20 text-neon">算法设计与分析</span>
+            <span class="px-3 py-1 rounded-lg bg-neon/20 text-neon">人工智能类脑计算</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 科研经历 -->
+    <section id="research" class="py-20 section-animate">
+      <div class="container mx-auto px-6">
+        <h2 class="text-[clamp(1.8rem,4vw,3rem)] font-bold mb-12 text-center text-gradient">科研经历</h2>
+        
+        <div class="max-w-5xl mx-auto space-y-8">
+          <!-- 科研项目1 -->
+          <div class="card-gradient rounded-2xl p-8 hover:scale-[1.02] transition-all duration-500">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
+              <h3 class="text-xl md:text-2xl font-bold text-white">限定性全集先验收束的dual_block_DiT缺陷补齐重建</h3>
+              <span class="mt-2 md:mt-0 px-3 py-1 rounded-full bg-neon/20 text-neon text-sm">湖南大学超算中心</span>
+            </div>
+            <p class="text-white/60 mb-4">指导老师：彭绍亮教授</p>
+            <div class="space-y-3 text-white/80">
+              <p>• 针对已有数据建模为给定全集下的逆转补集重构算法，基于DiT+流匹配算法框架，实现牙冠内外结构一体优化生成设计。</p>
+              <p>• 设计算法实现收束高斯噪声全集空间为专向特征全集空间，通过双模块拼接条件向量与多模板训练实现数据扩充与先验特征学习。</p>
+              <p>• 以尖锐采样边缘为显式条件强化细节特征提取，设计双板块transformer_block+动态时间-空间权重门控，实现双尺度细节与先验掌控。</p>
+            </div>
+          </div>
+          
+          <!-- 科研项目2 -->
+          <div class="card-gradient rounded-2xl p-8 hover:scale-[1.02] transition-all duration-500">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
+              <h3 class="text-xl md:text-2xl font-bold text-white">基于等变神经网络的CMOS管二维栅极材料性能预测</h3>
+              <span class="mt-2 md:mt-0 px-3 py-1 rounded-full bg-quantum/20 text-quantum text-sm">中国科学院物理研究所</span>
+            </div>
+            <p class="text-white/60 mb-4">指导老师：潘金波教授 | 严济慈班奖学金项目</p>
+            <div class="space-y-3 text-white/80">
+              <p>• 输入二维范德华材料特征描述符与微观坐标，输出带隙与介电常数预测，改进ALIGNN架构集成KAN算子与注意力机制，增强局部特征提取。</p>
+              <p>• 利用SE(3)等变框架保障模型的旋转平移对称性，以materials_project体材料数据预训练，组内DFT计算数据微调，预测误差达到可接受范围。</p>
+              <p>• 高校校内选拔600人（湖大20人），两轮考查后出线四十人前往中关村物理所70天长期实践。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 竞赛经历 -->
+    <section id="competition" class="py-20 section-animate bg-deep/50">
+      <div class="container mx-auto px-6">
+        <h2 class="text-[clamp(1.8rem,4vw,3rem)] font-bold mb-12 text-center text-gradient">竞赛经历</h2>
+        
+        <div class="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+          <!-- 竞赛1 -->
+          <div class="card-gradient rounded-2xl p-8 h-full hover:animate-glow transition-all duration-500">
+            <div class="text-gold text-3xl mb-4"><i class="fa fa-trophy"></i></div>
+            <h3 class="text-xl font-bold mb-2">2025年全国大学生数学建模竞赛</h3>
+            <p class="text-white/60 mb-4">《基于AESAGA WITH Newton算法的无人机投弹策略优化》</p>
+            <div class="space-y-2 text-white/80">
+              <p>• 身担建模手与编程手，建立无人机运动、投弹轨迹与弹道遮掩几何模型。</p>
+              <p>• 基于匈牙利算法实现投弹分配决策，设计优化目标与混合智能优化算法。</p>
+              <p>• 自主设计AESAGA WITH Newton算法实现复杂组合空间的全局最优求解。</p>
+            </div>
+          </div>
+          
+          <!-- 竞赛2 -->
+          <div class="card-gradient rounded-2xl p-8 h-full hover:animate-glow transition-all duration-500">
+            <div class="text-gold text-3xl mb-4"><i class="fa fa-trophy"></i></div>
+            <h3 class="text-xl font-bold mb-2">2024年全国大学生数学建模竞赛</h3>
+            <p class="text-white/60 mb-4">《基于递推模型的板凳龙运行调控》 | 全国二等奖</p>
+            <div class="space-y-2 text-white/80">
+              <p>• 身担建模手与编程手，设计动静态对比模型，实现阿基米德螺线离散点行进模型、速度传递模型与向量碰撞判断模型。</p>
+              <p>• 通过数学物理分析确定最大运行速度空间节点范围，大幅缩小优化搜索阈。</p>
+            </div>
+          </div>
+          
+          <!-- 竞赛3 -->
+          <div class="card-gradient rounded-2xl p-8 h-full hover:animate-glow transition-all duration-500">
+            <div class="text-neon text-3xl mb-4"><i class="fa fa-award"></i></div>
+            <h3 class="text-xl font-bold mb-2">湖南大学数学建模竞赛</h3>
+            <p class="text-gold font-bold">一等奖（仅六名）</p>
+          </div>
+          
+          <!-- 竞赛4 -->
+          <div class="card-gradient rounded-2xl p-8 h-full hover:animate-glow transition-all duration-500">
+            <div class="text-neon text-3xl mb-4"><i class="fa fa-award"></i></div>
+            <h3 class="text-xl font-bold mb-2">湖南大学数学竞赛</h3>
+            <p class="text-gold font-bold">一等奖</p>
+          </div>
+        </div>
+        
+        <!-- 荣誉奖项 -->
+        <div class="mt-16 max-w-5xl mx-auto">
+          <h3 class="text-2xl font-bold mb-8 text-center text-gradient-gold">荣誉奖项</h3>
+          <div class="grid md:grid-cols-2 gap-6">
+            <div class="card-gradient rounded-xl p-6 text-center hover:scale-[1.05] transition-all">
+              <p class="text-xl font-bold text-gold">国家奖学金</p>
+              <p class="text-white/70">2023-2024学年 | 2024-2025学年</p>
+            </div>
+            <div class="card-gradient rounded-xl p-6 text-center hover:scale-[1.05] transition-all">
+              <p class="text-xl font-bold text-neon">中国科学院物理研究所严济慈班奖学金</p>
+              <p class="text-white/70">2023-2025学年</p>
+            </div>
+            <div class="card-gradient rounded-xl p-6 text-center hover:scale-[1.05] transition-all">
+              <p class="text-xl font-bold text-white">连续两年湖南大学校优秀学生</p>
+              <p class="text-white/70">2023-2024学年 | 2024-2025学年</p>
+            </div>
+            <div class="card-gradient rounded-xl p-6 text-center hover:scale-[1.05] transition-all">
+              <p class="text-xl font-bold text-quantum">全国大学生数学建模竞赛全国二等奖</p>
+              <p class="text-white/70">2024年</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 技能栈 -->
+    <section class="py-20 section-animate">
+      <div class="container mx-auto px-6">
+        <h2 class="text-[clamp(1.8rem,4vw,3rem)] font-bold mb-12 text-center text-gradient">科研技能</h2>
+        
+        <div class="max-w-4xl mx-auto grid md:grid-cols-2 gap-8">
+          <div class="card-gradient rounded-2xl p-8">
+            <h3 class="text-xl font-bold mb-6 text-neon">编程与框架</h3>
+            <div class="space-y-4">
+              <div>
+                <p class="text-white mb-2">Python / PyTorch</p>
+                <div class="w-full h-2 bg-dark rounded-full overflow-hidden">
+                  <div class="h-full w-[95%] bg-gradient-to-r from-neon to-cosmic"></div>
+                </div>
+              </div>
+              <div>
+                <p class="text-white mb-2">等变神经网络（e3nn/ALIGNN）</p>
+                <div class="w-full h-2 bg-dark rounded-full overflow-hidden">
+                  <div class="h-full w-[90%] bg-gradient-to-r from-neon to-cosmic"></div>
+                </div>
+              </div>
+              <div>
+                <p class="text-white mb-2">图神经网络（PyG/DGL）</p>
+                <div class="w-full h-2 bg-dark rounded-full overflow-hidden">
+                  <div class="h-full w-[85%] bg-gradient-to-r from-neon to-cosmic"></div>
+                </div>
+              </div>
+              <div>
+                <p class="text-white mb-2">Linux 开发环境</p>
+                <div class="w-full h-2 bg-dark rounded-full overflow-hidden">
+                  <div class="h-full w-[90%] bg-gradient-to-r from-neon to-cosmic"></div>
+                </div>
+              </div>
+              <div>
+                <p class="text-white mb-2">科学计算库（NumPy/SciPy）</p>
+                <div class="w-full h-2 bg-dark rounded-full overflow-hidden">
+                  <div class="h-full w-[95%] bg-gradient-to-r from-neon to-cosmic"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="card-gradient rounded-2xl p-8">
+            <h3 class="text-xl font-bold mb-6 text-quantum">建模与算法</h3>
+            <div class="flex flex-wrap gap-3">
+              <span class="px-4 py-2 rounded-lg bg-quantum/20 text-quantum">物理问题数学建模</span>
+              <span class="px-4 py-2 rounded-lg bg-quantum/20 text-quantum">偏微分方程数值解</span>
+              <span class="px-4 py-2 rounded-lg bg-quantum/20 text-quantum">模糊层次分析</span>
+              <span class="px-4 py-2 rounded-lg bg-quantum/20 text-quantum">图论路径规划</span>
+              <span class="px-4 py-2 rounded-lg bg-neon/20 text-neon">遗传算法</span>
+              <span class="px-4 py-2 rounded-lg bg-neon/20 text-neon">模拟退火算法</span>
+              <span class="px-4 py-2 rounded-lg bg-neon/20 text-neon">牛顿法优化</span>
+              <span class="px-4 py-2 rounded-lg bg-neon/20 text-neon">混合智能优化算法</span>
+              <span class="px-4 py-2 rounded-lg bg-gold/20 text-gold">多目标优化</span>
+              <span class="px-4 py-2 rounded-lg bg-gold/20 text-gold">匈牙利算法</span>
+              <span class="px-4 py-2 rounded-lg bg-gold/20 text-gold">DiT扩散模型</span>
+              <span class="px-4 py-2 rounded-lg bg-gold/20 text-gold">流匹配</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 项目图谱交互区 已更新真实GitHub地址 -->
+    <section id="project-graph" class="py-20 section-animate bg-deep/50">
+      <div class="container mx-auto px-6">
+        <h2 class="text-[clamp(1.8rem,4vw,3rem)] font-bold mb-8 text-center text-gradient">项目图谱</h2>
+        <p class="text-center text-white/70 max-w-2xl mx-auto mb-12">点击节点即可跳转到对应项目GitHub主页，鼠标悬浮可查看项目详情</p>
+        
+        <div id="graph-container" class="w-full h-[600px] card-gradient rounded-2xl overflow-hidden"></div>
+      </div>
+    </section>
+
+    <!-- 开源项目库卡片区 -->
+    <section id="repo-grid" class="py-20 section-animate">
+      <div class="container mx-auto px-6">
+        <h2 class="text-[clamp(1.8rem,4vw,3rem)] font-bold mb-4 text-center text-gradient">开源项目库</h2>
+        <p class="text-center text-white/70 max-w-2xl mx-auto mb-12">点击卡片即可跳转至对应 GitHub 仓库，悬浮可查看语言构成详情</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+
+          <!-- tooth_decoupled_modeling -->
+          <a href="https://github.com/XinYU20040412/tooth_decoupled_modeling" target="_blank" rel="noopener"
+             class="repo-card card-gradient rounded-2xl p-6 flex flex-col gap-3 hover:-translate-y-2 transition-all duration-300 hover:shadow-[0_0_24px_rgba(0,228,255,0.4)] hover:border-neon/50 cursor-pointer group">
+            <div class="flex items-start gap-3">
+              <span class="mt-0.5 text-neon text-lg shrink-0 group-hover:scale-110 transition-transform duration-300"><i class="fa fa-github"></i></span>
+              <h3 class="font-bold text-white text-sm leading-snug break-all">tooth_decoupled_modeling</h3>
+            </div>
+            <p class="text-white/60 text-xs leading-relaxed flex-1">主项目 DiT + FlowMatch 生成模型；牙冠形态解耦建模与缺陷补齐重建</p>
+            <div class="mt-2 space-y-2">
+              <div class="flex flex-wrap gap-1.5">
+                <span class="text-xs px-2 py-0.5 rounded-full bg-neon/15 text-neon border border-neon/30">Python 86.4%</span>
+                <span class="text-xs px-2 py-0.5 rounded-full bg-quantum/15 text-quantum border border-quantum/30">Jupyter 11.1%</span>
+                <span class="text-xs px-2 py-0.5 rounded-full bg-white/10 text-white/60 border border-white/20">Shell 2.5%</span>
+              </div>
+              <div class="flex h-1.5 rounded-full overflow-hidden gap-px">
+                <div class="bg-neon/70 rounded-l-full" style="width:86.4%"></div>
+                <div class="bg-quantum/70" style="width:11.1%"></div>
+                <div class="bg-white/30 rounded-r-full" style="width:2.5%"></div>
+              </div>
+            </div>
+          </a>
+
+          <!-- AESAGA-Newton -->
+          <a href="https://github.com/XinYU20040412/AESAGA-Newton-Based-UAV-Bombing-Strategy-Optimization" target="_blank" rel="noopener"
+             class="repo-card card-gradient rounded-2xl p-6 flex flex-col gap-3 hover:-translate-y-2 transition-all duration-300 hover:shadow-[0_0_24px_rgba(0,228,255,0.4)] hover:border-neon/50 cursor-pointer group">
+            <div class="flex items-start gap-3">
+              <span class="mt-0.5 text-neon text-lg shrink-0 group-hover:scale-110 transition-transform duration-300"><i class="fa fa-github"></i></span>
+              <h3 class="font-bold text-white text-sm leading-snug break-all">AESAGA-Newton-Based-UAV-Bombing-Strategy-Optimization</h3>
+            </div>
+            <p class="text-white/60 text-xs leading-relaxed flex-1">基于 AESAGAWithNewton 算法的无人机投弹策略优化问题</p>
+            <div class="mt-2 space-y-2">
+              <div class="flex flex-wrap gap-1.5">
+                <span class="text-xs px-2 py-0.5 rounded-full bg-neon/15 text-neon border border-neon/30">Python 100%</span>
+              </div>
+              <div class="flex h-1.5 rounded-full overflow-hidden">
+                <div class="bg-neon/70 rounded-full w-full"></div>
+              </div>
+            </div>
+          </a>
+
+          <!-- Bench Dragon Dance -->
+          <a href="https://github.com/XinYU20040412/Operation-Regulation-of-Bench-Dragon-Dance-Based-on-Recursive-Model" target="_blank" rel="noopener"
+             class="repo-card card-gradient rounded-2xl p-6 flex flex-col gap-3 hover:-translate-y-2 transition-all duration-300 hover:shadow-[0_0_24px_rgba(0,228,255,0.4)] hover:border-neon/50 cursor-pointer group">
+            <div class="flex items-start gap-3">
+              <span class="mt-0.5 text-neon text-lg shrink-0 group-hover:scale-110 transition-transform duration-300"><i class="fa fa-github"></i></span>
+              <h3 class="font-bold text-white text-sm leading-snug break-all">Operation-Regulation-of-Bench-Dragon-Dance-Based-on-Recursive-Model</h3>
+            </div>
+            <p class="text-white/60 text-xs leading-relaxed flex-1">基于递推模型的板凳龙运行调控</p>
+            <div class="mt-2 space-y-2">
+              <div class="flex flex-wrap gap-1.5">
+                <span class="text-xs px-2 py-0.5 rounded-full bg-neon/15 text-neon border border-neon/30">Python 100%</span>
+              </div>
+              <div class="flex h-1.5 rounded-full overflow-hidden">
+                <div class="bg-neon/70 rounded-full w-full"></div>
+              </div>
+            </div>
+          </a>
+
+          <!-- Manipulator Joint Trajectory -->
+          <a href="https://github.com/XinYU20040412/Multi-objective-Optimization-for-Manipulator-Joint-Trajectory" target="_blank" rel="noopener"
+             class="repo-card card-gradient rounded-2xl p-6 flex flex-col gap-3 hover:-translate-y-2 transition-all duration-300 hover:shadow-[0_0_24px_rgba(0,228,255,0.4)] hover:border-neon/50 cursor-pointer group">
+            <div class="flex items-start gap-3">
+              <span class="mt-0.5 text-neon text-lg shrink-0 group-hover:scale-110 transition-transform duration-300"><i class="fa fa-github"></i></span>
+              <h3 class="font-bold text-white text-sm leading-snug break-all">Multi-objective-Optimization-for-Manipulator-Joint-Trajectory</h3>
+            </div>
+            <p class="text-white/60 text-xs leading-relaxed flex-1">机器臂关节角路径的多目标优化设计</p>
+            <div class="mt-2 space-y-2">
+              <div class="flex flex-wrap gap-1.5">
+                <span class="text-xs px-2 py-0.5 rounded-full bg-neon/15 text-neon border border-neon/30">Python 100%</span>
+              </div>
+              <div class="flex h-1.5 rounded-full overflow-hidden">
+                <div class="bg-neon/70 rounded-full w-full"></div>
+              </div>
+            </div>
+          </a>
+
+          <!-- competition_full_source_code -->
+          <a href="https://github.com/XinYU20040412/competition_full_source_code" target="_blank" rel="noopener"
+             class="repo-card card-gradient rounded-2xl p-6 flex flex-col gap-3 hover:-translate-y-2 transition-all duration-300 hover:shadow-[0_0_24px_rgba(0,228,255,0.4)] hover:border-neon/50 cursor-pointer group">
+            <div class="flex items-start gap-3">
+              <span class="mt-0.5 text-neon text-lg shrink-0 group-hover:scale-110 transition-transform duration-300"><i class="fa fa-github"></i></span>
+              <h3 class="font-bold text-white text-sm leading-snug break-all">competition_full_source_code</h3>
+            </div>
+            <p class="text-white/60 text-xs leading-relaxed flex-1">用于存放我参与过的竞赛的源代码（无 Demo 展示，纯源代码）</p>
+            <div class="mt-2 space-y-2">
+              <div class="flex flex-wrap gap-1.5">
+                <span class="text-xs px-2 py-0.5 rounded-full bg-neon/15 text-neon border border-neon/30">Python 96.6%</span>
+                <span class="text-xs px-2 py-0.5 rounded-full bg-gold/15 text-gold border border-gold/30">MATLAB 3.4%</span>
+              </div>
+              <div class="flex h-1.5 rounded-full overflow-hidden gap-px">
+                <div class="bg-neon/70 rounded-l-full" style="width:96.6%"></div>
+                <div class="bg-gold/70 rounded-r-full" style="width:3.4%"></div>
+              </div>
+            </div>
+          </a>
+
+          <!-- -A (华中杯A题) -->
+          <a href="https://github.com/XinYU20040412/-A" target="_blank" rel="noopener"
+             class="repo-card card-gradient rounded-2xl p-6 flex flex-col gap-3 hover:-translate-y-2 transition-all duration-300 hover:shadow-[0_0_24px_rgba(0,228,255,0.4)] hover:border-neon/50 cursor-pointer group">
+            <div class="flex items-start gap-3">
+              <span class="mt-0.5 text-neon text-lg shrink-0 group-hover:scale-110 transition-transform duration-300"><i class="fa fa-github"></i></span>
+              <div>
+                <h3 class="font-bold text-white text-sm leading-snug">华中杯 A 题</h3>
+                <span class="text-white/40 text-xs">repo: -A</span>
+              </div>
+            </div>
+            <p class="text-white/60 text-xs leading-relaxed flex-1">华中杯数学建模竞赛 A 题完整解题代码</p>
+            <div class="mt-2 space-y-2">
+              <div class="flex flex-wrap gap-1.5">
+                <span class="text-xs px-2 py-0.5 rounded-full bg-neon/15 text-neon border border-neon/30">Python 100%</span>
+              </div>
+              <div class="flex h-1.5 rounded-full overflow-hidden">
+                <div class="bg-neon/70 rounded-full w-full"></div>
+              </div>
+            </div>
+          </a>
+
+          <!-- self-creat-great-code -->
+          <a href="https://github.com/XinYU20040412/self-creat-great-code" target="_blank" rel="noopener"
+             class="repo-card card-gradient rounded-2xl p-6 flex flex-col gap-3 hover:-translate-y-2 transition-all duration-300 hover:shadow-[0_0_24px_rgba(0,228,255,0.4)] hover:border-neon/50 cursor-pointer group">
+            <div class="flex items-start gap-3">
+              <span class="mt-0.5 text-neon text-lg shrink-0 group-hover:scale-110 transition-transform duration-300"><i class="fa fa-github"></i></span>
+              <h3 class="font-bold text-white text-sm leading-snug break-all">self-creat-great-code</h3>
+            </div>
+            <p class="text-white/60 text-xs leading-relaxed flex-1">个人代码积累与沉淀</p>
+            <div class="mt-2 space-y-2">
+              <div class="flex flex-wrap gap-1.5">
+                <span class="text-xs px-2 py-0.5 rounded-full bg-quantum/15 text-quantum border border-quantum/30">Jupyter 66.1%</span>
+                <span class="text-xs px-2 py-0.5 rounded-full bg-neon/15 text-neon border border-neon/30">Python 33.9%</span>
+              </div>
+              <div class="flex h-1.5 rounded-full overflow-hidden gap-px">
+                <div class="bg-quantum/70 rounded-l-full" style="width:66.1%"></div>
+                <div class="bg-neon/70 rounded-r-full" style="width:33.9%"></div>
+              </div>
+            </div>
+          </a>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- 联系我 -->
+    <section id="contact" class="py-20 section-animate">
+      <div class="container mx-auto px-6">
+        <h2 class="text-[clamp(1.8rem,4vw,3rem)] font-bold mb-12 text-center text-gradient">联系我</h2>
+        
+        <div class="max-w-3xl mx-auto grid md:grid-cols-3 gap-6">
+          <a href="mailto:2698043274@qq.com" class="card-gradient rounded-xl p-6 text-center hover:scale-[1.05] transition-all hover:border-neon/50">
+            <div class="text-neon text-3xl mb-4"><i class="fa fa-envelope"></i></div>
+            <p class="text-lg font-bold mb-1">邮箱</p>
+            <p class="text-white/70 text-sm">2698043274@qq.com</p>
+          </a>
+          
+          <div class="card-gradient rounded-xl p-6 text-center hover:scale-[1.05] transition-all hover:border-gold/50">
+            <div class="text-gold text-3xl mb-4"><i class="fa fa-phone"></i></div>
+            <p class="text-lg font-bold mb-1">电话</p>
+            <p class="text-white/70 text-sm">13995951764</p>
+          </div>
+          
+          <a href="https://github.com/XinYU20040412" target="_blank" class="card-gradient rounded-xl p-6 text-center hover:scale-[1.05] transition-all hover:border-quantum/50">
+            <div class="text-quantum text-3xl mb-4"><i class="fa fa-github"></i></div>
+            <p class="text-lg font-bold mb-1">GitHub</p>
+            <p class="text-white/70 text-sm">XinYU20040412</p>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="py-8 border-t border-white/10">
+      <div class="container mx-auto px-6 text-center">
+        <p class="text-white/50">© 2026 余鑫 | 湖南大学应用物理学</p>
+      </div>
+    </footer>
+
+    <!-- 《我与模型学》全屏模态框 -->
+    <div id="philosophyModal" class="fixed inset-0 z-[100] bg-deep/95 backdrop-blur-md hidden flex items-center justify-center p-6">
+      <div class="w-full max-w-4xl max-h-[90vh] card-gradient rounded-2xl p-8 overflow-y-auto scrollbar-hide relative">
+        <button id="closeModal" class="absolute top-6 right-6 text-white/70 hover:text-neon text-2xl">
+          <i class="fa fa-times"></i>
+        </button>
+        
+        <h2 class="text-3xl font-bold mb-6 text-gradient-gold text-center">我与“模型学”</h2>
+        <div class="space-y-6 text-white/80 text-lg leading-relaxed">
+          <h3 class="text-2xl font-bold text-white">引入—学科理解</h3>
+          <p>
+            物理授予我的最大特点就是无止境的思索，我也终能够理解为什么科学的起源叫做自然哲学：共同的思考范式，即无止境的探知求索到底什么才是“真”，什么才是“对”。这套深度思考的范式是可以迁移到任何学科任何方向上的，故而数学物理可以称之为“basic”—基础。
+          </p>
+          <p>
+            我将数学物理从两个视角切入：<br>
+            1， 我们采取回溯的视角去观测。数学物理的起源其实是为了“描述”，也就是我们的数学建模：数学描述生活中的一切量化特征（突出我们关心的核心特征而忽略其他特性，就如1+1=2就高效的提取了“量的特征”），物理为了描述客观物理现实中的各种现象、实验，力求对现实世界进行指导。<br>
+            2， 我们再采用演绎的视角去审视。数学物理基于数学建模的描述但是又远高于数学建模，总结起来，原因在于：基于公理（数学）/定律（物理）的逻辑包闭自洽，形象的说就是我画一个圆之后要可以实现首尾相接，并且画的这个圆要足够大以至于包含的住我所有现代物理现实/数学逻辑体系。另外，画这个圆的起点是没有被固定的，我完全可以在已有圆上去做出其他的“外切圆”同样实现逻辑包闭自洽（这就导致数学体系超出现实，落于抽象空间），所有“圆”的全集就是我们的数学物理“大厦”。
+          </p>
+          
+          <h3 class="text-2xl font-bold text-white mt-8">兴趣落点与未来方向</h3>
+          <p>
+            而我在不断的思考后，发现人的兴趣和热爱可以由几个字概括：兴趣以能力为激发点，但一定会最终收束回（在你富集信息后，进行尝试、试错后的）认知框架。而我认为我已经找到了我的兴趣以及终生的事业——模型学：起于数学建模，深于物理学习，升于深度学习，终于描述性。
+          </p>
+          <p>
+            我想要以数学物理框架中的这份“建模描述性”为我的纲领（因为物理的本质更偏“描述”，我不想因为进入某个行业就丢掉物理的“屠龙术”，失去我作为一个物理专业学生对客观物理现实的“泛化性”），深化于我的哲学式深刻思考与求索，富集数学物理的营养，运用新时代深度学习可以处理高维灾难的本领，处理传统确定性模型精度与效率对现实的矛盾。
+          </p>
+          <p>
+            我想我的研究兴趣或者未来研究方向或许可以由下述几点概括：<br>
+            1， 如何高效引入物理建模的确定性去收束深度学习基于数据的随机概率空间？<br>
+            2， 我们的很多技术，灵感都是源于仿生学，仿自然学建模（如attention，退火机制~），我不想“拼积木”，更想运用仿物学思想，运用“模型”（确定性，随机性）去解决，量化，优化工程、科学。客观物理世界的问题！（想法源于我对数学建模竞赛的参与：以物理机制为主导，以数学为语言，以计算机为工具，居然可以“泛化/不拘泥的”“解决”生活中的那么多问题！这太有趣了不是吗）<br>
+            3， 在试探，操作过程中我有了一些形而上学的想法：现代计算已经不像是费米黄金定则那般的简单映射，而是一个复杂的系统，内部存在着数据流以及参数信息的交互。我以热统的视角去观察：他是一个系统，我可以用“粗粒化”的视角去审视（用流来表示数据的传递，用熵或者其他指标来描述体系的性质——决策树不就是这么做的嘛），我可否将其归于物理系统学并且期于运用此理论体系对其进行数据实验的指导、调控？可否以一套体系具体评估一个算法“系统”的好坏？可否评估好坏后再反向去确定输入参数的范围以减小调参的经验性（如同人类科学史的发展：由经验性试错到有理论的定向指引）？<br>
+            4， 可以从底层思考，底层处理问题，深度思考，比较包含数理的方向
+          </p>
+        </div>
+      </div>
     </div>
   </div>
 
+  <!-- JS脚本 -->
   <script>
-    const COLOR_BY_BRANCH = {
-      core: { fill: "url(#grad-core)", link: "url(#link-b)" },
-      deterministic: { fill: "url(#grad-a)", link: "url(#link-a)" },
-      stochastic: { fill: "url(#grad-b)", link: "url(#link-b)" },
-      vault: { fill: "url(#grad-c)", link: "url(#link-c)" },
-      about: { fill: "url(#grad-d)", link: "url(#link-d)" }
-    };
-
-    // 核心优化：全局缩放节点坐标×0.6，缩小半径，适配全屏显示
-    const NODES = [
-      {
-        id: "root",
-        parent: null,
-        level: 0,
-        branch: "core",
-        label: "XinYU20040412\n(XinYu)",
-        x: 0,
-        y: 0,
-        r: 55,
-        action: "url",
-        url: "https://github.com/XinYU20040412",
-        tooltip: "个人主页根节点，点击跳转 GitHub 主页。"
+    // 粒子背景初始化
+    particlesJS('particles-js', {
+      "particles": {
+        "number": { "value": 80, "density": { "enable": true, "value_area": 800 } },
+        "color": { "value": ["#00E4FF", "#722ED1", "#165DFF"] },
+        "shape": { "type": "circle" },
+        "opacity": { "value": 0.5, "random": true },
+        "size": { "value": 3, "random": true },
+        "line_linked": { "enable": true, "distance": 150, "color": "#165DFF", "opacity": 0.2, "width": 1 },
+        "move": { "enable": true, "speed": 1, "direction": "none", "random": true, "straight": false, "out_mode": "out", "bounce": false }
       },
-      {
-        id: "deterministic",
-        parent: "root",
-        level: 1,
-        branch: "deterministic",
-        label: "确定性模型",
-        x: -252,
-        y: -150,
-        r: 34,
-        action: "none",
-        tooltip: "确定性模型主分支。悬停可展开/收起子分支。"
-      },
-      {
-        id: "bench_dragon",
-        parent: "deterministic",
-        level: 2,
-        branch: "deterministic",
-        label: "板凳龙\n运行调控",
-        x: -449,
-        y: -234,
-        r: 28,
-        action: "url",
-        url: "https://github.com/XinYU20040412/Operation-Regulation-of-Bench-Dragon-Dance-Based-on-Recursive-Model",
-        tooltip: "基于递推模型的板凳龙运行调控——24数模国赛"
-      },
-      {
-        id: "uav_aesaga",
-        parent: "deterministic",
-        level: 2,
-        branch: "deterministic",
-        label: "无人机\n投弹优化",
-        x: -374,
-        y: -84,
-        r: 28,
-        action: "url",
-        url: "https://github.com/XinYU20040412/AESAGA-Newton-Based-UAV-Bombing-Strategy-Optimization",
-        tooltip: "基于AESAGAWithNewton 算法的无人机投弹策略优化问题——25数模国赛"
-      },
-      {
-        id: "arm_path",
-        parent: "deterministic",
-        level: 2,
-        branch: "deterministic",
-        label: "机器臂\n路径优化",
-        x: -473,
-        y: -148,
-        r: 24,
-        action: "url",
-        url: "https://github.com/XinYU20040412/Multi-objective-Optimization-for-Manipulator-Joint-Trajectory",
-        tooltip: "机器臂关节角路径的多目标优化设计——24华数杯"
-      },
-      {
-        id: "porous_reflect",
-        parent: "deterministic",
-        level: 2,
-        branch: "deterministic",
-        label: "多孔膜\n光反射优化",
-        x: -526,
-        y: -56,
-        r: 20,
-        action: "url",
-        url: "https://github.com/XinYU20040412/Optimization-and-Modulation-of-Optical-Reflectance-Properties-of-Porous-Membranes",
-        tooltip: "多孔膜光反射性能的优化与控制——25华数杯"
-      },
-      {
-        id: "reflector_recontinuation",
-        parent: "deterministic",
-        level: 2,
-        branch: "deterministic",
-        label: "反射镜\n优化调控",
-        x: -344,
-        y: -259,
-        r: 20,
-        action: "url",
-        url: "https://github.com/XinYU20040412/Optimization-and-Modulation-of-Reflector-Based-on-Re-continuation",
-        tooltip: "基于重连续化的反射镜优化调控——self训练-21国赛"
-      },
-      {
-        id: "atmosphere_model",
-        parent: "deterministic",
-        level: 2,
-        branch: "deterministic",
-        label: "大气能量\n季节模型",
-        x: -535,
-        y: -168,
-        r: 16,
-        action: "url",
-        url: "https://github.com/XinYU20040412/A-Atmospheric-Energy-Penetration-Seasonal-Model",
-        tooltip: "大气能量穿透季节模型——24华中杯"
-      },
-
-      {
-        id: "stochastic",
-        parent: "root",
-        level: 1,
-        branch: "stochastic",
-        label: "随机模型-\n深度学习",
-        x: 252,
-        y: -150,
-        r: 34,
-        action: "none",
-        tooltip: "随机模型-深度学习主分支。悬停可展开/收起子分支。"
-      },
-      {
-        id: "ai_engineer",
-        parent: "stochastic",
-        level: 2,
-        branch: "stochastic",
-        label: "ai for\nenginner",
-        x: 370,
-        y: -243,
-        r: 24,
-        action: "none",
-        tooltip: "ai for enginner 二级分支。"
-      },
-      {
-        id: "nsc_center",
-        parent: "ai_engineer",
-        level: 3,
-        branch: "stochastic",
-        label: "国家超算\n中心",
-        x: 491,
-        y: -299,
-        r: 28,
-        action: "url",
-        url: "https://github.com/XinYU20040412/tooth_decoupled_modeling",
-        tooltip: "基于DiT+Flowmatch的3D生成"
-      },
-      {
-        id: "ai_materials",
-        parent: "stochastic",
-        level: 2,
-        branch: "stochastic",
-        label: "ai for\nmaterials",
-        x: 392,
-        y: -98,
-        r: 24,
-        action: "none",
-        tooltip: "ai for materials 二级分支。"
-      },
-      {
-        id: "cas_iop",
-        parent: "ai_materials",
-        level: 3,
-        branch: "stochastic",
-        label: "中科院\n物理所",
-        x: 510,
-        y: -149,
-        r: 24,
-        action: "url",
-        url: "https://github.com/XinYU20040412/equivariant-nn-cmos-2d-op",
-        tooltip: "《基于等变神经网络的CMOS管二维栅极材料性能预测以及逆向结构优化生成》"
-      },
-      {
-        id: "self_research",
-        parent: "ai_materials",
-        level: 3,
-        branch: "stochastic",
-        label: "自己的\n科研探索",
-        x: 621,
-        y: -51,
-        r: 26,
-        action: "url",
-        url: "https://github.com/XinYU20040412/bloch-nn-intrinsic",
-        tooltip: "布洛赫定理在深度学习中的规范"
-      },
-
-      {
-        id: "vault",
-        parent: "root",
-        level: 1,
-        branch: "vault",
-        label: "自修改实用\n代码储藏库",
-        x: -252,
-        y: 150,
-        r: 34,
-        action: "url",
-        url: "https://github.com/XinYU20040412/self-creat-great-code",
-        tooltip: "本人在漫长的竞赛、实践、项目中积累的自改造优秀算法归纳"
-      },
-      {
-        id: "vault_opt",
-        parent: "vault",
-        level: 2,
-        branch: "vault",
-        label: "优化算法",
-        x: -576,
-        y: 108,
-        r: 24,
-        action: "url",
-        url: "https://github.com/XinYU20040412/self-creat-great-code/tree/main/%E4%BC%98%E5%8C%96%E7%AE%97%E6%B3%95",
-        tooltip: "自修改实用代码储藏库 / 优化算法"
-      },
-      {
-        id: "vault_stats",
-        parent: "vault",
-        level: 2,
-        branch: "vault",
-        label: "多元统计\n分析",
-        x: -672,
-        y: 180,
-        r: 24,
-        action: "url",
-        url: "https://github.com/XinYU20040412/self-creat-great-code/tree/main/%E5%A4%9A%E5%85%83%E7%BB%9F%E8%AE%A1%E5%88%86%E6%9E%90",
-        tooltip: "自修改实用代码储藏库 / 多元统计分析"
-      },
-      {
-        id: "vault_num",
-        parent: "vault",
-        level: 2,
-        branch: "vault",
-        label: "数值计算",
-        x: -594,
-        y: 267,
-        r: 24,
-        action: "url",
-        url: "https://github.com/XinYU20040412/self-creat-great-code/tree/main/%E6%95%B0%E5%80%BC%E8%AE%A1%E7%AE%97",
-        tooltip: "自修改实用代码储藏库 / 数值计算"
-      },
-      {
-        id: "vault_ml",
-        parent: "vault",
-        level: 2,
-        branch: "vault",
-        label: "机器学习\n经典原型",
-        x: -456,
-        y: 291,
-        r: 24,
-        action: "url",
-        url: "https://github.com/XinYU20040412/self-creat-great-code/tree/main/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E7%BB%8F%E5%85%B8%E5%8E%9F%E5%9E%8B",
-        tooltip: "自修改实用代码储藏库 / 机器学习经典原型"
-      },
-      {
-        id: "vault_tools",
-        parent: "vault",
-        level: 2,
-        branch: "vault",
-        label: "自建\n工具箱",
-        x: -417,
-        y: 192,
-        r: 24,
-        action: "url",
-        url: "https://github.com/XinYU20040412/self-creat-great-code/tree/main/%E8%87%AA%E5%BB%BA%E5%B7%A5%E5%85%B7%E7%AE%B1",
-        tooltip: "自修改实用代码储藏库 / 自建工具箱"
-      },
-
-      {
-        id: "about",
-        parent: "root",
-        level: 1,
-        branch: "about",
-        label: "关于我",
-        x: 252,
-        y: 150,
-        r: 34,
-        action: "none",
-        tooltip: "关于我主分支。悬停可展开/收起子分支。"
-      },
-      {
-        id: "about_philosophy",
-        parent: "about",
-        level: 2,
-        branch: "about",
-        label: "我的理念",
-        x: 480,
-        y: 126,
-        r: 30,
-        action: "anchor",
-        anchor: "#philosophy-section",
-        tooltip: "点击跳转主页面“我的理念”板块"
-      },
-      {
-        id: "about_edu",
-        parent: "about",
-        level: 2,
-        branch: "about",
-        label: "教育背景",
-        x: 624,
-        y: 192,
-        r: 24,
-        action: "modal",
-        modal: "education",
-        tooltip: "点击打开教育背景弹窗"
-      },
-      {
-        id: "about_research",
-        parent: "about",
-        level: 2,
-        branch: "about",
-        label: "科研经历",
-        x: 600,
-        y: 267,
-        r: 24,
-        action: "modal",
-        modal: "research",
-        tooltip: "点击打开科研经历弹窗"
-      },
-      {
-        id: "about_competition",
-        parent: "about",
-        level: 2,
-        branch: "about",
-        label: "竞赛经历",
-        x: 474,
-        y: 312,
-        r: 24,
-        action: "modal",
-        modal: "competition",
-        tooltip: "点击打开竞赛经历弹窗"
-      }
-    ];
-
-    const MODAL_CONTENT = {
-      education: {
-        title: "教育背景",
-        html: `
-          <h4>教育经历</h4>
-          <ul class="time-line">
-            <li><strong>湖南大学 · 应用物理学本科</strong><br/>GPA 3.95/4.0，专业排名 2/112。</li>
-            <li><strong>中科院严济慈班选拔经历</strong><br/>校内层层选拔后入选，前往中关村物理所开展长期科研实践。</li>
-            <li><strong>国家超算中心工作经历</strong><br/>参与基于 DiT + FlowMatch 的 3D 生成与工程化训练流程。</li>
-          </ul>
-          <h4>荣誉奖项</h4>
-          <div class="chips">
-            <span class="chip">国家奖学金（连续两年）</span>
-            <span class="chip">中科院物理所严济慈班奖学金</span>
-            <span class="chip">湖南大学优秀学生（连续两年）</span>
-            <span class="chip">全国大学生数学建模竞赛 全国二等奖</span>
-            <span class="chip">湖南大学数学建模竞赛 一等奖</span>
-            <span class="chip">湖南大学数学竞赛 一等奖</span>
-          </div>
-        `
-      },
-      research: {
-        title: "科研经历",
-        html: `
-          <h4>核心科研项目</h4>
-          <p><strong>限定性全集先验收束的 dual_block_DiT 缺陷补齐重建</strong><br/>面向 3D 牙冠结构重建，构建双模块 Transformer block 与动态时间-空间权重门控，强化先验约束与细节表达。</p>
-          <p><strong>基于等变神经网络的 CMOS 二维栅极材料性能预测</strong><br/>融合 SE(3) 等变框架、KAN 算子与注意力结构，构建材料带隙与介电常数预测模型。</p>
-          <h4>科研技能（已合并）</h4>
-          <div class="chips">
-            <span class="chip">Python / PyTorch</span>
-            <span class="chip">e3nn / ALIGNN</span>
-            <span class="chip">图神经网络 PyG / DGL</span>
-            <span class="chip">数值计算与优化</span>
-            <span class="chip">遗传算法 / 模拟退火 / 牛顿法</span>
-            <span class="chip">多目标优化与分配决策</span>
-          </div>
-        `
-      },
-      competition: {
-        title: "竞赛经历",
-        html: `
-          <h4>核心竞赛项目</h4>
-          <p><strong>2025 全国大学生数学建模竞赛</strong><br/>《基于 AESAGA WITH Newton 算法的无人机投弹策略优化》：承担建模与编程，完成多目标分配与混合优化框架设计。</p>
-          <p><strong>2024 全国大学生数学建模竞赛（全国二等奖）</strong><br/>《基于递推模型的板凳龙运行调控》：构建递推运动、速度传递与向量碰撞判定模型。</p>
-          <h4>竞赛奖项汇总</h4>
-          <div class="chips">
-            <span class="chip">全国大学生数学建模竞赛 全国二等奖</span>
-            <span class="chip">湖南大学数学建模竞赛 一等奖（仅六名）</span>
-            <span class="chip">湖南大学数学竞赛 一等奖</span>
-            <span class="chip">多项算法建模实践项目优秀结题</span>
-          </div>
-        `
-      }
-    };
-
-    const expandableBranches = new Set(["deterministic", "stochastic", "about"]);
-
-    const nodeById = new Map(NODES.map((n) => [n.id, n]));
-    const childrenMap = new Map();
-    NODES.forEach((n) => {
-      if (!childrenMap.has(n.id)) {
-        childrenMap.set(n.id, []);
-      }
-    });
-    NODES.forEach((n) => {
-      if (n.parent) {
-        if (!childrenMap.has(n.parent)) {
-          childrenMap.set(n.parent, []);
+      "interactivity": {
+        "detect_on": "canvas",
+        "events": {
+          "onhover": { "enable": true, "mode": "grab" },
+          "onclick": { "enable": true, "mode": "push" },
+          "resize": true
+        },
+        "modes": {
+          "grab": { "distance": 140, "line_linked": { "opacity": 0.5 } },
+          "push": { "particles_nb": 3 }
         }
-        childrenMap.get(n.parent).push(n.id);
-      }
+      },
+      "retina_detect": true
     });
 
-    function getBranchOwner(node) {
-      let cursor = node;
-      while (cursor && cursor.parent && cursor.parent !== "root") {
-        cursor = nodeById.get(cursor.parent);
-      }
-      if (!cursor) {
-        return null;
-      }
-      return cursor.id;
-    }
-
-    NODES.forEach((node) => {
-      node.ownerBranch = node.level === 0 ? "root" : (node.level === 1 ? node.id : getBranchOwner(node));
-    });
-
-    const links = NODES.filter((n) => n.parent).map((n) => ({
-      id: `${n.parent}->${n.id}`,
-      source: n.parent,
-      target: n.id,
-      branch: n.branch
-    }));
-
-    const graphWrap = document.getElementById("graphWrap");
-    const svg = document.getElementById("treeSvg");
-    const viewportLayer = document.getElementById("viewportLayer");
-    const linksLayer = document.getElementById("linksLayer");
-    const nodesLayer = document.getElementById("nodesLayer");
-    const tooltip = document.getElementById("tooltip");
-
-    // 核心优化：初始缩放设为1.0，默认全屏显示
-    const state = {
-      scale: 1.0,
-      minScale: 0.42,
-      maxScale: 1.9,
-      tx: 0,
-      ty: 0,
-      dragging: false,
-      dragStartX: 0,
-      dragStartY: 0,
-      activeBranch: null,
-      highlightedIds: new Set(["root"])
-    };
-
-    let collapseTimer = null;
-
-    let centerX = 0;
-    let centerY = 0;
-
-    const nodeElements = new Map();
-    const linkElements = new Map();
-
-    function updateCenter() {
-      const rect = graphWrap.getBoundingClientRect();
-      centerX = rect.width / 2;
-      centerY = rect.height / 2;
-      applyTransform();
-    }
-
-    function applyTransform() {
-      viewportLayer.setAttribute("transform", `translate(${centerX + state.tx} ${centerY + state.ty}) scale(${state.scale})`);
-    }
-
-    function curvePath(a, b) {
-      const dx = b.x - a.x;
-      const control1x = a.x + dx * 0.35;
-      control1x = a.x + dx * 0.35;
-      const control2x = b.x - dx * 0.35;
-      const control1y = a.y;
-      const control2y = b.y;
-      return `M ${a.x} ${a.y} C ${control1x} ${control1y}, ${control2x} ${control2y}, ${b.x} ${b.y}`;
-    }
-
-    function createSvgEl(tag) {
-      return document.createElementNS("http://www.w3.org/2000/svg", tag);
-    }
-
-    function appendLabel(group, node) {
-      const text = createSvgEl("text");
-      text.setAttribute("class", `node-text ${node.level === 0 ? "root" : node.level === 1 ? "level1" : node.level === 2 ? "level2" : "level3"}`);
-      const lines = node.label.split("\\n");
-      const baseDy = lines.length === 1 ? 0 : -(lines.length - 1) * 7;
-      lines.forEach((line, idx) => {
-        const tspan = createSvgEl("tspan");
-        tspan.setAttribute("x", node.x);
-        tspan.setAttribute("y", node.y + baseDy + idx * 14);
-        tspan.textContent = line;
-        text.appendChild(tspan);
-      });
-      group.appendChild(text);
-    }
-
-    function renderLinks() {
-      links.forEach((link, idx) => {
-        const source = nodeById.get(link.source);
-        const target = nodeById.get(link.target);
-        const path = createSvgEl("path");
-        path.setAttribute("d", curvePath(source, target));
-        path.setAttribute("class", "link link-intro");
-        path.setAttribute("stroke", COLOR_BY_BRANCH[link.branch].link);
-        path.style.animationDelay = `${220 + target.level * 180 + idx * 16}ms`;
-        linksLayer.appendChild(path);
-        linkElements.set(link.id, path);
-      });
-    }
-
-    function renderNodes() {
-      NODES.forEach((node, idx) => {
-        const group = createSvgEl("g");
-        group.setAttribute("class", `node branch-${node.branch} node-intro ${node.id === "root" ? "root-pulse" : ""}`);
-        group.setAttribute("data-id", node.id);
-        group.style.animationDelay = `${node.level * 220 + idx * 22}ms`;
-
-        const circle = createSvgEl("circle");
-        circle.setAttribute("class", "node-circle");
-        circle.setAttribute("cx", node.x);
-        circle.setAttribute("cy", node.y);
-        circle.setAttribute("r", node.r);
-        circle.setAttribute("fill", COLOR_BY_BRANCH[node.branch].fill);
-        circle.setAttribute("stroke", node.branch === "about" ? "rgba(80,80,88,0.7)" : "rgba(255,255,255,0.3)");
-        circle.setAttribute("stroke-width", node.id === "root" ? "2.4" : "1.8");
-        group.appendChild(circle);
-
-        appendLabel(group, node);
-
-        nodesLayer.appendChild(group);
-        nodeElements.set(node.id, group);
-
-        group.addEventListener("mouseenter", (evt) => onNodeEnter(node, evt));
-        group.addEventListener("mousemove", onNodeMove);
-        group.addEventListener("mouseleave", () => onNodeLeave(node));
-        group.addEventListener("click", (evt) => onNodeClick(node, evt));
-      });
-    }
-
-    function collectSubtree(id, set) {
-      set.add(id);
-      const children = childrenMap.get(id) || [];
-      children.forEach((childId) => collectSubtree(childId, set));
-    }
-
-    function collectAncestors(id, set) {
-      let current = nodeById.get(id);
-      while (current && current.parent) {
-        set.add(current.parent);
-        current = nodeById.get(current.parent);
-      }
-    }
-
-    function highlightByNode(nodeId) {
-      const set = new Set();
-      if (nodeId === "root") {
-        NODES.forEach((n) => set.add(n.id));
+    // 导航栏滚动效果
+    window.addEventListener('scroll', () => {
+      const navbar = document.getElementById('navbar');
+      if (window.scrollY > 50) {
+        navbar.classList.add('bg-deep/80', 'backdrop-blur-md', 'shadow-lg');
+        navbar.classList.remove('py-4');
+        navbar.classList.add('py-3');
       } else {
-        collectSubtree(nodeId, set);
-        collectAncestors(nodeId, set);
-      }
-      state.highlightedIds = set;
-      refreshHighlight();
-    }
-
-    function refreshHighlight() {
-      const highlighted = state.highlightedIds;
-      NODES.forEach((node) => {
-        const el = nodeElements.get(node.id);
-        if (!el) {
-          return;
-        }
-        if (highlighted.has(node.id)) {
-          el.classList.remove("dim");
-          el.classList.add("active");
-        } else {
-          el.classList.add("dim");
-          el.classList.remove("active");
-        }
-      });
-
-      links.forEach((link) => {
-        const el = linkElements.get(link.id);
-        if (!el) {
-          return;
-        }
-        if (highlighted.has(link.source) && highlighted.has(link.target)) {
-          el.classList.remove("dim");
-          el.classList.add("active");
-        } else {
-          el.classList.add("dim");
-          el.classList.remove("active");
-        }
-      });
-    }
-
-    function applyExpandableVisibility() {
-      NODES.forEach((node) => {
-        if (node.level <= 1) {
-          return;
-        }
-        const owner = node.ownerBranch;
-        if (!expandableBranches.has(owner)) {
-          return;
-        }
-        const nodeEl = nodeElements.get(node.id);
-        if (!nodeEl) {
-          return;
-        }
-        if (state.activeBranch === owner) {
-          nodeEl.classList.add("branch-expanded");
-          nodeEl.classList.remove("branch-collapsed");
-        } else {
-          nodeEl.classList.add("branch-collapsed");
-          nodeEl.classList.remove("branch-expanded");
-        }
-      });
-
-      links.forEach((link) => {
-        const targetNode = nodeById.get(link.target);
-        if (!targetNode || targetNode.level <= 1) {
-          return;
-        }
-        const owner = targetNode.ownerBranch;
-        if (!expandableBranches.has(owner)) {
-          return;
-        }
-        const linkEl = linkElements.get(link.id);
-        if (!linkEl) {
-          return;
-        }
-        if (state.activeBranch === owner) {
-          linkEl.classList.remove("branch-collapsed");
-          linkEl.classList.add("branch-expanded");
-        } else {
-          linkEl.classList.add("branch-collapsed");
-          linkEl.classList.remove("branch-expanded");
-        }
-      });
-    }
-
-    function showTooltip(text, event) {
-      tooltip.innerHTML = text;
-      tooltip.classList.add("show");
-      positionTooltip(event.clientX, event.clientY);
-    }
-
-    function positionTooltip(clientX, clientY) {
-      const padding = 12;
-      const w = tooltip.offsetWidth;
-      const h = tooltip.offsetHeight;
-      let x = clientX + 16;
-      let y = clientY + 16;
-      if (x + w > window.innerWidth - padding) {
-        x = clientX - w - 18;
-      }
-      if (y + h > window.innerHeight - padding) {
-        y = clientY - h - 18;
-      }
-      tooltip.style.left = `${x}px`;
-      tooltip.style.top = `${y}px`;
-    }
-
-    function hideTooltip() {
-      tooltip.classList.remove("show");
-    }
-
-    function onNodeEnter(node, event) {
-      const hint = `${node.tooltip}<br/><span style="color:#93A1CD">${node.action === "url" ? "点击跳转 GitHub" : node.action === "modal" ? "点击打开详细弹窗" : node.action === "anchor" ? "点击定位到理念板块" : "悬停查看分支"}</span>`;
-      showTooltip(hint, event);
-
-      if (collapseTimer) {
-        clearTimeout(collapseTimer);
-        collapseTimer = null;
-      }
-
-      if (expandableBranches.has(node.id) && node.level === 1) {
-        state.activeBranch = node.id;
-        applyExpandableVisibility();
-      } else if (expandableBranches.has(node.ownerBranch)) {
-        state.activeBranch = node.ownerBranch;
-        applyExpandableVisibility();
-      }
-      highlightByNode(node.id);
-    }
-
-    function onNodeMove(event) {
-      if (tooltip.classList.contains("show")) {
-        positionTooltip(event.clientX, event.clientY);
-      }
-    }
-
-    function onNodeLeave(node) {
-      hideTooltip();
-      if (node.level === 1 && expandableBranches.has(node.id)) {
-        collapseTimer = setTimeout(() => {
-          state.activeBranch = null;
-          applyExpandableVisibility();
-        }, 140);
-      }
-      state.highlightedIds = new Set(["root"]);
-      refreshHighlight();
-    }
-
-    function pulseNode(nodeId) {
-      const el = nodeElements.get(nodeId);
-      if (!el) {
-        return;
-      }
-      el.classList.add("active");
-      window.setTimeout(() => {
-        el.classList.remove("active");
-      }, 300);
-    }
-
-    function onNodeClick(node, event) {
-      event.stopPropagation();
-      pulseNode(node.id);
-
-      if (node.action === "url" && node.url) {
-        window.open(node.url, "_blank", "noopener,noreferrer");
-        return;
-      }
-
-      if (node.action === "anchor" && node.anchor) {
-        const target = document.querySelector(node.anchor);
-        if (target) {
-          target.scrollIntoView({ behavior: "smooth", block: "start" });
-        }
-        return;
-      }
-
-      if (node.action === "modal" && node.modal) {
-        openModal(node.modal, event.currentTarget);
-      }
-    }
-
-    function screenToWorld(clientX, clientY) {
-      const rect = graphWrap.getBoundingClientRect();
-      const localX = clientX - rect.left;
-      const localY = clientY - rect.top;
-      return {
-        x: (localX - (centerX + state.tx)) / state.scale,
-        y: (localY - (centerY + state.ty)) / state.scale
-      };
-    }
-
-    function zoomAt(clientX, clientY, nextScale) {
-      const clamped = Math.max(state.minScale, Math.min(state.maxScale, nextScale));
-      const rect = graphWrap.getBoundingClientRect();
-      const px = clientX - rect.left;
-      const py = clientY - rect.top;
-      const wx = (px - (centerX + state.tx)) / state.scale;
-      const wy = (py - (centerY + state.ty)) / state.scale;
-      state.scale = clamped;
-      state.tx = px - centerX - wx * state.scale;
-      state.ty = py - centerY - wy * state.scale;
-      applyTransform();
-    }
-
-    function bindPanZoom() {
-      let panning = false;
-      let startX = 0;
-      let startY = 0;
-      let baseTx = 0;
-      let baseTy = 0;
-
-      svg.addEventListener("mousedown", (event) => {
-        if (event.target.closest(".node")) {
-          return;
-        }
-        panning = true;
-        startX = event.clientX;
-        startY = event.clientY;
-        baseTx = state.tx;
-        baseTy = state.ty;
-      });
-
-      window.addEventListener("mousemove", (event) => {
-        if (!panning) {
-          return;
-        }
-        state.tx = baseTx + (event.clientX - startX);
-        state.ty = baseTy + (event.clientY - startY);
-        applyTransform();
-      });
-
-      window.addEventListener("mouseup", () => {
-        panning = false;
-      });
-
-      svg.addEventListener("wheel", (event) => {
-        event.preventDefault();
-        const ratio = event.deltaY > 0 ? 0.92 : 1.08;
-        zoomAt(event.clientX, event.clientY, state.scale * ratio);
-      }, { passive: false });
-
-      let touchMode = null;
-      let touchStart = null;
-      let pinchStartDistance = 0;
-      let pinchStartScale = state.scale;
-
-      svg.addEventListener("touchstart", (event) => {
-        if (event.touches.length === 1) {
-          if (event.target.closest(".node")) {
-            touchMode = null;
-            return;
-          }
-          touchMode = "pan";
-          touchStart = {
-            x: event.touches[0].clientX,
-            y: event.touches[0].clientY,
-            tx: state.tx,
-            ty: state.ty
-          };
-        } else if (event.touches.length === 2) {
-          touchMode = "pinch";
-          const dx = event.touches[0].clientX - event.touches[1].clientX;
-          const dy = event.touches[0].clientY - event.touches[1].clientY;
-          pinchStartDistance = Math.hypot(dx, dy);
-          pinchStartScale = state.scale;
-        }
-      }, { passive: true });
-
-      svg.addEventListener("touchmove", (event) => {
-        if (touchMode === "pan" && event.touches.length === 1 && touchStart) {
-          const t = event.touches[0];
-          state.tx = touchStart.tx + (t.clientX - touchStart.x);
-          state.ty = touchStart.ty + (t.clientY - touchStart.y);
-          applyTransform();
-        } else if (touchMode === "pinch" && event.touches.length === 2) {
-          event.preventDefault();
-          const dx = event.touches[0].clientX - event.touches[1].clientX;
-          const dy = event.touches[0].clientY - event.touches[1].clientY;
-          const distance = Math.hypot(dx, dy);
-          const midX = (event.touches[0].clientX + event.touches[1].clientX) / 2;
-          const midY = (event.touches[0].clientY + event.touches[1].clientY) / 2;
-          const ratio = distance / Math.max(1, pinchStartDistance);
-          zoomAt(midX, midY, pinchStartScale * ratio);
-        }
-      }, { passive: false });
-
-      svg.addEventListener("touchend", (event) => {
-        if (event.touches && event.touches.length === 0) {
-          touchMode = null;
-          touchStart = null;
-        }
-      });
-    }
-
-    const modalBackdrop = document.getElementById("modalBackdrop");
-    const modalCard = document.getElementById("modalCard");
-    const modalTitle = document.getElementById("modalTitle");
-    const modalContent = document.getElementById("modalContent");
-    const modalClose = document.getElementById("modalClose");
-
-    function openModal(modalKey, nodeElement) {
-      const payload = MODAL_CONTENT[modalKey];
-      if (!payload) {
-        return;
-      }
-
-      const rect = nodeElement.getBoundingClientRect();
-      modalCard.style.transformOrigin = `${rect.left + rect.width / 2}px ${rect.top + rect.height / 2}px`;
-      modalTitle.textContent = payload.title;
-      modalContent.innerHTML = payload.html;
-
-      modalBackdrop.classList.add("open");
-      modalBackdrop.setAttribute("aria-hidden", "false");
-      document.body.style.overflow = "hidden";
-    }
-
-    function closeModal() {
-      modalBackdrop.classList.remove("open");
-      modalBackdrop.setAttribute("aria-hidden", "true");
-      document.body.style.overflow = "";
-    }
-
-    modalClose.addEventListener("click", closeModal);
-    modalBackdrop.addEventListener("click", (event) => {
-      if (event.target === modalBackdrop) {
-        closeModal();
+        navbar.classList.remove('bg-deep/80', 'backdrop-blur-md', 'shadow-lg');
+        navbar.classList.remove('py-3');
+        navbar.classList.add('py-4');
       }
     });
 
-    document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape" && modalBackdrop.classList.contains("open")) {
-        closeModal();
+    // 滚动动画触发
+    const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -100px 0px' };
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, observerOptions);
+
+    document.querySelectorAll('.section-animate').forEach(section => {
+      observer.observe(section);
+    });
+
+    // 模态框控制
+    const openModal = document.getElementById('openPhilosophy');
+    const closeModal = document.getElementById('closeModal');
+    const modal = document.getElementById('philosophyModal');
+
+    openModal.addEventListener('click', () => {
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    });
+
+    closeModal.addEventListener('click', () => {
+      modal.classList.add('hidden');
+      document.body.style.overflow = 'auto';
+    });
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.classList.add('hidden');
+        document.body.style.overflow = 'auto';
       }
     });
 
-    function initButtons() {
-      document.getElementById("toTopBtn").addEventListener("click", () => {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      });
+    // ========== 新增：3D-AIGC神经网络模型渲染 ==========
+    function initAIGC3D() {
+      const container = document.getElementById('aigc-3d-container');
+      // 场景初始化
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setSize(container.clientWidth, container.clientHeight);
+      renderer.setClearColor(0x000000, 0);
+      container.appendChild(renderer.domElement);
 
-      document.getElementById("fullscreenBtn").addEventListener("click", async () => {
-        try {
-          if (!document.fullscreenElement) {
-            await document.getElementById("hero").requestFullscreen();
-          } else {
-            await document.exitFullscreen();
-          }
-        } catch (err) {
-          console.warn("全屏切换失败:", err);
-        }
-      });
-    }
+      // 神经网络节点与连线
+      const nodeCount = 120;
+      const nodes = [];
+      const edges = [];
+      const maxDistance = 3.5;
 
-    function initScrollFx() {
-      const hero = document.getElementById("hero");
-      const graphWrapEl = document.getElementById("graphWrap");
-      const fadeElements = document.querySelectorAll(".fade-in");
-
-      const io = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("visible");
-          }
+      // 生成随机节点（模拟神经网络神经元）
+      for (let i = 0; i < nodeCount; i++) {
+        const geometry = new THREE.SphereGeometry(0.04, 16, 16);
+        // 节点颜色匹配页面主题色
+        const colors = [0x00E4FF, 0x722ED1, 0x165DFF, 0xFFD700];
+        const material = new THREE.MeshBasicMaterial({
+          color: colors[Math.floor(Math.random() * colors.length)],
+          transparent: true,
+          opacity: 0.8
         });
-      }, { threshold: 0.15 });
+        const sphere = new THREE.Mesh(geometry, material);
+        // 随机分布在3D空间内
+        sphere.position.set(
+          (Math.random() - 0.5) * 8,
+          (Math.random() - 0.5) * 6,
+          (Math.random() - 0.5) * 4
+        );
+        sphere.userData.velocity = new THREE.Vector3(
+          (Math.random() - 0.5) * 0.008,
+          (Math.random() - 0.5) * 0.008,
+          (Math.random() - 0.5) * 0.008
+        );
+        scene.add(sphere);
+        nodes.push(sphere);
+      }
 
-      fadeElements.forEach((el) => io.observe(el));
+      // 生成连线几何体
+      const edgeGeometry = new THREE.BufferGeometry();
+      const edgeMaterial = new THREE.LineBasicMaterial({
+        color: 0x00E4FF,
+        transparent: true,
+        opacity: 0.2
+      });
+      const edgesLine = new THREE.LineSegments(edgeGeometry, edgeMaterial);
+      scene.add(edgesLine);
 
-      window.addEventListener("scroll", () => {
-        const p = Math.min(1, Math.max(0, window.scrollY / window.innerHeight));
-        graphWrapEl.style.opacity = `${1 - p * 0.38}`;
-        graphWrapEl.style.transform = `translateY(${p * 26}px) scale(${1 - p * 0.04})`;
-        hero.style.filter = `saturate(${1 - p * 0.14})`;
-      }, { passive: true });
+      // 更新连线
+      function updateEdges() {
+        const positions = [];
+        for (let i = 0; i < nodes.length; i++) {
+          for (let j = i + 1; j < nodes.length; j++) {
+            const distance = nodes[i].position.distanceTo(nodes[j].position);
+            if (distance < maxDistance) {
+              positions.push(nodes[i].position.x, nodes[i].position.y, nodes[i].position.z);
+              positions.push(nodes[j].position.x, nodes[j].position.y, nodes[j].position.z);
+            }
+          }
+        }
+        edgeGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+      }
+
+      // 相机位置
+      camera.position.z = 6;
+
+      // 鼠标交互
+      let mouseX = 0, mouseY = 0;
+      container.addEventListener('mousemove', (e) => {
+        const rect = container.getBoundingClientRect();
+        mouseX = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+        mouseY = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+      });
+
+      // 窗口自适应
+      window.addEventListener('resize', () => {
+        camera.aspect = container.clientWidth / container.clientHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(container.clientWidth, container.clientHeight);
+      });
+
+      // 动画循环
+      function animate() {
+        requestAnimationFrame(animate);
+        // 节点移动
+        nodes.forEach(node => {
+          node.position.add(node.userData.velocity);
+          // 边界反弹
+          if (Math.abs(node.position.x) > 4) node.userData.velocity.x *= -1;
+          if (Math.abs(node.position.y) > 3) node.userData.velocity.y *= -1;
+          if (Math.abs(node.position.z) > 2) node.userData.velocity.z *= -1;
+        });
+        // 更新连线
+        updateEdges();
+        // 相机跟随鼠标
+        camera.position.x += (mouseX * 2 - camera.position.x) * 0.05;
+        camera.position.y += (mouseY * 2 - camera.position.y) * 0.05;
+        camera.lookAt(scene.position);
+        // 渲染
+        renderer.render(scene, camera);
+      }
+      animate();
     }
+    // 页面加载完成后初始化3D模型
+    window.addEventListener('load', initAIGC3D);
 
-    function renderGraph() {
-      renderLinks();
-      renderNodes();
-      updateCenter();
-      applyExpandableVisibility();
-      refreshHighlight();
-    }
+    // ========== 项目图谱ECharts初始化 已更新真实GitHub地址 ==========
+    const graphChart = echarts.init(document.getElementById('graph-container'));
+    const graphOption = {
+      backgroundColor: 'transparent',
+      tooltip: {
+        trigger: 'item',
+        formatter: '{b}: {c}'
+      },
+      animationDuration: 1500,
+      animationEasingUpdate: 'quinticInOut',
+      series: [{
+        type: 'graph',
+        layout: 'force',
+        symbolSize: 60,
+        roam: true,
+        draggable: true,
+        focusNodeAdjacency: true,
+        itemStyle: {
+          color: function(params) {
+            const colors = ['#00E4FF', '#722ED1', '#165DFF', '#FFD700', '#36CFC9', '#722ED1'];
+            return colors[params.dataIndex % colors.length];
+          },
+          borderColor: '#fff',
+          borderWidth: 2,
+          shadowBlur: 20,
+          shadowColor: 'rgba(0, 228, 255, 0.5)'
+        },
+        lineStyle: {
+          color: 'rgba(114, 46, 209, 0.6)',
+          width: 2,
+          curveness: 0.2,
+          opacity: 0.6
+        },
+        emphasis: {
+          focus: 'adjacency',
+          lineStyle: {
+            width: 4,
+            color: '#00E4FF'
+          },
+          label: {
+            show: true,
+            fontSize: 14,
+            color: '#fff'
+          }
+        },
+        label: {
+          show: true,
+          position: 'inside',
+          fontSize: 10,
+          color: '#fff',
+          formatter: '{b}'
+        },
+        force: {
+          repulsion: 1200,
+          edgeLength: 200,
+          gravity: 0.1,
+          layoutAnimation: true
+        },
+        // 已更新你的真实GitHub项目地址
+        data: [
+          {
+            name: "个人主页",
+            value: "核心",
+            url: "https://github.com/XinYU20040412",
+            symbolSize: 80,
+            itemStyle: { color: '#FFD700' }
+          },
+          {
+            name: "无人机投弹优化",
+            value: "AESAGA-Newton算法",
+            url: "https://github.com/XinYU20040412/AESAGA-Newton-Based-UAV-Bombing-Strategy-Optimization"
+          },
+          {
+            name: "板凳龙运行调控",
+            value: "递推模型",
+            url: "https://github.com/XinYU20040412/Operation-Regulation-of-Bench-Dragon-Dance-Based-on-Recursive-Model"
+          },
+          {
+            name: "机械臂路径优化",
+            value: "多目标轨迹优化",
+            url: "https://github.com/XinYU20040412/Multi-objective-Optimization-for-Manipulator-Joint-Trajectory"
+          },
+          {
+            name: "DiT牙冠生成",
+            value: "缺陷补齐重建",
+            url: "https://github.com/XinYU20040412"
+          },
+          {
+            name: "材料性能预测",
+            value: "等变神经网络",
+            url: "https://github.com/XinYU20040412"
+          }
+        ],
+        // 项目连线逻辑
+        links: [
+          { source: "个人主页", target: "无人机投弹优化" },
+          { source: "个人主页", target: "板凳龙运行调控" },
+          { source: "个人主页", target: "机械臂路径优化" },
+          { source: "个人主页", target: "DiT牙冠生成" },
+          { source: "个人主页", target: "材料性能预测" },
+          // 数学建模类项目关联
+          { source: "无人机投弹优化", target: "板凳龙运行调控" },
+          { source: "无人机投弹优化", target: "机械臂路径优化" },
+          // 深度学习类项目关联
+          { source: "DiT牙冠生成", target: "材料性能预测" }
+        ]
+      }]
+    };
 
-    function init() {
-      renderGraph();
-      bindPanZoom();
-      initButtons();
-      initScrollFx();
-      window.addEventListener("resize", updateCenter);
-    }
+    graphChart.setOption(graphOption);
+    // 点击节点跳转GitHub
+    graphChart.on('click', function (params) {
+      if (params.data && params.data.url) {
+        window.open(params.data.url, '_blank');
+      }
+    });
 
-    init();
+    // 窗口大小变化自适应
+    window.addEventListener('resize', () => {
+      graphChart.resize();
+    });
   </script>
 </body>
 </html>

@@ -1,655 +1,1484 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>XinYu · 项目知识树</title>
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>余鑫 | 个人学术主页</title>
+  <!-- 外部资源CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <!-- Tailwind自定义配置 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            deep: '#0A0F1D',
+            quantum: '#722ED1',
+            cosmic: '#165DFF',
+            neon: '#00E4FF',
+            gold: '#FFD700',
+            dark: '#141B34'
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+          animation: {
+            'float': 'float 6s ease-in-out infinite',
+            'glow': 'glow 2s ease-in-out infinite alternate',
+            'slide-up': 'slideUp 0.8s ease-out forwards',
+            'gradient-shift': 'gradientShift 8s ease infinite',
+          },
+          keyframes: {
+            float: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-20px)' },
+            },
+            glow: {
+              '0%': { boxShadow: '0 0 10px rgba(0, 228, 255, 0.3), 0 0 20px rgba(114, 46, 209, 0.3)' },
+              '100%': { boxShadow: '0 0 25px rgba(0, 228, 255, 0.6), 0 0 40px rgba(114, 46, 209, 0.6)' },
+            },
+            slideUp: {
+              '0%': { opacity: '0', transform: 'translateY(30px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            },
+            gradientShift: {
+              '0%': { backgroundPosition: '0% 50%' },
+              '50%': { backgroundPosition: '100% 50%' },
+              '100%': { backgroundPosition: '0% 50%' },
+            }
+          }
         }
+      }
+    }
+  </script>
+  
+  <!-- 自定义工具类 -->
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .text-gradient {
+        @apply bg-clip-text text-transparent bg-gradient-to-r from-neon via-cosmic to-quantum;
+      }
+      .text-gradient-gold {
+        @apply bg-clip-text text-transparent bg-gradient-to-r from-gold to-yellow-300;
+      }
+      .card-gradient {
+        @apply bg-gradient-to-br from-dark/80 to-deep/90 backdrop-blur-md border border-white/10;
+      }
+      .glow-border {
+        @apply relative before:absolute before:inset-0 before:p-[1px] before:rounded-xl before:bg-gradient-to-r before:from-neon before:via-quantum before:to-gold before:-z-10 before:blur-sm;
+      }
+      .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+      }
+    }
+  </style>
+  
+  <!-- 全局样式 -->
+  <style>
+    html {
+      scroll-behavior: smooth;
+    }
+    body {
+      overflow-x: hidden;
+      background: #0A0F1D;
+    }
+    #particles-js {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      z-index: 0;
+    }
+    /* 全屏图谱首屏样式 */
+    #hero-fullscreen {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
-        :root {
-            --primary-blue: #00E4FF;
-            --primary-purple: #722ED1;
-            --accent-purple: #165DFF;
-            --accent-green: #165DFF;
-            --accent-orange: #FFD700;
-            --bg-deep: rgba(10, 15, 29, 0.20);
-            --text-main: rgba(255, 255, 255, 0.92);
-            --text-sub: rgba(255, 255, 255, 0.72);
-        }
+    /* 图谱 iframe 全屏 */
+    #hero-tree-iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      display: block;
+      z-index: 2;
+      background: transparent;
+    }
 
-        body {
-            background-color: var(--bg-deep);
-            color: var(--text-main);
-            min-height: 100vh;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-                        padding: 12px;
-                        position: relative;
-        }
+    /* 动态几何背景层 */
+    #hero-geometric-bg {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      overflow: hidden;
+      background: radial-gradient(800px at 20% 50%, rgba(0, 228, 255, 0.08), transparent),
+                  radial-gradient(600px at 80% 20%, rgba(114, 46, 209, 0.06), transparent),
+                  radial-gradient(900px at 50% 100%, rgba(22, 93, 255, 0.05), transparent);
+    }
 
-                body::before {
-                        content: "";
-                        position: fixed;
-                        inset: -40%;
-                        background:
-                            conic-gradient(from 160deg at 50% 50%,
-                                rgba(0, 228, 255, 0.00) 0deg,
-                                rgba(0, 228, 255, 0.18) 70deg,
-                                rgba(114, 46, 209, 0.16) 140deg,
-                                rgba(22, 93, 255, 0.14) 220deg,
-                                rgba(255, 215, 0, 0.10) 300deg,
-                                rgba(0, 228, 255, 0.00) 360deg
-                            );
-                        filter: blur(28px);
-                        opacity: 0.85;
-                        animation: bgSpin 22s linear infinite;
-                        pointer-events: none;
-                        z-index: 0;
-                }
+    /* 更强的色差光晕碰撞层（仍保持低透明度，不抢图谱主体） */
+    #hero-geometric-bg::before {
+      content: "";
+      position: absolute;
+      inset: -35%;
+      background:
+        conic-gradient(from 140deg at 50% 50%,
+          rgba(0, 228, 255, 0.00) 0deg,
+          rgba(0, 228, 255, 0.12) 70deg,
+          rgba(114, 46, 209, 0.10) 140deg,
+          rgba(22, 93, 255, 0.10) 220deg,
+          rgba(255, 215, 0, 0.08) 300deg,
+          rgba(0, 228, 255, 0.00) 360deg
+        );
+      filter: blur(34px);
+      opacity: 0.55;
+      mix-blend-mode: screen;
+      animation: heroAuraSpin 18s linear infinite;
+      pointer-events: none;
+    }
 
-                body::after {
-                        content: "";
-                        position: fixed;
-                        inset: 0;
-                        background-image:
-                            linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
-                            linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
-                        background-size: 52px 52px;
-                        opacity: 0.14;
-                        pointer-events: none;
-                        z-index: 0;
-                }
+    #hero-geometric-bg::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(720px at 55% 40%, rgba(255, 215, 0, 0.10), transparent 60%),
+        radial-gradient(640px at 78% 55%, rgba(114, 46, 209, 0.10), transparent 62%),
+        radial-gradient(640px at 26% 62%, rgba(0, 228, 255, 0.10), transparent 62%);
+      filter: blur(24px);
+      opacity: 0.45;
+      mix-blend-mode: screen;
+      animation: heroAuraDrift 10s ease-in-out infinite alternate;
+      pointer-events: none;
+    }
 
-                @keyframes bgSpin {
-                        to { transform: rotate(360deg); }
-                }
+    .geometric-shape {
+      position: absolute;
+      opacity: 0.06;
+      filter:
+        drop-shadow(0 0 22px rgba(0, 228, 255, 0.10))
+        drop-shadow(0 0 18px rgba(114, 46, 209, 0.08))
+        drop-shadow(0 0 14px rgba(255, 215, 0, 0.06));
+    }
 
-        /* 标题样式 */
-        .tree-title {
-            font-size: 22px;
-            font-weight: 700;
-            margin: 8px 0 10px;
-            background: linear-gradient(90deg, var(--primary-blue), var(--primary-purple));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            letter-spacing: 1px;
-            z-index: 10;
-        }
+    .geo-circle {
+      border-radius: 50%;
+      border: 2px solid rgba(0, 228, 255, 0.3);
+    }
 
-        /* SVG容器 全屏径向布局 */
-        .tree-container {
-            width: 100vw;
-            height: calc(100vh - 64px);
-            position: relative;
-            z-index: 1;
-        }
+    .geo-circle-1 {
+      width: 400px;
+      height: 400px;
+      top: -80px;
+      left: -100px;
+      border-color: rgba(0, 228, 255, 0.2);
+      animation: rotateCw 28s linear infinite;
+    }
 
-        .tree-svg {
-            width: 100%;
-            height: 100%;
-        }
+    .geo-circle-2 {
+      width: 600px;
+      height: 600px;
+      bottom: -150px;
+      right: -200px;
+      border-color: rgba(114, 46, 209, 0.2);
+      animation: rotateCcw 35s linear infinite;
+    }
 
-        /* 连线样式 生长动画 */
-        .tree-link {
-            fill: none;
-            stroke-width: 2;
-            stroke-linecap: round;
-            stroke-dasharray: 1500;
-            stroke-dashoffset: 1500;
-            animation: linkGrow 2s ease forwards;
-            filter: drop-shadow(0 0 6px rgba(0, 228, 255, 0.18));
-        }
+    .geo-rect {
+      width: 300px;
+      height: 300px;
+      right: 5%;
+      top: 15%;
+      border: 2px solid rgba(22, 93, 255, 0.2);
+      transform: rotate(45deg);
+      animation: rotateCw 42s linear infinite;
+    }
 
-        .link-root { stroke: var(--primary-blue); animation-delay: 0.2s; }
-        .link-level1 { stroke: var(--primary-purple); animation-delay: 0.5s; }
-        .link-level2 { stroke: var(--accent-purple); animation-delay: 0.8s; }
-        .link-level3 { stroke: var(--primary-blue); animation-delay: 1.1s; }
+    .geo-poly {
+      width: 200px;
+      height: 200px;
+      left: 8%;
+      bottom: 10%;
+      clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+      border: 2px solid rgba(255, 215, 0, 0.15);
+      animation: rotateCcw 32s linear infinite;
+    }
 
-        @keyframes linkGrow {
-            to { stroke-dashoffset: 0; }
-        }
+    .geo-line-h {
+      width: 60%;
+      height: 1px;
+      top: 45%;
+      left: 20%;
+      background: linear-gradient(90deg, transparent, rgba(0, 228, 255, 0.15), transparent);
+      animation: pulseWidth 4s ease-in-out infinite;
+    }
 
-        /* 球形节点样式 */
-        .node-circle {
-            cursor: pointer;
-            transition: all 0.3s ease;
-            filter: drop-shadow(0 0 8px rgba(0,0,0,0.3));
-            opacity: 0;
-            animation: nodeShow 0.5s ease forwards;
-        }
+    .geo-line-v {
+      width: 1px;
+      height: 60%;
+      left: 50%;
+      top: 20%;
+      background: linear-gradient(180deg, transparent, rgba(114, 46, 209, 0.15), transparent);
+      animation: pulseHeight 5s ease-in-out infinite;
+    }
 
-        .node-circle:hover {
-            filter: drop-shadow(0 0 15px currentColor);
-            transform: scale(1.1);
-        }
+    /* 新增：更丰富的几何变换（旋转 + 缩放） */
+    .geo-orbit {
+      width: 520px;
+      height: 520px;
+      left: 55%;
+      top: -140px;
+      border-radius: 50%;
+      border: 2px dashed rgba(255, 215, 0, 0.16);
+      animation: rotateScaleCw 26s linear infinite;
+    }
 
-        /* 节点大小分级 严格匹配需求 */
-        .node-root { r: 38; fill: url(#rootGradient); stroke: var(--primary-blue); stroke-width: 3; color: var(--primary-blue); animation-delay: 0s; }
-        .node-level1 { r: 30; fill: url(#level1Gradient); stroke: var(--primary-purple); stroke-width: 2; color: var(--primary-purple); animation-delay: 0.3s; }
-        .node-large { r: 26; fill: url(#largeGradient); stroke: var(--primary-blue); stroke-width: 2; color: var(--primary-blue); animation-delay: 0.6s; }
-        .node-medium { r: 22; fill: url(#mediumGradient); stroke: var(--accent-green); stroke-width: 2; color: var(--accent-green); animation-delay: 0.6s; }
-        .node-small { r: 18; fill: url(#smallGradient); stroke: var(--accent-orange); stroke-width: 2; color: var(--accent-orange); animation-delay: 0.6s; }
+    .geo-triangle {
+      width: 260px;
+      height: 260px;
+      left: 62%;
+      top: 22%;
+      clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+      border: 2px solid rgba(0, 228, 255, 0.14);
+      animation: rotateScaleCcw 30s linear infinite;
+    }
 
-        @keyframes nodeShow {
-            to { opacity: 1; }
-        }
+    .geo-diamond {
+      width: 200px;
+      height: 200px;
+      right: 16%;
+      bottom: 18%;
+      border: 2px solid rgba(22, 93, 255, 0.14);
+      transform: rotate(45deg);
+      animation: skewPulse 12s ease-in-out infinite;
+    }
 
-        /* 节点文本 */
-        .node-text {
-            fill: var(--text-main);
-            text-anchor: middle;
-            dominant-baseline: middle;
-            font-size: 13px;
-            font-weight: 500;
-            pointer-events: none;
-            user-select: none;
-            opacity: 0;
-            animation: nodeShow 0.5s ease forwards;
-        }
+    @keyframes heroAuraSpin {
+      to { transform: rotate(360deg); }
+    }
 
-        .text-root { font-size: 14px; font-weight: 700; animation-delay: 0s; }
-        .text-level1 { font-size: 13px; font-weight: 600; animation-delay: 0.3s; }
-        .text-small { font-size: 11px; animation-delay: 0.6s; }
+    @keyframes heroAuraDrift {
+      0% { transform: translate3d(-10px, 6px, 0) scale(1); opacity: 0.35; }
+      100% { transform: translate3d(12px, -8px, 0) scale(1.02); opacity: 0.55; }
+    }
 
-        /* 渐变定义 */
-        defs { pointer-events: none; }
+    @keyframes rotateScaleCw {
+      0% { transform: rotate(0deg) scale(0.96); }
+      50% { transform: rotate(180deg) scale(1.06); }
+      100% { transform: rotate(360deg) scale(0.96); }
+    }
 
-        /* Tooltip悬浮提示 */
-        .tooltip {
-            position: absolute;
-            background: linear-gradient(135deg, rgba(20, 27, 52, 0.92), rgba(10, 15, 29, 0.92));
-            border: 1px solid var(--primary-blue);
-            color: var(--text-main);
-            padding: 10px 16px;
-            border-radius: 8px;
-            font-size: 13px;
-            white-space: nowrap;
-            z-index: 1000;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.2s ease;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-            backdrop-filter: blur(10px);
-        }
+    @keyframes rotateScaleCcw {
+      0% { transform: rotate(0deg) scale(1.04); }
+      50% { transform: rotate(-180deg) scale(0.96); }
+      100% { transform: rotate(-360deg) scale(1.04); }
+    }
 
-        .tooltip.show { opacity: 1; }
+    @keyframes skewPulse {
+      0%, 100% { transform: rotate(45deg) skewX(0deg) scale(0.98); opacity: 0.55; }
+      50% { transform: rotate(62deg) skewX(10deg) scale(1.05); opacity: 0.78; }
+    }
 
-        /* 弹窗样式 */
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(10, 15, 29, 0.85);
-            backdrop-filter: blur(8px);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
+    @keyframes rotateCw {
+      to { transform: rotate(360deg); }
+    }
 
-        .modal.active {
-            display: flex;
-            opacity: 1;
-        }
+    @keyframes rotateCcw {
+      to { transform: rotate(-360deg); }
+    }
 
-        .modal-content {
-            width: 90%;
-            max-width: 900px;
-            max-height: 80vh;
-            background: rgba(20, 27, 52, 0.92);
-            border: 1px solid var(--primary-purple);
-            border-radius: 16px;
-            padding: 40px;
-            overflow-y: auto;
-            transform: scale(0.9);
-            transition: transform 0.3s ease;
-        }
+    @keyframes pulseWidth {
+      0%, 100% { width: 50%; opacity: 0.4; }
+      50% { width: 70%; opacity: 0.8; }
+    }
 
-        .modal.active .modal-content {
-            transform: scale(1);
-        }
+    @keyframes pulseHeight {
+      0%, 100% { height: 50%; opacity: 0.4; }
+      50% { height: 70%; opacity: 0.8; }
+    }
 
-        .modal-close {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: #121218;
-            border: 1px solid #292938;
-            color: var(--text-main);
-            font-size: 20px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
+    /* 信息卡片浮动 */
+    #hero-info-card {
+      position: absolute;
+      top: 92px;
+      right: 30px;
+      left: auto;
+      z-index: 3;
+      max-width: 460px;
+      padding: 24px 28px;
+      background: rgba(20, 27, 52, 0.82);
+      border: 1px solid rgba(0, 228, 255, 0.35);
+      border-radius: 16px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 8px 32px rgba(0, 228, 255, 0.12);
+      animation: slideInLeft 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+      opacity: 0;
+    }
 
-        .modal-close:hover {
-            background: var(--primary-purple);
-            border-color: var(--accent-purple);
-        }
+    #hero-info-card h1 {
+      font-size: 32px;
+      font-weight: 700;
+      background: linear-gradient(90deg, #00E4FF, #722ED1);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: 4px;
+    }
 
-        .modal-title {
-            font-size: 32px;
-            font-weight: 700;
-            margin-bottom: 24px;
-            color: var(--accent-purple);
-        }
+    #hero-info-card p {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.78);
+      line-height: 1.5;
+      margin-bottom: 14px;
+    }
 
-        .modal-text {
-            font-size: 16px;
-            line-height: 1.8;
-            color: var(--text-sub);
-            margin-bottom: 16px;
-        }
-    </style>
+    .hero-mini-title {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.60);
+      letter-spacing: 0.2px;
+      margin: 10px 0 8px;
+    }
+
+    .hero-timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .hero-timeline-item {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.10);
+    }
+
+    .hero-timeline-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      margin-top: 6px;
+      background: rgba(0, 228, 255, 0.9);
+      box-shadow: 0 0 14px rgba(0, 228, 255, 0.35);
+      flex: 0 0 auto;
+    }
+
+    .hero-timeline-item.purple .hero-timeline-dot {
+      background: rgba(114, 46, 209, 0.95);
+      box-shadow: 0 0 14px rgba(114, 46, 209, 0.35);
+    }
+
+    .hero-timeline-text {
+      font-size: 12px;
+      line-height: 1.55;
+      color: rgba(255, 255, 255, 0.78);
+    }
+
+    .hero-tracks {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    @media (min-width: 480px) {
+      .hero-tracks { grid-template-columns: 1fr 1fr; }
+    }
+
+    .hero-track {
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.84);
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .hero-track i {
+      width: 18px;
+      text-align: center;
+      color: #00E4FF;
+    }
+
+    .hero-track.purple i { color: #722ED1; }
+    .hero-track.gold i { color: #FFD700; }
+
+    .hero-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .hero-badge {
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: rgba(0, 228, 255, 0.12);
+      border: 1px solid rgba(0, 228, 255, 0.3);
+      color: #00E4FF;
+    }
+
+    .hero-badge.gold {
+      background: rgba(255, 215, 0, 0.12);
+      border-color: rgba(255, 215, 0, 0.3);
+      color: #FFD700;
+    }
+
+    .hero-badge.purple {
+      background: rgba(114, 46, 209, 0.12);
+      border-color: rgba(114, 46, 209, 0.3);
+      color: #B28DFF;
+    }
+
+    .hero-cta {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .hero-cta a {
+      font-size: 11px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+    }
+
+    .hero-cta-primary {
+      background: linear-gradient(90deg, #00E4FF, #165DFF);
+      color: white;
+      font-weight: 600;
+    }
+
+    .hero-cta-primary:hover {
+      box-shadow: 0 5px 16px rgba(0, 228, 255, 0.35);
+      transform: translateY(-1px);
+    }
+
+    .hero-cta-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: rgba(255, 255, 255, 0.8);
+      font-weight: 500;
+    }
+
+    .hero-cta-secondary:hover {
+      background: rgba(0, 228, 255, 0.12);
+      border-color: rgba(0, 228, 255, 0.35);
+      color: #00E4FF;
+    }
+
+    @keyframes slideInLeft {
+      0% {
+        opacity: 0;
+        transform: translateX(-40px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    #hero-hint {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 4;
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.86);
+      background: rgba(10, 15, 29, 0.62);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 999px;
+      backdrop-filter: blur(10px);
+      user-select: none;
+    }
+
+    #hero-scroll-indicator {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 4;
+      animation: bounce 2s ease-in-out infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(10px); }
+    }
+
+    /* 首屏图谱节点弹窗：复用后续页内容 + 更强动效背景 */
+    #heroNodeModal {
+      backdrop-filter: blur(14px);
+    }
+
+    .hero-node-modal-backdrop {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      background: rgba(10, 15, 29, 0.78);
+    }
+
+    .hero-node-modal-backdrop::before {
+      content: "";
+      position: absolute;
+      inset: -35%;
+      background:
+        conic-gradient(from 160deg at 50% 50%,
+          rgba(0, 228, 255, 0.00) 0deg,
+          rgba(0, 228, 255, 0.22) 70deg,
+          rgba(114, 46, 209, 0.20) 140deg,
+          rgba(22, 93, 255, 0.18) 220deg,
+          rgba(255, 215, 0, 0.16) 300deg,
+          rgba(0, 228, 255, 0.00) 360deg
+        );
+      filter: blur(38px);
+      opacity: 0.9;
+      mix-blend-mode: screen;
+      animation: modalSpin 14s linear infinite;
+    }
+
+    .hero-node-modal-backdrop::after {
+      content: "";
+      position: absolute;
+      inset: -10%;
+      background:
+        radial-gradient(900px at 25% 40%, rgba(0, 228, 255, 0.20), transparent 60%),
+        radial-gradient(760px at 75% 30%, rgba(114, 46, 209, 0.18), transparent 62%),
+        radial-gradient(840px at 55% 85%, rgba(255, 215, 0, 0.12), transparent 60%);
+      filter: blur(30px);
+      opacity: 0.75;
+      mix-blend-mode: screen;
+      animation: modalDrift 9s ease-in-out infinite alternate;
+    }
+
+    .hero-node-modal-geo {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .hero-node-modal-geo span {
+      position: absolute;
+      opacity: 0.08;
+      border: 2px solid rgba(255, 255, 255, 0.18);
+      filter:
+        drop-shadow(0 0 18px rgba(0, 228, 255, 0.25))
+        drop-shadow(0 0 18px rgba(114, 46, 209, 0.18));
+    }
+
+    .hero-node-modal-geo .mshape-1 {
+      width: 520px;
+      height: 520px;
+      left: -180px;
+      top: -220px;
+      border-radius: 50%;
+      border-style: dashed;
+      border-color: rgba(0, 228, 255, 0.22);
+      animation: rotateScaleCw 22s linear infinite;
+    }
+
+    .hero-node-modal-geo .mshape-2 {
+      width: 240px;
+      height: 240px;
+      right: -80px;
+      top: 16%;
+      clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+      border-color: rgba(114, 46, 209, 0.20);
+      animation: rotateScaleCcw 18s linear infinite;
+    }
+
+    .hero-node-modal-geo .mshape-3 {
+      width: 260px;
+      height: 260px;
+      right: 10%;
+      bottom: -120px;
+      transform: rotate(45deg);
+      border-color: rgba(255, 215, 0, 0.16);
+      animation: skewPulse 10s ease-in-out infinite;
+    }
+
+    @keyframes modalSpin {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes modalDrift {
+      0% { transform: translate3d(-14px, 10px, 0) scale(1.02); }
+      100% { transform: translate3d(18px, -14px, 0) scale(1.06); }
+    }
+
+    #heroNodeModalPanel {
+      box-shadow:
+        0 18px 60px rgba(0, 0, 0, 0.55),
+        0 0 40px rgba(0, 228, 255, 0.12),
+        0 0 36px rgba(114, 46, 209, 0.10);
+    }
+
+    #heroNodeModalTitle {
+      text-shadow:
+        -1px 0 rgba(0, 228, 255, 0.35),
+        1px 0 rgba(114, 46, 209, 0.30),
+        0 1px rgba(255, 215, 0, 0.18);
+    }
+    .section-animate {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+    }
+    .section-animate.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
 </head>
-<body>
-    <h1 class="tree-title">XinYu · 项目知识树</h1>
-    <div class="tree-container">
-        <svg class="tree-svg" id="treeSvg"></svg>
-        <div class="tooltip" id="tooltip"></div>
-    </div>
 
-    <!-- 弹窗组件 -->
-    <div class="modal" id="modal">
-        <button class="modal-close" id="modalClose">×</button>
-        <div class="modal-content">
-            <h2 class="modal-title" id="modalTitle"></h2>
-            <div class="modal-text" id="modalContent"></div>
+<body class="text-white font-sans">
+  <!-- 粒子背景 -->
+  <div id="particles-js"></div>
+  
+  <!-- 内容容器 -->
+  <div class="relative z-10">
+    <!-- 导航栏 -->
+    <nav id="navbar" class="fixed top-0 w-full z-50 transition-all duration-500 py-4">
+      <div class="container mx-auto px-6 flex justify-between items-center">
+        <a href="#" class="text-2xl font-bold text-gradient">余鑫</a>
+        <div class="hidden md:flex gap-8 items-center">
+          <a href="#about" class="hover:text-neon transition-colors">关于我</a>
+          <a href="#education" class="hover:text-neon transition-colors">教育背景</a>
+          <a href="#research" class="hover:text-neon transition-colors">科研经历</a>
+          <a href="#competition" class="hover:text-neon transition-colors">竞赛经历</a>
+          <a href="#repo-grid" class="hover:text-neon transition-colors">开源项目库</a>
+          <a href="#contact" class="hover:text-neon transition-colors">联系我</a>
         </div>
+      </div>
+    </nav>
+
+    <!-- Hero首屏：全屏项目知识树 -->
+    <section id="hero-fullscreen" class="min-h-screen">
+      <!-- 动态几何背景层 -->
+      <div id="hero-geometric-bg">
+        <div class="geometric-shape geo-circle geo-circle-1"></div>
+        <div class="geometric-shape geo-circle geo-circle-2"></div>
+        <div class="geometric-shape geo-rect"></div>
+        <div class="geometric-shape geo-poly"></div>
+        <div class="geometric-shape geo-orbit"></div>
+        <div class="geometric-shape geo-triangle"></div>
+        <div class="geometric-shape geo-diamond"></div>
+        <div class="geometric-shape geo-line-h"></div>
+        <div class="geometric-shape geo-line-v"></div>
+      </div>
+
+      <!-- 项目知识树 iframe -->
+      <iframe
+        id="hero-tree-iframe"
+        src="./我很满意的个人图谱.html"
+        title="XinYu · 项目知识树（点击节点跳转 GitHub）"
+        loading="eager"
+      ></iframe>
+
+      <!-- 左侧信息卡片 -->
+      <div id="hero-info-card">
+        <h1>余鑫</h1>
+        <p><span class="text-white/90 font-semibold">湖南大学</span> · 应用物理学（本科）</p>
+
+        <div class="hero-mini-title">经历（顺序）</div>
+        <div class="hero-timeline">
+          <div class="hero-timeline-item">
+            <span class="hero-timeline-dot"></span>
+            <div class="hero-timeline-text">
+              <span class="text-white/90 font-semibold">2025 暑期 · 中科院物理所实践</span><br>
+              校内选拔 600 人（湖大 20 人）→ 两轮考查 → 前 40 人赴中关村物理所长期实践（70 天）
+            </div>
+          </div>
+          <div class="hero-timeline-item purple">
+            <span class="hero-timeline-dot"></span>
+            <div class="hero-timeline-text">
+              <span class="text-white/90 font-semibold">国家长沙超算中心</span><br>
+              科研项目参与与计算资源实践
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-mini-title">三大方向</div>
+        <div class="hero-tracks">
+          <div class="hero-track"><i class="fa fa-compass"></i> 确定性引导的随机模型</div>
+          <div class="hero-track purple"><i class="fa fa-cube"></i> 3D-AIGC</div>
+          <div class="hero-track gold"><i class="fa fa-atom"></i> 物理模型的深度学习替代</div>
+        </div>
+        <div class="hero-badges">
+          <span class="hero-badge">GPA 3.95/4.0</span>
+          <span class="hero-badge gold">专业 2/112</span>
+          <span class="hero-badge purple">AESAGA-Newton算法</span>
+        </div>
+        <div class="hero-cta">
+          <a href="#about" class="hero-cta-primary">了解我</a>
+          <a href="#repo-grid" class="hero-cta-secondary">项目库</a>
+        </div>
+      </div>
+
+      <!-- 提示信息 -->
+      <div id="hero-hint">✨ 点击节点可跳转 GitHub 开源仓库 | 鼠标悬浮查看详情</div>
+
+      <!-- 下滑指示 -->
+      <div id="hero-scroll-indicator">
+        <i class="fa fa-chevron-down text-neon text-2xl"></i>
+      </div>
+    </section>
+
+    <!-- 关于我 & 个人理念 -->
+    <section id="about" class="py-20 section-animate">
+      <div class="container mx-auto px-6">
+        <h2 class="text-[clamp(1.8rem,4vw,3rem)] font-bold mb-12 text-center text-gradient">关于我</h2>
+        
+        <div class="max-w-4xl mx-auto card-gradient rounded-2xl p-8 md:p-10 glow-border">
+          <h3 class="text-2xl font-bold mb-6 text-gradient-gold">我的研究理念</h3>
+          <p class="text-white/80 text-lg leading-relaxed mb-6">
+            物理授予我的最大特点就是无止境的思索，我也终能够理解为什么科学的起源叫做自然哲学：共同的思考范式，即无止境的探知求索到底什么才是“真”，什么才是“对”。这套深度思考的范式是可以迁移到任何学科任何方向上的，故而数学物理可以称之为“基础”。
+          </p>
+          <p class="text-white/80 text-lg leading-relaxed mb-8">
+            我找到了我的兴趣以及终生的事业——<span class="text-neon font-bold">模型学</span>：起于数学建模，深于物理学习，升于深度学习，终于描述性。我想要以数学物理框架中的这份“建模描述性”为我的纲领，深化于我的哲学式深刻思考与求索，富集数学物理的营养，运用新时代深度学习可以处理高维灾难的本领，处理传统确定性模型精度与效率对现实的矛盾。
+          </p>
+          
+          <!-- 打开完整个人思考的按钮 -->
+          <button id="openPhilosophy" data-open-philosophy class="w-full md:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-neon to-cosmic hover:opacity-90 transition-opacity font-medium">
+            <i class="fa fa-book mr-2"></i> 查看完整《我与“模型学”》个人思考
+          </button>
+        </div>
+        
+        <!-- 核心研究兴趣 -->
+        <div class="grid md:grid-cols-2 gap-6 mt-12">
+          <div class="card-gradient rounded-2xl p-8 hover:animate-glow transition-all duration-500">
+            <div class="text-neon text-3xl mb-4"><i class="fa fa-atom"></i></div>
+            <h4 class="text-xl font-bold mb-3">物理信息深度学习</h4>
+            <p class="text-white/70">高效引入物理建模的确定性，收束深度学习基于数据的随机概率空间，平衡模型的计算效率与可靠、可解释性。</p>
+          </div>
+          <div class="card-gradient rounded-2xl p-8 hover:animate-glow transition-all duration-500">
+            <div class="text-quantum text-3xl mb-4"><i class="fa fa-cubes"></i></div>
+            <h4 class="text-xl font-bold mb-3">仿物学建模思想</h4>
+            <p class="text-white/70">运用“模型”（确定性、随机性模型）去量化、优化工程、科学与客观物理世界问题，从底层深度思考与处理问题。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 教育背景 -->
+    <section id="education" class="py-20 section-animate bg-deep/50">
+      <div class="container mx-auto px-6">
+        <h2 class="text-[clamp(1.8rem,4vw,3rem)] font-bold mb-12 text-center text-gradient">教育背景</h2>
+        
+        <div class="max-w-4xl mx-auto card-gradient rounded-2xl p-8 md:p-10">
+          <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+            <div>
+              <h3 class="text-2xl font-bold text-white">湖南大学</h3>
+              <p class="text-white/70 text-lg">应用物理学 | 本科</p>
+            </div>
+            <div class="mt-2 md:mt-0 px-4 py-2 rounded-full bg-quantum/20 text-quantum font-medium">
+              2023.09 - 至今
+            </div>
+          </div>
+          
+          <div class="grid md:grid-cols-2 gap-4 mb-8">
+            <div class="bg-dark/50 rounded-xl p-4">
+              <p class="text-white/60 text-sm">GPA & 排名</p>
+              <p class="text-xl font-bold text-gold">3.95/4.0 | 专业 2/112</p>
+            </div>
+            <div class="bg-dark/50 rounded-xl p-4">
+              <p class="text-white/60 text-sm">英语能力</p>
+              <p class="text-xl font-bold text-neon">CET4 594 | CET6 500</p>
+            </div>
+          </div>
+          
+          <h4 class="text-xl font-bold mb-4 text-white">主修核心课程</h4>
+          <div class="flex flex-wrap gap-3">
+            <span class="px-3 py-1 rounded-lg bg-cosmic/20 text-cosmic">热力学统计物理 99.5</span>
+            <span class="px-3 py-1 rounded-lg bg-cosmic/20 text-cosmic">理论力学 97</span>
+            <span class="px-3 py-1 rounded-lg bg-cosmic/20 text-cosmic">量子力学 96</span>
+            <span class="px-3 py-1 rounded-lg bg-cosmic/20 text-cosmic">固体物理 96</span>
+            <span class="px-3 py-1 rounded-lg bg-cosmic/20 text-cosmic">数学物理方法 95</span>
+            <span class="px-3 py-1 rounded-lg bg-quantum/20 text-quantum">数学建模与实验</span>
+            <span class="px-3 py-1 rounded-lg bg-quantum/20 text-quantum">数值计算方法</span>
+            <span class="px-3 py-1 rounded-lg bg-quantum/20 text-quantum">多元统计分析</span>
+            <span class="px-3 py-1 rounded-lg bg-neon/20 text-neon">机器学习</span>
+            <span class="px-3 py-1 rounded-lg bg-neon/20 text-neon">算法设计与分析</span>
+            <span class="px-3 py-1 rounded-lg bg-neon/20 text-neon">人工智能类脑计算</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 科研经历 -->
+    <section id="research" class="py-20 section-animate">
+      <div class="container mx-auto px-6">
+        <h2 class="text-[clamp(1.8rem,4vw,3rem)] font-bold mb-12 text-center text-gradient">科研经历</h2>
+        
+        <div class="max-w-5xl mx-auto space-y-8">
+          <!-- 科研项目1 -->
+          <div class="card-gradient rounded-2xl p-8 hover:scale-[1.02] transition-all duration-500">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
+              <h3 class="text-xl md:text-2xl font-bold text-white">限定性全集先验收束的dual_block_DiT缺陷补齐重建</h3>
+              <span class="mt-2 md:mt-0 px-3 py-1 rounded-full bg-neon/20 text-neon text-sm">湖南大学超算中心</span>
+            </div>
+            <p class="text-white/60 mb-4">指导老师：彭绍亮教授</p>
+            <div class="space-y-3 text-white/80">
+              <p>• 针对已有数据建模为给定全集下的逆转补集重构算法，基于DiT+流匹配算法框架，实现牙冠内外结构一体优化生成设计。</p>
+              <p>• 设计算法实现收束高斯噪声全集空间为专向特征全集空间，通过双模块拼接条件向量与多模板训练实现数据扩充与先验特征学习。</p>
+              <p>• 以尖锐采样边缘为显式条件强化细节特征提取，设计双板块transformer_block+动态时间-空间权重门控，实现双尺度细节与先验掌控。</p>
+            </div>
+          </div>
+          
+          <!-- 科研项目2 -->
+          <div class="card-gradient rounded-2xl p-8 hover:scale-[1.02] transition-all duration-500">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
+              <h3 class="text-xl md:text-2xl font-bold text-white">基于等变神经网络的CMOS管二维栅极材料性能预测</h3>
+              <span class="mt-2 md:mt-0 px-3 py-1 rounded-full bg-quantum/20 text-quantum text-sm">中国科学院物理研究所</span>
+            </div>
+            <p class="text-white/60 mb-4">指导老师：潘金波教授 | 严济慈班奖学金项目</p>
+            <div class="space-y-3 text-white/80">
+              <p>• 输入二维范德华材料特征描述符与微观坐标，输出带隙与介电常数预测，改进ALIGNN架构集成KAN算子与注意力机制，增强局部特征提取。</p>
+              <p>• 利用SE(3)等变框架保障模型的旋转平移对称性，以materials_project体材料数据预训练，组内DFT计算数据微调，预测误差达到可接受范围。</p>
+              <p>• 高校校内选拔600人（湖大20人），两轮考查后出线四十人前往中关村物理所70天长期实践。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 竞赛经历 -->
+    <section id="competition" class="py-20 section-animate bg-deep/50">
+      <div class="container mx-auto px-6">
+        <h2 class="text-[clamp(1.8rem,4vw,3rem)] font-bold mb-12 text-center text-gradient">竞赛经历</h2>
+        
+        <div class="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+          <!-- 竞赛1 -->
+          <div class="card-gradient rounded-2xl p-8 h-full hover:animate-glow transition-all duration-500">
+            <div class="text-gold text-3xl mb-4"><i class="fa fa-trophy"></i></div>
+            <h3 class="text-xl font-bold mb-2">2025年全国大学生数学建模竞赛</h3>
+            <p class="text-white/60 mb-4">《基于AESAGA WITH Newton算法的无人机投弹策略优化》</p>
+            <div class="space-y-2 text-white/80">
+              <p>• 身担建模手与编程手，建立无人机运动、投弹轨迹与弹道遮掩几何模型。</p>
+              <p>• 基于匈牙利算法实现投弹分配决策，设计优化目标与混合智能优化算法。</p>
+              <p>• 自主设计AESAGA WITH Newton算法实现复杂组合空间的全局最优求解。</p>
+            </div>
+          </div>
+          
+          <!-- 竞赛2 -->
+          <div class="card-gradient rounded-2xl p-8 h-full hover:animate-glow transition-all duration-500">
+            <div class="text-gold text-3xl mb-4"><i class="fa fa-trophy"></i></div>
+            <h3 class="text-xl font-bold mb-2">2024年全国大学生数学建模竞赛</h3>
+            <p class="text-white/60 mb-4">《基于递推模型的板凳龙运行调控》 | 全国二等奖</p>
+            <div class="space-y-2 text-white/80">
+              <p>• 身担建模手与编程手，设计动静态对比模型，实现阿基米德螺线离散点行进模型、速度传递模型与向量碰撞判断模型。</p>
+              <p>• 通过数学物理分析确定最大运行速度空间节点范围，大幅缩小优化搜索阈。</p>
+            </div>
+          </div>
+          
+          <!-- 竞赛3 -->
+          <div class="card-gradient rounded-2xl p-8 h-full hover:animate-glow transition-all duration-500">
+            <div class="text-neon text-3xl mb-4"><i class="fa fa-award"></i></div>
+            <h3 class="text-xl font-bold mb-2">湖南大学数学建模竞赛</h3>
+            <p class="text-gold font-bold">一等奖（仅六名）</p>
+          </div>
+          
+          <!-- 竞赛4 -->
+          <div class="card-gradient rounded-2xl p-8 h-full hover:animate-glow transition-all duration-500">
+            <div class="text-neon text-3xl mb-4"><i class="fa fa-award"></i></div>
+            <h3 class="text-xl font-bold mb-2">湖南大学数学竞赛</h3>
+            <p class="text-gold font-bold">一等奖</p>
+          </div>
+        </div>
+        
+        <!-- 荣誉奖项 -->
+        <div class="mt-16 max-w-5xl mx-auto">
+          <h3 class="text-2xl font-bold mb-8 text-center text-gradient-gold">荣誉奖项</h3>
+          <div class="grid md:grid-cols-2 gap-6">
+            <div class="card-gradient rounded-xl p-6 text-center hover:scale-[1.05] transition-all">
+              <p class="text-xl font-bold text-gold">国家奖学金</p>
+              <p class="text-white/70">2023-2024学年 | 2024-2025学年</p>
+            </div>
+            <div class="card-gradient rounded-xl p-6 text-center hover:scale-[1.05] transition-all">
+              <p class="text-xl font-bold text-neon">中国科学院物理研究所严济慈班奖学金</p>
+              <p class="text-white/70">2023-2025学年</p>
+            </div>
+            <div class="card-gradient rounded-xl p-6 text-center hover:scale-[1.05] transition-all">
+              <p class="text-xl font-bold text-white">连续两年湖南大学校优秀学生</p>
+              <p class="text-white/70">2023-2024学年 | 2024-2025学年</p>
+            </div>
+            <div class="card-gradient rounded-xl p-6 text-center hover:scale-[1.05] transition-all">
+              <p class="text-xl font-bold text-quantum">全国大学生数学建模竞赛全国二等奖</p>
+              <p class="text-white/70">2024年</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 技能栈 -->
+    <section id="skills" class="py-20 section-animate">
+      <div class="container mx-auto px-6">
+        <h2 class="text-[clamp(1.8rem,4vw,3rem)] font-bold mb-12 text-center text-gradient">科研技能</h2>
+        
+        <div class="max-w-4xl mx-auto grid md:grid-cols-2 gap-8">
+          <div class="card-gradient rounded-2xl p-8">
+            <h3 class="text-xl font-bold mb-6 text-neon">编程与框架</h3>
+            <div class="space-y-4">
+              <div>
+                <p class="text-white mb-2">Python / PyTorch</p>
+                <div class="w-full h-2 bg-dark rounded-full overflow-hidden">
+                  <div class="h-full w-[95%] bg-gradient-to-r from-neon to-cosmic"></div>
+                </div>
+              </div>
+              <div>
+                <p class="text-white mb-2">等变神经网络（e3nn/ALIGNN）</p>
+                <div class="w-full h-2 bg-dark rounded-full overflow-hidden">
+                  <div class="h-full w-[90%] bg-gradient-to-r from-neon to-cosmic"></div>
+                </div>
+              </div>
+              <div>
+                <p class="text-white mb-2">图神经网络（PyG/DGL）</p>
+                <div class="w-full h-2 bg-dark rounded-full overflow-hidden">
+                  <div class="h-full w-[85%] bg-gradient-to-r from-neon to-cosmic"></div>
+                </div>
+              </div>
+              <div>
+                <p class="text-white mb-2">Linux 开发环境</p>
+                <div class="w-full h-2 bg-dark rounded-full overflow-hidden">
+                  <div class="h-full w-[90%] bg-gradient-to-r from-neon to-cosmic"></div>
+                </div>
+              </div>
+              <div>
+                <p class="text-white mb-2">科学计算库（NumPy/SciPy）</p>
+                <div class="w-full h-2 bg-dark rounded-full overflow-hidden">
+                  <div class="h-full w-[95%] bg-gradient-to-r from-neon to-cosmic"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="card-gradient rounded-2xl p-8">
+            <h3 class="text-xl font-bold mb-6 text-quantum">建模与算法</h3>
+            <div class="flex flex-wrap gap-3">
+              <span class="px-4 py-2 rounded-lg bg-quantum/20 text-quantum">物理问题数学建模</span>
+              <span class="px-4 py-2 rounded-lg bg-quantum/20 text-quantum">偏微分方程数值解</span>
+              <span class="px-4 py-2 rounded-lg bg-quantum/20 text-quantum">模糊层次分析</span>
+              <span class="px-4 py-2 rounded-lg bg-quantum/20 text-quantum">图论路径规划</span>
+              <span class="px-4 py-2 rounded-lg bg-neon/20 text-neon">遗传算法</span>
+              <span class="px-4 py-2 rounded-lg bg-neon/20 text-neon">模拟退火算法</span>
+              <span class="px-4 py-2 rounded-lg bg-neon/20 text-neon">牛顿法优化</span>
+              <span class="px-4 py-2 rounded-lg bg-neon/20 text-neon">混合智能优化算法</span>
+              <span class="px-4 py-2 rounded-lg bg-gold/20 text-gold">多目标优化</span>
+              <span class="px-4 py-2 rounded-lg bg-gold/20 text-gold">匈牙利算法</span>
+              <span class="px-4 py-2 rounded-lg bg-gold/20 text-gold">DiT扩散模型</span>
+              <span class="px-4 py-2 rounded-lg bg-gold/20 text-gold">流匹配</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 开源项目库卡片区 -->
+    <section id="repo-grid" class="py-20 section-animate">
+      <div class="container mx-auto px-6">
+        <h2 class="text-[clamp(1.8rem,4vw,3rem)] font-bold mb-4 text-center text-gradient">开源项目库</h2>
+        <p class="text-center text-white/70 max-w-2xl mx-auto mb-12">点击卡片即可跳转至对应 GitHub 仓库，悬浮可查看语言构成详情</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+
+          <!-- tooth_decoupled_modeling -->
+          <a href="https://github.com/XinYU20040412/tooth_decoupled_modeling" target="_blank" rel="noopener"
+             class="repo-card card-gradient rounded-2xl p-6 flex flex-col gap-3 hover:-translate-y-2 transition-all duration-300 hover:shadow-[0_0_24px_rgba(0,228,255,0.4)] hover:border-neon/50 cursor-pointer group">
+            <div class="flex items-start gap-3">
+              <span class="mt-0.5 text-neon text-lg shrink-0 group-hover:scale-110 transition-transform duration-300"><i class="fa fa-github"></i></span>
+              <h3 class="font-bold text-white text-sm leading-snug break-all">tooth_decoupled_modeling</h3>
+            </div>
+            <p class="text-white/60 text-xs leading-relaxed flex-1">主项目 DiT + FlowMatch 生成模型；牙冠形态解耦建模与缺陷补齐重建</p>
+            <div class="mt-2 space-y-2">
+              <div class="flex flex-wrap gap-1.5">
+                <span class="text-xs px-2 py-0.5 rounded-full bg-neon/15 text-neon border border-neon/30">Python 86.4%</span>
+                <span class="text-xs px-2 py-0.5 rounded-full bg-quantum/15 text-quantum border border-quantum/30">Jupyter 11.1%</span>
+                <span class="text-xs px-2 py-0.5 rounded-full bg-white/10 text-white/60 border border-white/20">Shell 2.5%</span>
+              </div>
+              <div class="flex h-1.5 rounded-full overflow-hidden gap-px">
+                <div class="bg-neon/70 rounded-l-full" style="width:86.4%"></div>
+                <div class="bg-quantum/70" style="width:11.1%"></div>
+                <div class="bg-white/30 rounded-r-full" style="width:2.5%"></div>
+              </div>
+            </div>
+          </a>
+
+          <!-- AESAGA-Newton -->
+          <a href="https://github.com/XinYU20040412/AESAGA-Newton-Based-UAV-Bombing-Strategy-Optimization" target="_blank" rel="noopener"
+             class="repo-card card-gradient rounded-2xl p-6 flex flex-col gap-3 hover:-translate-y-2 transition-all duration-300 hover:shadow-[0_0_24px_rgba(0,228,255,0.4)] hover:border-neon/50 cursor-pointer group">
+            <div class="flex items-start gap-3">
+              <span class="mt-0.5 text-neon text-lg shrink-0 group-hover:scale-110 transition-transform duration-300"><i class="fa fa-github"></i></span>
+              <h3 class="font-bold text-white text-sm leading-snug break-all">AESAGA-Newton-Based-UAV-Bombing-Strategy-Optimization</h3>
+            </div>
+            <p class="text-white/60 text-xs leading-relaxed flex-1">基于 AESAGAWithNewton 算法的无人机投弹策略优化问题</p>
+            <div class="mt-2 space-y-2">
+              <div class="flex flex-wrap gap-1.5">
+                <span class="text-xs px-2 py-0.5 rounded-full bg-neon/15 text-neon border border-neon/30">Python 100%</span>
+              </div>
+              <div class="flex h-1.5 rounded-full overflow-hidden">
+                <div class="bg-neon/70 rounded-full w-full"></div>
+              </div>
+            </div>
+          </a>
+
+          <!-- Bench Dragon Dance -->
+          <a href="https://github.com/XinYU20040412/Operation-Regulation-of-Bench-Dragon-Dance-Based-on-Recursive-Model" target="_blank" rel="noopener"
+             class="repo-card card-gradient rounded-2xl p-6 flex flex-col gap-3 hover:-translate-y-2 transition-all duration-300 hover:shadow-[0_0_24px_rgba(0,228,255,0.4)] hover:border-neon/50 cursor-pointer group">
+            <div class="flex items-start gap-3">
+              <span class="mt-0.5 text-neon text-lg shrink-0 group-hover:scale-110 transition-transform duration-300"><i class="fa fa-github"></i></span>
+              <h3 class="font-bold text-white text-sm leading-snug break-all">Operation-Regulation-of-Bench-Dragon-Dance-Based-on-Recursive-Model</h3>
+            </div>
+            <p class="text-white/60 text-xs leading-relaxed flex-1">基于递推模型的板凳龙运行调控</p>
+            <div class="mt-2 space-y-2">
+              <div class="flex flex-wrap gap-1.5">
+                <span class="text-xs px-2 py-0.5 rounded-full bg-neon/15 text-neon border border-neon/30">Python 100%</span>
+              </div>
+              <div class="flex h-1.5 rounded-full overflow-hidden">
+                <div class="bg-neon/70 rounded-full w-full"></div>
+              </div>
+            </div>
+          </a>
+
+          <!-- Manipulator Joint Trajectory -->
+          <a href="https://github.com/XinYU20040412/Multi-objective-Optimization-for-Manipulator-Joint-Trajectory" target="_blank" rel="noopener"
+             class="repo-card card-gradient rounded-2xl p-6 flex flex-col gap-3 hover:-translate-y-2 transition-all duration-300 hover:shadow-[0_0_24px_rgba(0,228,255,0.4)] hover:border-neon/50 cursor-pointer group">
+            <div class="flex items-start gap-3">
+              <span class="mt-0.5 text-neon text-lg shrink-0 group-hover:scale-110 transition-transform duration-300"><i class="fa fa-github"></i></span>
+              <h3 class="font-bold text-white text-sm leading-snug break-all">Multi-objective-Optimization-for-Manipulator-Joint-Trajectory</h3>
+            </div>
+            <p class="text-white/60 text-xs leading-relaxed flex-1">机器臂关节角路径的多目标优化设计</p>
+            <div class="mt-2 space-y-2">
+              <div class="flex flex-wrap gap-1.5">
+                <span class="text-xs px-2 py-0.5 rounded-full bg-neon/15 text-neon border border-neon/30">Python 100%</span>
+              </div>
+              <div class="flex h-1.5 rounded-full overflow-hidden">
+                <div class="bg-neon/70 rounded-full w-full"></div>
+              </div>
+            </div>
+          </a>
+
+          <!-- competition_full_source_code -->
+          <a href="https://github.com/XinYU20040412/competition_full_source_code" target="_blank" rel="noopener"
+             class="repo-card card-gradient rounded-2xl p-6 flex flex-col gap-3 hover:-translate-y-2 transition-all duration-300 hover:shadow-[0_0_24px_rgba(0,228,255,0.4)] hover:border-neon/50 cursor-pointer group">
+            <div class="flex items-start gap-3">
+              <span class="mt-0.5 text-neon text-lg shrink-0 group-hover:scale-110 transition-transform duration-300"><i class="fa fa-github"></i></span>
+              <h3 class="font-bold text-white text-sm leading-snug break-all">competition_full_source_code</h3>
+            </div>
+            <p class="text-white/60 text-xs leading-relaxed flex-1">用于存放我参与过的竞赛的源代码（无 Demo 展示，纯源代码）</p>
+            <div class="mt-2 space-y-2">
+              <div class="flex flex-wrap gap-1.5">
+                <span class="text-xs px-2 py-0.5 rounded-full bg-neon/15 text-neon border border-neon/30">Python 96.6%</span>
+                <span class="text-xs px-2 py-0.5 rounded-full bg-gold/15 text-gold border border-gold/30">MATLAB 3.4%</span>
+              </div>
+              <div class="flex h-1.5 rounded-full overflow-hidden gap-px">
+                <div class="bg-neon/70 rounded-l-full" style="width:96.6%"></div>
+                <div class="bg-gold/70 rounded-r-full" style="width:3.4%"></div>
+              </div>
+            </div>
+          </a>
+
+          <!-- -A (华中杯A题) -->
+          <a href="https://github.com/XinYU20040412/-A" target="_blank" rel="noopener"
+             class="repo-card card-gradient rounded-2xl p-6 flex flex-col gap-3 hover:-translate-y-2 transition-all duration-300 hover:shadow-[0_0_24px_rgba(0,228,255,0.4)] hover:border-neon/50 cursor-pointer group">
+            <div class="flex items-start gap-3">
+              <span class="mt-0.5 text-neon text-lg shrink-0 group-hover:scale-110 transition-transform duration-300"><i class="fa fa-github"></i></span>
+              <div>
+                <h3 class="font-bold text-white text-sm leading-snug">华中杯 A 题</h3>
+                <span class="text-white/40 text-xs">repo: -A</span>
+              </div>
+            </div>
+            <p class="text-white/60 text-xs leading-relaxed flex-1">华中杯数学建模竞赛 A 题完整解题代码</p>
+            <div class="mt-2 space-y-2">
+              <div class="flex flex-wrap gap-1.5">
+                <span class="text-xs px-2 py-0.5 rounded-full bg-neon/15 text-neon border border-neon/30">Python 100%</span>
+              </div>
+              <div class="flex h-1.5 rounded-full overflow-hidden">
+                <div class="bg-neon/70 rounded-full w-full"></div>
+              </div>
+            </div>
+          </a>
+
+          <!-- self-creat-great-code -->
+          <a href="https://github.com/XinYU20040412/self-creat-great-code" target="_blank" rel="noopener"
+             class="repo-card card-gradient rounded-2xl p-6 flex flex-col gap-3 hover:-translate-y-2 transition-all duration-300 hover:shadow-[0_0_24px_rgba(0,228,255,0.4)] hover:border-neon/50 cursor-pointer group">
+            <div class="flex items-start gap-3">
+              <span class="mt-0.5 text-neon text-lg shrink-0 group-hover:scale-110 transition-transform duration-300"><i class="fa fa-github"></i></span>
+              <h3 class="font-bold text-white text-sm leading-snug break-all">self-creat-great-code</h3>
+            </div>
+            <p class="text-white/60 text-xs leading-relaxed flex-1">个人代码积累与沉淀</p>
+            <div class="mt-2 space-y-2">
+              <div class="flex flex-wrap gap-1.5">
+                <span class="text-xs px-2 py-0.5 rounded-full bg-quantum/15 text-quantum border border-quantum/30">Jupyter 66.1%</span>
+                <span class="text-xs px-2 py-0.5 rounded-full bg-neon/15 text-neon border border-neon/30">Python 33.9%</span>
+              </div>
+              <div class="flex h-1.5 rounded-full overflow-hidden gap-px">
+                <div class="bg-quantum/70 rounded-l-full" style="width:66.1%"></div>
+                <div class="bg-neon/70 rounded-r-full" style="width:33.9%"></div>
+              </div>
+            </div>
+          </a>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- 联系我 -->
+    <section id="contact" class="py-20 section-animate">
+      <div class="container mx-auto px-6">
+        <h2 class="text-[clamp(1.8rem,4vw,3rem)] font-bold mb-12 text-center text-gradient">联系我</h2>
+        
+        <div class="max-w-3xl mx-auto grid md:grid-cols-3 gap-6">
+          <a href="mailto:2698043274@qq.com" class="card-gradient rounded-xl p-6 text-center hover:scale-[1.05] transition-all hover:border-neon/50">
+            <div class="text-neon text-3xl mb-4"><i class="fa fa-envelope"></i></div>
+            <p class="text-lg font-bold mb-1">邮箱</p>
+            <p class="text-white/70 text-sm">2698043274@qq.com</p>
+          </a>
+          
+          <div class="card-gradient rounded-xl p-6 text-center hover:scale-[1.05] transition-all hover:border-gold/50">
+            <div class="text-gold text-3xl mb-4"><i class="fa fa-phone"></i></div>
+            <p class="text-lg font-bold mb-1">电话</p>
+            <p class="text-white/70 text-sm">13995951764</p>
+          </div>
+          
+          <a href="https://github.com/XinYU20040412" target="_blank" class="card-gradient rounded-xl p-6 text-center hover:scale-[1.05] transition-all hover:border-quantum/50">
+            <div class="text-quantum text-3xl mb-4"><i class="fa fa-github"></i></div>
+            <p class="text-lg font-bold mb-1">GitHub</p>
+            <p class="text-white/70 text-sm">XinYU20040412</p>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="py-8 border-t border-white/10">
+      <div class="container mx-auto px-6 text-center">
+        <p class="text-white/50">© 2026 余鑫 | 湖南大学应用物理学</p>
+      </div>
+    </footer>
+
+    <!-- 《我与模型学》全屏模态框 -->
+    <div id="philosophyModal" class="fixed inset-0 z-[100] bg-deep/95 backdrop-blur-md hidden flex items-center justify-center p-6">
+      <div class="w-full max-w-4xl max-h-[90vh] card-gradient rounded-2xl p-8 overflow-y-auto scrollbar-hide relative">
+        <button id="closeModal" class="absolute top-6 right-6 text-white/70 hover:text-neon text-2xl">
+          <i class="fa fa-times"></i>
+        </button>
+        
+        <h2 class="text-3xl font-bold mb-6 text-gradient-gold text-center">我与“模型学”</h2>
+        <div class="space-y-6 text-white/80 text-lg leading-relaxed">
+          <h3 class="text-2xl font-bold text-white">引入—学科理解</h3>
+          <p>
+            物理授予我的最大特点就是无止境的思索，我也终能够理解为什么科学的起源叫做自然哲学：共同的思考范式，即无止境的探知求索到底什么才是“真”，什么才是“对”。这套深度思考的范式是可以迁移到任何学科任何方向上的，故而数学物理可以称之为“basic”—基础。
+          </p>
+          <p>
+            我将数学物理从两个视角切入：<br>
+            1， 我们采取回溯的视角去观测。数学物理的起源其实是为了“描述”，也就是我们的数学建模：数学描述生活中的一切量化特征（突出我们关心的核心特征而忽略其他特性，就如1+1=2就高效的提取了“量的特征”），物理为了描述客观物理现实中的各种现象、实验，力求对现实世界进行指导。<br>
+            2， 我们再采用演绎的视角去审视。数学物理基于数学建模的描述但是又远高于数学建模，总结起来，原因在于：基于公理（数学）/定律（物理）的逻辑包闭自洽，形象的说就是我画一个圆之后要可以实现首尾相接，并且画的这个圆要足够大以至于包含的住我所有现代物理现实/数学逻辑体系。另外，画这个圆的起点是没有被固定的，我完全可以在已有圆上去做出其他的“外切圆”同样实现逻辑包闭自洽（这就导致数学体系超出现实，落于抽象空间），所有“圆”的全集就是我们的数学物理“大厦”。
+          </p>
+          
+          <h3 class="text-2xl font-bold text-white mt-8">兴趣落点与未来方向</h3>
+          <p>
+            而我在不断的思考后，发现人的兴趣和热爱可以由几个字概括：兴趣以能力为激发点，但一定会最终收束回（在你富集信息后，进行尝试、试错后的）认知框架。而我认为我已经找到了我的兴趣以及终生的事业——模型学：起于数学建模，深于物理学习，升于深度学习，终于描述性。
+          </p>
+          <p>
+            我想要以数学物理框架中的这份“建模描述性”为我的纲领（因为物理的本质更偏“描述”，我不想因为进入某个行业就丢掉物理的“屠龙术”，失去我作为一个物理专业学生对客观物理现实的“泛化性”），深化于我的哲学式深刻思考与求索，富集数学物理的营养，运用新时代深度学习可以处理高维灾难的本领，处理传统确定性模型精度与效率对现实的矛盾。
+          </p>
+          <p>
+            我想我的研究兴趣或者未来研究方向或许可以由下述几点概括：<br>
+            1， 如何高效引入物理建模的确定性去收束深度学习基于数据的随机概率空间？<br>
+            2， 我们的很多技术，灵感都是源于仿生学，仿自然学建模（如attention，退火机制~），我不想“拼积木”，更想运用仿物学思想，运用“模型”（确定性，随机性）去解决，量化，优化工程、科学。客观物理世界的问题！（想法源于我对数学建模竞赛的参与：以物理机制为主导，以数学为语言，以计算机为工具，居然可以“泛化/不拘泥的”“解决”生活中的那么多问题！这太有趣了不是吗）<br>
+            3， 在试探，操作过程中我有了一些形而上学的想法：现代计算已经不像是费米黄金定则那般的简单映射，而是一个复杂的系统，内部存在着数据流以及参数信息的交互。我以热统的视角去观察：他是一个系统，我可以用“粗粒化”的视角去审视（用流来表示数据的传递，用熵或者其他指标来描述体系的性质——决策树不就是这么做的嘛），我可否将其归于物理系统学并且期于运用此理论体系对其进行数据实验的指导、调控？可否以一套体系具体评估一个算法“系统”的好坏？可否评估好坏后再反向去确定输入参数的范围以减小调参的经验性（如同人类科学史的发展：由经验性试错到有理论的定向指引）？<br>
+            4， 可以从底层思考，底层处理问题，深度思考，比较包含数理的方向
+          </p>
+        </div>
+      </div>
     </div>
 
-    <script>
-        // 严格按照文档定义的树形数据 修正项目名+完整结构
-        const treeData = {
-            name: 'XinYU20040412 (XinYu)',
-            link: 'https://github.com/XinYU20040412',
-            nodeType: 'root',
-            children: [
-                // 分支一：确定性模型
-                {
-                    name: '确定性模型',
-                    nodeType: 'level1',
-                    children: [
-                        {
-                            name: '板凳龙运行调控',
-                            fullName: '基于递推模型的板凳龙运行调控',
-                            link: 'https://github.com/XinYU20040412/Operation-Regulation-of-Bench-Dragon-Dance-Based-on-Recursive-Model',
-                            nodeType: 'large'
-                        },
-                        {
-                            name: '无人机投弹策略优化',
-                            fullName: '基于AESAGA-WITH-Newton算法的无人机投弹策略优化',
-                            link: 'https://github.com/XinYU20040412/AESAGA-Newton-Based-UAV-Bombing-Strategy-Optimization',
-                            nodeType: 'large'
-                        },
-                        {
-                            name: '机械臂路径优化',
-                            fullName: '机器臂关节角路径的多目标优化设计',
-                            link: 'https://github.com/XinYU20040412/Multi-objective-Optimization-for-Manipulator-Joint-Trajectory',
-                            nodeType: 'medium'
-                        },
-                        {
-                            name: '多孔膜光反射优化',
-                            fullName: '多孔膜光反射性能的优化与控制',
-                            link: 'https://github.com/XinYU20040412/Optimization-and-Modulation-of-Optical-Reflectance-Properties-of-Porous-Membranes',
-                            nodeType: 'medium'
-                        },
-                        {
-                            name: '反射镜优化调控',
-                            fullName: '基于重连续化的反射镜优化调控',
-                            link: 'https://github.com/XinYU20040412/Optimization-and-Modulation-of-Reflector-Based-on-Re-continuation',
-                            nodeType: 'medium'
-                        },
-                        {
-                            name: '大气能量穿透模型',
-                            fullName: '大气能量穿透季节时变模型',
-                            link: 'https://github.com/XinYU20040412/A-Atmospheric-Energy-Penetration-Seasonal-Model',
-                            nodeType: 'small'
-                        }
-                    ]
-                },
-                // 分支二：随机模型-深度学习 修正最下级为项目名
-                {
-                    name: '随机模型-深度学习',
-                    nodeType: 'level1',
-                    children: [
-                        {
-                            name: 'AI for Engineer',
-                            nodeType: 'level1',
-                            children: [
-                                {
-                                    name: 'DiT+Flowmatch 3D生成',
-                                    fullName: '国家超算中心项目',
-                                    tooltip: '基于DiT+Flowmatch的3D牙冠结构一体优化生成',
-                                    link: 'https://github.com/XinYU20040412/tooth_decoupled_modeling',
-                                    nodeType: 'large'
-                                }
-                            ]
-                        },
-                        {
-                            name: 'AI for Materials',
-                            nodeType: 'level1',
-                            children: [
-                                {
-                                    name: 'CMOS材料等变网络优化',
-                                    fullName: '中科院物理所项目',
-                                    tooltip: '《基于等变神经网络的CMOS管二维栅极材料性能预测以及逆向结构优化生成》',
-                                    link: 'https://github.com/XinYU20040412/equivariant-nn-cmos-2d-op',
-                                    nodeType: 'large'
-                                },
-                                {
-                                    name: '布洛赫定理深度学习规范',
-                                    fullName: '个人科研探索',
-                                    tooltip: '布洛赫定理在深度学习中的内在规范研究',
-                                    link: 'https://github.com/XinYU20040412/bloch-nn-intrinsic',
-                                    nodeType: 'large'
-                                }
-                            ]
-                        }
-                    ]
-                },
-                // 分支三：自修改实用代码储藏库
-                {
-                    name: '实用代码储藏库',
-                    fullName: '自修改实用代码储藏库',
-                    link: 'https://github.com/XinYU20040412/self-creat-great-code',
-                    nodeType: 'level1',
-                    children: [
-                        {
-                            name: '优化算法',
-                            link: 'https://github.com/XinYU20040412/self-creat-great-code/tree/main/优化算法',
-                            nodeType: 'large'
-                        },
-                        {
-                            name: '多元统计分析',
-                            link: 'https://github.com/XinYU20040412/self-creat-great-code/tree/main/多元统计分析',
-                            nodeType: 'large'
-                        },
-                        {
-                            name: '数值计算',
-                            link: 'https://github.com/XinYU20040412/self-creat-great-code/tree/main/数值计算',
-                            nodeType: 'large'
-                        },
-                        {
-                            name: '机器学习经典原型',
-                            link: 'https://github.com/XinYU20040412/self-creat-great-code/tree/main/机器学习经典原型',
-                            nodeType: 'large'
-                        },
-                        {
-                            name: '自建工具箱',
-                            link: 'https://github.com/XinYU20040412/self-creat-great-code/tree/main/自建工具箱',
-                            nodeType: 'large'
-                        }
-                    ]
-                },
-                // 分支四：关于我
-                {
-                    name: '关于我',
-                    nodeType: 'level1',
-                    children: [
-                        {
-                            name: '我的理念',
-                            modal: {
-                                key: 'philosophy',
-                                title: '我的理念：我与“模型学”',
-                                content: `
-                                    <p>物理授予我的最大特点就是无止境的思索，我也终能够理解为什么科学的起源叫做自然哲学：共同的思考范式，即无止境的探知求索到底什么才是“真”，什么才是“对”。这套深度思考的范式是可以迁移到任何学科任何方向上的，故而数学物理可以称之为“basic”—基础。</p>
-                                    <p>我将数学物理从两个视角切入：<br>
-                                    1. 回溯视角：数学物理的起源是为了“描述”，也就是数学建模——数学提取量化特征，物理描述客观现实，力求对现实世界进行指导。<br>
-                                    2. 演绎视角：数学物理基于建模又远高于建模，核心在于基于公理/定律的逻辑闭环自洽，可在已有体系上延伸出全新的自洽逻辑，共同构建数学物理的完整大厦。</p>
-                                    <p>我找到了我的终生事业——模型学：起于数学建模，深于物理学习，升于深度学习，终于描述性。我以数学物理的“建模描述性”为纲领，不丢掉物理的“屠龙术”，不失去对客观现实的泛化能力，用深度学习处理高维灾难的本领，解决传统确定性模型精度与效率的矛盾。</p>
-                                    <p>核心研究方向：<br>
-                                    1. 用物理建模的确定性收束深度学习的随机概率空间<br>
-                                    2. 用仿物学思想，以模型量化、优化工程与科学问题<br>
-                                    3. 以热统视角审视计算系统，用物理体系指导算法优化<br>
-                                    4. 从底层深度思考、处理问题的数理方向</p>
-                                `
-                            },
-                            nodeType: 'large'
-                        },
-                        {
-                            name: '教育背景',
-                            modal: {
-                                key: 'education',
-                                title: '教育背景与荣誉奖项',
-                                content: `
-                                    <p><strong>2023.09-至今</strong> 湖南大学 应用物理学 本科<br>
-                                    GPA：3.95/4.0  专业排名：2/112<br>
-                                    CET4：594 | CET6：500</p>
-                                    <p><strong>核心主修课程</strong><br>
-                                    物理：热力学统计物理（99.5）、数学物理方法（95）、固体物理（96）、量子力学（96）、理论力学（97）<br>
-                                    数学：数学模型、数学建模与实验、反问题建模与求解、数值计算方法、多元统计分析<br>
-                                    计算机：机器学习、模式识别与机器学习、算法设计与分析、人工智能类脑计算</p>
-                                    <p><strong>选拔经历</strong><br>
-                                    中国科学院物理研究所严济慈班项目选拔入选<br>
-                                    国家超算中心科研项目参与经历</p>
-                                    <p><strong>荣誉奖项</strong><br>
-                                    2023-2025 中国科学院物理研究所严济慈班奖学金<br>
-                                    2023-2024 国家奖学金<br>
-                                    2024-2025 国家奖学金<br>
-                                    2023-2025 连续两年湖南大学校优秀学生称号<br>
-                                    全国大学生数学建模竞赛二等奖<br>
-                                    湖南大学数学建模竞赛一等奖<br>
-                                    湖南大学数学竞赛一等奖</p>
-                                `
-                            },
-                            nodeType: 'large'
-                        },
-                        {
-                            name: '科研经历',
-                            modal: {
-                                key: 'research',
-                                title: '科研经历与技能',
-                                content: `
-                                    <p><strong>1. 《限定性全集先验收束的dual_block_DiT缺陷补齐重建-内外牙冠结构一体优化生成设计》</strong><br>
-                                    湖南大学超算中心 彭绍亮教授<br>
-                                    针对问题建模为给定全集下的逆转补集重构算法，沿用DiT+流匹配框架，实现了高斯噪声空间定向收束、双模块条件向量拼接、边缘显式条件强化、时空双尺度权重门控设计。</p>
-                                    <p><strong>2. 《基于等变神经网络的CMOS管二维栅极材料性能预测以及逆向结构优化生成》</strong><br>
-                                    中国科学院物理研究所 潘金波教授<br>
-                                    输入二维范德华材料特征与微观坐标，输出带隙与介电常数预测；改进ALIGNN架构，集成KAN算子与注意力机制，基于SE(3)等变框架保障旋转平移对称性，实现材料性能精准预测与逆向生成。</p>
-                                    <p><strong>核心科研技能</strong><br>
-                                    1. 编程与框架：熟练使用Python/PyTorch，熟悉e3nn、ALIGNN等变神经网络仓库，掌握PyG/DGL图神经网络库，熟练使用Linux开发环境与NumPy、SciPy等科学计算库，可复现前沿论文模型与实验。<br>
-                                    2. 建模与算法：具备将物理问题转化为数学模型并数值求解/仿真的能力，熟悉综合分析算法、图论路径规划算法、经典及智能优化算法，拥有偏微分方程数值解经验。</p>
-                                `
-                            },
-                            nodeType: 'large'
-                        },
-                        {
-                            name: '竞赛经历',
-                            modal: {
-                                key: 'competition',
-                                title: '竞赛经历',
-                                content: `
-                                    <p><strong>2025年 全国大学生数学建模竞赛</strong><br>
-                                    项目：《基于AESAGA WITH Newton算法的无人机投弹策略优化问题》<br>
-                                    担任建模手+编程手，建立无人机运行与投弹轨迹模型、弹道遮掩几何模型、匈牙利算法投弹分配模型，自主设计AESAGA WITH Newton智能优化算法求解复杂组合优化问题。</p>
-                                    <p><strong>2024年 全国大学生数学建模竞赛</strong><br>
-                                    项目：《基于递推模型的板凳龙运行调控》<br>
-                                    担任建模手+编程手，设计动静态对比模型（阿基米德螺线离散点行进模型+速度传递模型+向量碰撞判断模型），通过数理分析锁定最大运行速度节点范围，大幅缩小优化搜索空间，获全国二等奖。</p>
-                                    <p><strong>2024年 华数杯全国大学生数学建模竞赛</strong><br>
-                                    项目：《机器臂关节角路径的多目标优化设计》</p>
-                                    <p><strong>2025年 华数杯全国大学生数学建模竞赛</strong><br>
-                                    项目：《多孔膜光反射性能的优化与控制》</p>
-                                    <p><strong>2024年 华中杯数学建模竞赛</strong><br>
-                                    项目：《大气能量穿透季节时变模型》</p>
-                                    <p><strong>湖南大学数学建模竞赛 一等奖</strong><br>
-                                    <strong>湖南大学数学竞赛 一等奖</strong></p>
-                                `
-                            },
-                            nodeType: 'large'
-                        }
-                    ]
-                }
-            ]
-        };
+    <!-- 首屏图谱节点弹窗（由 iframe 触发，内容直接复用后续页卡片） -->
+    <div id="heroNodeModal" class="fixed inset-0 z-[120] hidden">
+      <div class="hero-node-modal-backdrop">
+        <div class="hero-node-modal-geo">
+          <span class="mshape-1"></span>
+          <span class="mshape-2"></span>
+          <span class="mshape-3"></span>
+        </div>
+      </div>
+      <div class="relative w-full h-full flex items-center justify-center p-4 md:p-8">
+        <div id="heroNodeModalPanel" class="relative w-full max-w-5xl max-h-[90vh] card-gradient rounded-2xl p-6 md:p-8 overflow-y-auto scrollbar-hide glow-border">
+          <button id="heroNodeModalClose" class="absolute top-6 right-6 text-white/70 hover:text-neon text-2xl">
+            <i class="fa fa-times"></i>
+          </button>
+          <h2 id="heroNodeModalTitle" class="text-3xl md:text-4xl font-bold mb-6 text-gradient-gold"></h2>
+          <div id="heroNodeModalBody" class="space-y-6"></div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-        // 初始化SVG与径向布局
-        const svg = d3.select('#treeSvg');
-        const width = document.querySelector('.tree-container').clientWidth;
-        const height = document.querySelector('.tree-container').clientHeight;
-        const radius = Math.min(width, height) / 2 - 120; // 布局半径 预留边距
+  <!-- JS脚本 -->
+  <script>
+    // 粒子背景初始化
+    particlesJS('particles-js', {
+      "particles": {
+        "number": { "value": 80, "density": { "enable": true, "value_area": 800 } },
+        "color": { "value": ["#00E4FF", "#722ED1", "#165DFF"] },
+        "shape": { "type": "circle" },
+        "opacity": { "value": 0.5, "random": true },
+        "size": { "value": 3, "random": true },
+        "line_linked": { "enable": true, "distance": 150, "color": "#165DFF", "opacity": 0.2, "width": 1 },
+        "move": { "enable": true, "speed": 1, "direction": "none", "random": true, "straight": false, "out_mode": "out", "bounce": false }
+      },
+      "interactivity": {
+        "detect_on": "canvas",
+        "events": {
+          "onhover": { "enable": true, "mode": "grab" },
+          "onclick": { "enable": true, "mode": "push" },
+          "resize": true
+        },
+        "modes": {
+          "grab": { "distance": 140, "line_linked": { "opacity": 0.5 } },
+          "push": { "particles_nb": 3 }
+        }
+      },
+      "retina_detect": true
+    });
 
-        // 设置SVG中心坐标
-        const g = svg.attr('viewBox', `0 0 ${width} ${height}`)
-            .append('g')
-            .attr('transform', `translate(${width / 2}, ${height / 2})`);
+    // 导航栏滚动效果
+    window.addEventListener('scroll', () => {
+      const navbar = document.getElementById('navbar');
+      if (window.scrollY > 50) {
+        navbar.classList.add('bg-deep/80', 'backdrop-blur-md', 'shadow-lg');
+        navbar.classList.remove('py-4');
+        navbar.classList.add('py-3');
+      } else {
+        navbar.classList.remove('bg-deep/80', 'backdrop-blur-md', 'shadow-lg');
+        navbar.classList.remove('py-3');
+        navbar.classList.add('py-4');
+      }
+    });
 
-        // 定义球形渐变
-        const defs = g.append('defs');
-        // 根节点渐变
-        defs.append('radialGradient')
-            .attr('id', 'rootGradient')
-            .attr('cx', '30%').attr('cy', '30%').attr('r', '100%')
-            .html(`<stop offset="0%" stop-color="#6dd5fa" /><stop offset="100%" stop-color="#2980b9" />`);
-        // 一级节点渐变
-        defs.append('radialGradient')
-            .attr('id', 'level1Gradient')
-            .attr('cx', '30%').attr('cy', '30%').attr('r', '100%')
-            .html(`<stop offset="0%" stop-color="#a78bfa" /><stop offset="100%" stop-color="#7c3aed" />`);
-        // 大节点渐变
-        defs.append('radialGradient')
-            .attr('id', 'largeGradient')
-            .attr('cx', '30%').attr('cy', '30%').attr('r', '100%')
-            .html(`<stop offset="0%" stop-color="#4fc3f7" /><stop offset="100%" stop-color="#0284c7" />`);
-        // 中节点渐变
-        defs.append('radialGradient')
-            .attr('id', 'mediumGradient')
-            .attr('cx', '30%').attr('cy', '30%').attr('r', '100%')
-            .html(`<stop offset="0%" stop-color="#6aaf7c" /><stop offset="100%" stop-color="#2d7d46" />`);
-        // 小节点渐变
-        defs.append('radialGradient')
-            .attr('id', 'smallGradient')
-            .attr('cx', '30%').attr('cy', '30%').attr('r', '100%')
-            .html(`<stop offset="0%" stop-color="#ffb74d" /><stop offset="100%" stop-color="#f97316" />`);
+    // 滚动动画触发
+    const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -100px 0px' };
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, observerOptions);
 
-        // 径向树布局
-        const tree = d3.tree()
-            .size([2 * Math.PI, radius])
-            .separation((a, b) => (a.parent === b.parent ? 1.2 : 2) / a.depth);
+    document.querySelectorAll('.section-animate').forEach(section => {
+      observer.observe(section);
+    });
 
-        // 处理层级数据
-        const root = d3.hierarchy(treeData);
-        tree(root);
+    // 模态框控制（支持多个入口：data-open-philosophy）
+    const closeModal = document.getElementById('closeModal');
+    const modal = document.getElementById('philosophyModal');
 
-        // 绘制连线
-        const link = g.selectAll('.tree-link')
-            .data(root.links())
-            .join('path')
-            .attr('class', d => `tree-link link-level${d.source.depth}`)
-            .attr('d', d3.linkRadial()
-                .angle(d => d.x)
-                .radius(d => d.y)
-            );
+    function openPhilosophyModal() {
+      if (!modal) return;
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
 
-        // 绘制节点组
-        const node = g.selectAll('.node')
-            .data(root.descendants())
-            .join('g')
-            .attr('class', 'node')
-            .attr('transform', d => `rotate(${d.x * 180 / Math.PI - 90}) translate(${d.y},0) rotate(${-(d.x * 180 / Math.PI - 90)})`);
+    function closePhilosophyModal() {
+      if (!modal) return;
+      modal.classList.add('hidden');
+      document.body.style.overflow = 'auto';
+    }
 
-        // 绘制球形节点
-        node.append('circle')
-            .attr('class', d => `node-circle node-${d.data.nodeType}`)
-            .on('mouseover', function(event, d) {
-                // 显示tooltip
-                if (d.data.tooltip || d.data.fullName) {
-                    const tooltip = document.getElementById('tooltip');
-                    tooltip.innerHTML = d.data.fullName || d.data.tooltip;
-                    tooltip.classList.add('show');
-                    tooltip.style.left = event.pageX + 10 + 'px';
-                    tooltip.style.top = event.pageY + 10 + 'px';
-                }
-                // 高亮连线
-                d3.selectAll('.tree-link').style('opacity', 0.2);
-                let current = d;
-                while (current.parent) {
-                    d3.selectAll(`.tree-link`)
-                        .filter(l => l.target === current)
-                        .style('opacity', 1)
-                        .style('stroke-width', 3);
-                    current = current.parent;
-                }
-            })
-            .on('mouseout', function() {
-                // 隐藏tooltip
-                document.getElementById('tooltip').classList.remove('show');
-                // 恢复连线
-                d3.selectAll('.tree-link')
-                    .style('opacity', 1)
-                    .style('stroke-width', 2);
-            })
-            .on('click', function(event, d) {
-                // 跳转链接
-                if (d.data.link) {
-                    window.open(d.data.link, '_blank');
-                }
-                // 打开弹窗
-                if (d.data.modal) {
-                    openModal(d.data.modal.title, d.data.modal.content, d.data.modal.key);
-                }
-            });
+    document.querySelectorAll('[data-open-philosophy]').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        openPhilosophyModal();
+      });
+    });
 
-        // 绘制节点文本
-        node.append('text')
-            .attr('class', d => `node-text text-${d.data.nodeType} ${d.data.nodeType === 'small' ? 'text-small' : ''}`)
-            .text(d => d.data.name);
+    if (closeModal) {
+      closeModal.addEventListener('click', closePhilosophyModal);
+    }
 
-        // 弹窗控制
-        function openModal(title, content, key) {
-            // 嵌入首页时：优先请求父页面用“后续页同款卡片”打开统一弹窗，实现合并同类项
-            try {
-                if (key && window.parent && window.parent !== window) {
-                    window.parent.postMessage({ type: 'OPEN_HERO_NODE_MODAL', key, title }, '*');
-                    return;
-                }
-            } catch (e) {
-                // ignore and fallback
-            }
-            const modal = document.getElementById('modal');
-            document.getElementById('modalTitle').textContent = title;
-            document.getElementById('modalContent').innerHTML = content;
-            modal.classList.add('active');
+    if (modal) {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) closePhilosophyModal();
+      });
+    }
+
+    // ===== 首屏图谱节点弹窗（由 iframe postMessage 触发，复用后续页内容） =====
+    const heroNodeModalEl = document.getElementById('heroNodeModal');
+    const heroNodeModalPanel = document.getElementById('heroNodeModalPanel');
+    const heroNodeModalTitle = document.getElementById('heroNodeModalTitle');
+    const heroNodeModalBody = document.getElementById('heroNodeModalBody');
+    const heroNodeModalClose = document.getElementById('heroNodeModalClose');
+    const heroTreeIframe = document.getElementById('hero-tree-iframe');
+
+    const heroNodeTitles = {
+      philosophy: '关于我 · 研究理念',
+      education: '教育背景 · 课程与荣誉',
+      research: '科研经历 · 项目与技能',
+      competition: '竞赛经历 · 项目与奖项'
+    };
+
+    function cloneWithoutIds(element) {
+      const cloned = element.cloneNode(true);
+      cloned.querySelectorAll('[id]').forEach((n) => n.removeAttribute('id'));
+      return cloned;
+    }
+
+    function buildHeroNodeContent(key) {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'space-y-6';
+
+      if (key === 'philosophy') {
+        const aboutCard = document.querySelector('#about .max-w-4xl');
+        if (aboutCard) {
+          const cardClone = cloneWithoutIds(aboutCard);
+          const maybeBtn = cardClone.querySelector('button');
+          if (maybeBtn) maybeBtn.remove();
+          wrapper.appendChild(cardClone);
         }
 
-        function closeModal() {
-            document.getElementById('modal').classList.remove('active');
+        const interestsGrid = document.querySelector('#about .grid');
+        if (interestsGrid) {
+          wrapper.appendChild(cloneWithoutIds(interestsGrid));
         }
 
-        document.getElementById('modalClose').addEventListener('click', closeModal);
-        document.getElementById('modal').addEventListener('click', (e) => {
-            if (e.target === document.getElementById('modal')) closeModal();
-        });
+        const ctas = document.createElement('div');
+        ctas.className = 'flex flex-col sm:flex-row gap-3';
+        ctas.innerHTML = `
+          <button data-open-philosophy class="px-6 py-3 rounded-xl bg-gradient-to-r from-neon to-cosmic hover:opacity-90 transition-opacity font-medium">
+            <i class="fa fa-book mr-2"></i> 打开完整《我与“模型学”】【后续页同款】
+          </button>
+          <a href="#about" class="px-6 py-3 rounded-xl bg-white/5 border border-white/10 hover:border-neon/50 transition-colors font-medium text-center">
+            <i class="fa fa-location-arrow mr-2"></i> 跳转到后续页位置
+          </a>
+        `;
+        wrapper.appendChild(ctas);
+        return wrapper;
+      }
 
-        // 鼠标跟随tooltip
-        document.addEventListener('mousemove', (e) => {
-            const tooltip = document.getElementById('tooltip');
-            if (tooltip.classList.contains('show')) {
-                tooltip.style.left = e.pageX + 10 + 'px';
-                tooltip.style.top = e.pageY + 10 + 'px';
-            }
-        });
+      if (key === 'education') {
+        const eduCard = document.querySelector('#education .max-w-4xl');
+        if (eduCard) wrapper.appendChild(cloneWithoutIds(eduCard));
+        return wrapper;
+      }
 
-        // 窗口大小自适应重绘
-        window.onresize = () => {
-            window.location.reload();
-        };
-    </script>
+      if (key === 'research') {
+        const researchCards = document.querySelector('#research .max-w-5xl');
+        if (researchCards) wrapper.appendChild(cloneWithoutIds(researchCards));
+
+        const skillsCards = document.querySelector('#skills .max-w-4xl');
+        if (skillsCards) {
+          const title = document.createElement('h3');
+          title.className = 'text-2xl font-bold text-white';
+          title.textContent = '科研技能（摘要）';
+          wrapper.appendChild(title);
+          wrapper.appendChild(cloneWithoutIds(skillsCards));
+        }
+        return wrapper;
+      }
+
+      if (key === 'competition') {
+        const mainGrid = document.querySelector('#competition .grid.max-w-5xl');
+        if (mainGrid) wrapper.appendChild(cloneWithoutIds(mainGrid));
+
+        const honors = document.querySelector('#competition .mt-16.max-w-5xl');
+        if (honors) wrapper.appendChild(cloneWithoutIds(honors));
+        return wrapper;
+      }
+
+      return wrapper;
+    }
+
+    function openHeroNodeModal(key) {
+      if (!heroNodeModalEl || !heroNodeModalTitle || !heroNodeModalBody) return;
+      heroNodeModalTitle.textContent = heroNodeTitles[key] || '详情';
+      heroNodeModalBody.innerHTML = '';
+      heroNodeModalBody.appendChild(buildHeroNodeContent(key));
+      heroNodeModalEl.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeHeroNodeModal() {
+      if (!heroNodeModalEl) return;
+      heroNodeModalEl.classList.add('hidden');
+      document.body.style.overflow = 'auto';
+    }
+
+    if (heroNodeModalClose) heroNodeModalClose.addEventListener('click', closeHeroNodeModal);
+    if (heroNodeModalEl && heroNodeModalPanel) {
+      heroNodeModalEl.addEventListener('click', (e) => {
+        if (!heroNodeModalPanel.contains(e.target)) closeHeroNodeModal();
+      });
+    }
+
+    // ESC 关闭
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && heroNodeModalEl && !heroNodeModalEl.classList.contains('hidden')) {
+        closeHeroNodeModal();
+      }
+    });
+
+    // 弹窗内快捷操作
+    if (heroNodeModalBody) {
+      heroNodeModalBody.addEventListener('click', (e) => {
+        const openFull = e.target.closest('[data-open-philosophy]');
+        if (openFull) {
+          closeHeroNodeModal();
+          modal.classList.remove('hidden');
+          document.body.style.overflow = 'hidden';
+          return;
+        }
+
+        const anchor = e.target.closest('a[href^="#"]');
+        if (anchor) {
+          closeHeroNodeModal();
+        }
+      });
+    }
+
+    // 监听来自首屏图谱 iframe 的消息
+    window.addEventListener('message', (event) => {
+      if (!heroTreeIframe || event.source !== heroTreeIframe.contentWindow) return;
+      const data = event.data;
+      if (!data || data.type !== 'OPEN_HERO_NODE_MODAL') return;
+      if (data.key === 'philosophy') {
+        // 首页点击“我的理念”：直接展示完整版《我与“模型学”】【不再显示缩略版】
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        return;
+      }
+
+      if (!heroNodeTitles[data.key]) return;
+      openHeroNodeModal(data.key);
+    });
+  </script>
 </body>
 </html>

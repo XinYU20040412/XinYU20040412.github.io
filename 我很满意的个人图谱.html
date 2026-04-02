@@ -10,18 +10,18 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
         }
 
         :root {
-            --primary-blue: #4fc3f7;
-            --primary-purple: #7e57c2;
-            --accent-purple: #ab79ff;
-            --accent-green: #6aaf7c;
-            --accent-orange: #ffb74d;
-            --bg-deep: #0a0a0f;
-            --text-main: #e8e8ed;
-            --text-sub: #a0a0b8;
+            --primary-blue: #00E4FF;
+            --primary-purple: #722ED1;
+            --accent-purple: #165DFF;
+            --accent-green: #165DFF;
+            --accent-orange: #FFD700;
+            --bg-deep: rgba(10, 15, 29, 0.20);
+            --text-main: rgba(255, 255, 255, 0.92);
+            --text-sub: rgba(255, 255, 255, 0.72);
         }
 
         body {
@@ -32,14 +32,52 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 20px;
+                        padding: 12px;
+                        position: relative;
         }
+
+                body::before {
+                        content: "";
+                        position: fixed;
+                        inset: -40%;
+                        background:
+                            conic-gradient(from 160deg at 50% 50%,
+                                rgba(0, 228, 255, 0.00) 0deg,
+                                rgba(0, 228, 255, 0.18) 70deg,
+                                rgba(114, 46, 209, 0.16) 140deg,
+                                rgba(22, 93, 255, 0.14) 220deg,
+                                rgba(255, 215, 0, 0.10) 300deg,
+                                rgba(0, 228, 255, 0.00) 360deg
+                            );
+                        filter: blur(28px);
+                        opacity: 0.85;
+                        animation: bgSpin 22s linear infinite;
+                        pointer-events: none;
+                        z-index: 0;
+                }
+
+                body::after {
+                        content: "";
+                        position: fixed;
+                        inset: 0;
+                        background-image:
+                            linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+                            linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+                        background-size: 52px 52px;
+                        opacity: 0.14;
+                        pointer-events: none;
+                        z-index: 0;
+                }
+
+                @keyframes bgSpin {
+                        to { transform: rotate(360deg); }
+                }
 
         /* 标题样式 */
         .tree-title {
-            font-size: 42px;
+            font-size: 22px;
             font-weight: 700;
-            margin-bottom: 20px;
+            margin: 8px 0 10px;
             background: linear-gradient(90deg, var(--primary-blue), var(--primary-purple));
             -webkit-background-clip: text;
             background-clip: text;
@@ -51,8 +89,9 @@
         /* SVG容器 全屏径向布局 */
         .tree-container {
             width: 100vw;
-            height: calc(100vh - 100px);
+            height: calc(100vh - 64px);
             position: relative;
+            z-index: 1;
         }
 
         .tree-svg {
@@ -68,7 +107,7 @@
             stroke-dasharray: 1500;
             stroke-dashoffset: 1500;
             animation: linkGrow 2s ease forwards;
-            filter: drop-shadow(0 0 3px rgba(79, 195, 247, 0.3));
+            filter: drop-shadow(0 0 6px rgba(0, 228, 255, 0.18));
         }
 
         .link-root { stroke: var(--primary-blue); animation-delay: 0.2s; }
@@ -95,11 +134,11 @@
         }
 
         /* 节点大小分级 严格匹配需求 */
-        .node-root { r: 45; fill: url(#rootGradient); stroke: var(--primary-blue); stroke-width: 3; color: var(--primary-blue); animation-delay: 0s; }
-        .node-level1 { r: 35; fill: url(#level1Gradient); stroke: var(--primary-purple); stroke-width: 2; color: var(--primary-purple); animation-delay: 0.3s; }
-        .node-large { r: 30; fill: url(#largeGradient); stroke: var(--primary-blue); stroke-width: 2; color: var(--primary-blue); animation-delay: 0.6s; }
-        .node-medium { r: 25; fill: url(#mediumGradient); stroke: var(--accent-green); stroke-width: 2; color: var(--accent-green); animation-delay: 0.6s; }
-        .node-small { r: 20; fill: url(#smallGradient); stroke: var(--accent-orange); stroke-width: 2; color: var(--accent-orange); animation-delay: 0.6s; }
+        .node-root { r: 38; fill: url(#rootGradient); stroke: var(--primary-blue); stroke-width: 3; color: var(--primary-blue); animation-delay: 0s; }
+        .node-level1 { r: 30; fill: url(#level1Gradient); stroke: var(--primary-purple); stroke-width: 2; color: var(--primary-purple); animation-delay: 0.3s; }
+        .node-large { r: 26; fill: url(#largeGradient); stroke: var(--primary-blue); stroke-width: 2; color: var(--primary-blue); animation-delay: 0.6s; }
+        .node-medium { r: 22; fill: url(#mediumGradient); stroke: var(--accent-green); stroke-width: 2; color: var(--accent-green); animation-delay: 0.6s; }
+        .node-small { r: 18; fill: url(#smallGradient); stroke: var(--accent-orange); stroke-width: 2; color: var(--accent-orange); animation-delay: 0.6s; }
 
         @keyframes nodeShow {
             to { opacity: 1; }
@@ -110,7 +149,7 @@
             fill: var(--text-main);
             text-anchor: middle;
             dominant-baseline: middle;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 500;
             pointer-events: none;
             user-select: none;
@@ -118,9 +157,9 @@
             animation: nodeShow 0.5s ease forwards;
         }
 
-        .text-root { font-size: 16px; font-weight: 700; animation-delay: 0s; }
-        .text-level1 { font-size: 15px; font-weight: 600; animation-delay: 0.3s; }
-        .text-small { font-size: 12px; animation-delay: 0.6s; }
+        .text-root { font-size: 14px; font-weight: 700; animation-delay: 0s; }
+        .text-level1 { font-size: 13px; font-weight: 600; animation-delay: 0.3s; }
+        .text-small { font-size: 11px; animation-delay: 0.6s; }
 
         /* 渐变定义 */
         defs { pointer-events: none; }
@@ -128,7 +167,7 @@
         /* Tooltip悬浮提示 */
         .tooltip {
             position: absolute;
-            background: linear-gradient(135deg, #111, #1a1a24);
+            background: linear-gradient(135deg, rgba(20, 27, 52, 0.92), rgba(10, 15, 29, 0.92));
             border: 1px solid var(--primary-blue);
             color: var(--text-main);
             padding: 10px 16px;
@@ -140,6 +179,7 @@
             opacity: 0;
             transition: opacity 0.2s ease;
             box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            backdrop-filter: blur(10px);
         }
 
         .tooltip.show { opacity: 1; }
@@ -151,7 +191,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(10, 10, 15, 0.85);
+            background: rgba(10, 15, 29, 0.85);
             backdrop-filter: blur(8px);
             display: none;
             justify-content: center;
@@ -170,7 +210,7 @@
             width: 90%;
             max-width: 900px;
             max-height: 80vh;
-            background: #121218;
+            background: rgba(20, 27, 52, 0.92);
             border: 1px solid var(--primary-purple);
             border-radius: 16px;
             padding: 40px;
@@ -366,6 +406,7 @@
                         {
                             name: '我的理念',
                             modal: {
+                                key: 'philosophy',
                                 title: '我的理念：我与“模型学”',
                                 content: `
                                     <p>物理授予我的最大特点就是无止境的思索，我也终能够理解为什么科学的起源叫做自然哲学：共同的思考范式，即无止境的探知求索到底什么才是“真”，什么才是“对”。这套深度思考的范式是可以迁移到任何学科任何方向上的，故而数学物理可以称之为“basic”—基础。</p>
@@ -385,6 +426,7 @@
                         {
                             name: '教育背景',
                             modal: {
+                                key: 'education',
                                 title: '教育背景与荣誉奖项',
                                 content: `
                                     <p><strong>2023.09-至今</strong> 湖南大学 应用物理学 本科<br>
@@ -412,6 +454,7 @@
                         {
                             name: '科研经历',
                             modal: {
+                                key: 'research',
                                 title: '科研经历与技能',
                                 content: `
                                     <p><strong>1. 《限定性全集先验收束的dual_block_DiT缺陷补齐重建-内外牙冠结构一体优化生成设计》</strong><br>
@@ -430,6 +473,7 @@
                         {
                             name: '竞赛经历',
                             modal: {
+                                key: 'competition',
                                 title: '竞赛经历',
                                 content: `
                                     <p><strong>2025年 全国大学生数学建模竞赛</strong><br>
@@ -558,7 +602,7 @@
                 }
                 // 打开弹窗
                 if (d.data.modal) {
-                    openModal(d.data.modal.title, d.data.modal.content);
+                    openModal(d.data.modal.title, d.data.modal.content, d.data.modal.key);
                 }
             });
 
@@ -568,7 +612,16 @@
             .text(d => d.data.name);
 
         // 弹窗控制
-        function openModal(title, content) {
+        function openModal(title, content, key) {
+            // 嵌入首页时：优先请求父页面用“后续页同款卡片”打开统一弹窗，实现合并同类项
+            try {
+                if (key && window.parent && window.parent !== window) {
+                    window.parent.postMessage({ type: 'OPEN_HERO_NODE_MODAL', key, title }, '*');
+                    return;
+                }
+            } catch (e) {
+                // ignore and fallback
+            }
             const modal = document.getElementById('modal');
             document.getElementById('modalTitle').textContent = title;
             document.getElementById('modalContent').innerHTML = content;

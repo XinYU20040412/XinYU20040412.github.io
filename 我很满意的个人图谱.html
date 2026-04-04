@@ -19,6 +19,7 @@
             --accent-purple: #165DFF;
             --accent-green: #165DFF;
             --accent-orange: #FFD700;
+            --highlight-red: #ff0000;
             --bg-deep: rgba(10, 15, 29, 0.20);
             --text-main: rgba(255, 255, 255, 0.92);
             --text-sub: rgba(255, 255, 255, 0.72);
@@ -32,48 +33,48 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-                        padding: 12px;
-                        position: relative;
+            padding: 12px;
+            position: relative;
+            cursor: default;
         }
 
-                body::before {
-                        content: "";
-                        position: fixed;
-                        inset: -40%;
-                        background:
-                            conic-gradient(from 160deg at 50% 50%,
-                                rgba(0, 228, 255, 0.00) 0deg,
-                                rgba(0, 228, 255, 0.18) 70deg,
-                                rgba(114, 46, 209, 0.16) 140deg,
-                                rgba(22, 93, 255, 0.14) 220deg,
-                                rgba(255, 215, 0, 0.10) 300deg,
-                                rgba(0, 228, 255, 0.00) 360deg
-                            );
-                        filter: blur(28px);
-                        opacity: 0.85;
-                        animation: bgSpin 22s linear infinite;
-                        pointer-events: none;
-                        z-index: 0;
-                }
+        body::before {
+            content: "";
+            position: fixed;
+            inset: -40%;
+            background:
+                conic-gradient(from 160deg at 50% 50%,
+                    rgba(0, 228, 255, 0.00) 0deg,
+                    rgba(0, 228, 255, 0.18) 70deg,
+                    rgba(114, 46, 209, 0.16) 140deg,
+                    rgba(22, 93, 255, 0.14) 220deg,
+                    rgba(255, 215, 0, 0.10) 300deg,
+                    rgba(0, 228, 255, 0.00) 360deg
+                );
+            filter: blur(28px);
+            opacity: 0.85;
+            animation: bgSpin 22s linear infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
 
-                body::after {
-                        content: "";
-                        position: fixed;
-                        inset: 0;
-                        background-image:
-                            linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
-                            linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
-                        background-size: 52px 52px;
-                        opacity: 0.14;
-                        pointer-events: none;
-                        z-index: 0;
-                }
+        body::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+            background-size: 52px 52px;
+            opacity: 0.14;
+            pointer-events: none;
+            z-index: 0;
+        }
 
-                @keyframes bgSpin {
-                        to { transform: rotate(360deg); }
-                }
+        @keyframes bgSpin {
+            to { transform: rotate(360deg); }
+        }
 
-        /* 标题样式 */
         .tree-title {
             font-size: 22px;
             font-weight: 700;
@@ -86,7 +87,6 @@
             z-index: 10;
         }
 
-        /* SVG容器 全屏径向布局 */
         .tree-container {
             width: 100vw;
             height: calc(100vh - 64px);
@@ -99,7 +99,6 @@
             height: 100%;
         }
 
-        /* 连线样式 生长动画 */
         .tree-link {
             fill: none;
             stroke-width: 2;
@@ -119,13 +118,13 @@
             to { stroke-dashoffset: 0; }
         }
 
-        /* 球形节点样式 */
         .node-circle {
             cursor: pointer;
             transition: all 0.3s ease;
             filter: drop-shadow(0 0 8px rgba(0,0,0,0.3));
             opacity: 0;
             animation: nodeShow 0.5s ease forwards;
+            position: relative;
         }
 
         .node-circle:hover {
@@ -133,62 +132,126 @@
             transform: scale(1.1);
         }
 
-        /* 节点大小分级 严格匹配需求 */
-        .node-root { r: 38; fill: url(#rootGradient); stroke: var(--primary-blue); stroke-width: 3; color: var(--primary-blue); animation-delay: 0s; }
+        /* 蓝色节点 + 波浪特效 */
+        .node-root { 
+            r: 38; 
+            fill: url(#rootGradient); 
+            stroke: var(--primary-blue); 
+            stroke-width: 3; 
+            color: var(--primary-blue); 
+            animation-delay: 0s;
+            filter: url(#water-wave-filter) drop-shadow(0 0 12px var(--primary-blue));
+            animation: waterWavePulse 4s ease-in-out infinite;
+        }
+        .node-large { 
+            r: 26; 
+            fill: url(#largeGradient); 
+            stroke: var(--primary-blue); 
+            stroke-width: 2; 
+            color: var(--primary-blue); 
+            animation-delay: 0.6s;
+            filter: url(#water-wave-filter) drop-shadow(0 0 8px var(--primary-blue));
+            animation: waterWavePulse 4s ease-in-out infinite;
+        }
         .node-level1 { r: 30; fill: url(#level1Gradient); stroke: var(--primary-purple); stroke-width: 2; color: var(--primary-purple); animation-delay: 0.3s; }
-        .node-large { r: 26; fill: url(#largeGradient); stroke: var(--primary-blue); stroke-width: 2; color: var(--primary-blue); animation-delay: 0.6s; }
         .node-medium { r: 22; fill: url(#mediumGradient); stroke: var(--accent-green); stroke-width: 2; color: var(--accent-green); animation-delay: 0.6s; }
         .node-small { r: 18; fill: url(#smallGradient); stroke: var(--accent-orange); stroke-width: 2; color: var(--accent-orange); animation-delay: 0.6s; }
 
-        /* 核心吸睛特效 */
-        .node-super { r: 34; stroke-width: 3; }
-        .node-pulse {
-            animation: nodeShow 0.5s ease forwards, superPulse 2.2s ease-in-out infinite;
-        }
-        .node-lightning {
-            animation: nodeShow 0.5s ease forwards, lightningFlash 2.8s linear infinite;
-            filter: drop-shadow(0 0 12px #00E4FF);
-        }
-        .node-fire {
-            animation: nodeShow 0.5s ease forwards, fireFlicker 1.8s ease-in-out infinite;
-            filter: drop-shadow(0 0 14px #FFD700);
-        }
-        .node-space {
-            animation: nodeShow 0.5s ease forwards, spaceRotate 4s linear infinite;
-            filter: drop-shadow(0 0 14px #722ED1);
-        }
-        .node-neon {
-            animation: nodeShow 0.5s ease forwards, neonGlow 2s ease-in-out infinite alternate;
-            filter: drop-shadow(0 0 18px #165DFF);
+        /* 蓝色波浪动画 */
+        @keyframes waterWavePulse {
+            0%,100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.03); opacity: 0.95; }
         }
 
-        @keyframes superPulse {
+        /* ========== 飓风闪电环绕特效 ========== */
+        .node-hurricane-lightning {
+            stroke-width: 3;
+            filter: drop-shadow(0 0 12px #00E4FF) drop-shadow(0 0 6px rgba(114,46,209,0.8));
+            animation: nodeShow 0.5s ease forwards, lightningFlow 4s linear infinite;
+            position: relative;
+            z-index: 1;
+        }
+        .node-hurricane-lightning::before {
+            content: '';
+            position: absolute;
+            top: -12px;
+            left: -12px;
+            right: -12px;
+            bottom: -12px;
+            border-radius: 50%;
+            background: transparent;
+            border: 2px solid rgba(40,40,50,0.3);
+            filter: blur(4px);
+            animation: hurricaneSpin 8s linear infinite;
+            opacity: 0.8;
+            z-index: -1;
+        }
+        .node-hurricane-lightning::after {
+            content: '';
+            position: absolute;
+            top: -18px;
+            left: -18px;
+            right: -18px;
+            bottom: -18px;
+            border-radius: 50%;
+            background: transparent;
+            border: 2px solid rgba(30,30,40,0.25);
+            filter: blur(6px);
+            animation: hurricaneSpinReverse 10s linear infinite;
+            opacity: 0.7;
+            z-index: -2;
+        }
+
+        /* ========== 强化版熔岩燃烧特效 + 红色高亮 ========== */
+        .node-highlight-red {
+            fill: url(#super-lava-gradient) !important;
+            stroke: #ff0000 !important;
+            stroke-width: 3 !important;
+            filter: url(#super-lava-filter) drop-shadow(0 0 40px var(--highlight-red)) !important;
+            animation: nodeShow 0.5s ease forwards,
+                       lightningFlow 4s linear infinite,
+                       superBreath 2.5s ease-in-out infinite,
+                       fireFlicker 3s linear infinite;
+            will-change: transform, filter;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        /* 鼠标悬停：超级燃烧强化 */
+        .node-highlight-red:hover {
+            transform: scale(1.35) !important;
+            filter: url(#super-lava-hover) drop-shadow(0 0 70px #ff0000) !important;
+            stroke-width: 5 !important;
+        }
+
+        /* 超级燃烧动画 */
+        @keyframes superBreath {
             0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.12); }
-        }
-        @keyframes neonGlow {
-            from { filter: drop-shadow(0 0 10px #165DFF); }
-            to { filter: drop-shadow(0 0 22px #165DFF); }
-        }
-        @keyframes lightningFlash {
-            0%, 80%, 100% { filter: drop-shadow(0 0 8px #00E4FF); }
-            85% { filter: drop-shadow(0 0 28px #00E4FF) brightness(1.4); }
+            50% { transform: scale(1.18); }
         }
         @keyframes fireFlicker {
-            0%, 100% { filter: drop-shadow(0 0 10px #FFD700); }
-            50% { filter: drop-shadow(0 0 20px #FF9500) brightness(1.2); }
-        }
-        @keyframes spaceRotate {
-            0% { transform: rotate(0deg) scale(1); }
-            50% { transform: rotate(180deg) scale(1.08); }
-            100% { transform: rotate(360deg) scale(1); }
+            0%,100% { opacity: 1; }
+            33% { opacity: 0.85; }
+            66% { opacity: 0.95; }
         }
 
+        /* 基础动画 */
+        @keyframes lightningFlow {
+            0% { stroke: var(--primary-blue); }
+            50% { stroke: var(--primary-purple); }
+            100% { stroke: var(--primary-blue); }
+        }
+        @keyframes hurricaneSpin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes hurricaneSpinReverse {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(-360deg); }
+        }
         @keyframes nodeShow {
             to { opacity: 1; }
         }
 
-        /* 节点文本 */
         .node-text {
             fill: var(--text-main);
             text-anchor: middle;
@@ -205,10 +268,8 @@
         .text-level1 { font-size: 13px; font-weight: 600; animation-delay: 0.3s; }
         .text-small { font-size: 11px; animation-delay: 0.6s; }
 
-        /* 渐变定义 */
         defs { pointer-events: none; }
 
-        /* Tooltip悬浮提示 */
         .tooltip {
             position: absolute;
             background: linear-gradient(135deg, rgba(20, 27, 52, 0.92), rgba(10, 15, 29, 0.92));
@@ -228,7 +289,6 @@
 
         .tooltip.show { opacity: 1; }
 
-        /* 弹窗样式 */
         .modal {
             position: fixed;
             top: 0;
@@ -309,7 +369,6 @@
         <div class="tooltip" id="tooltip"></div>
     </div>
 
-    <!-- 弹窗组件 -->
     <div class="modal" id="modal">
         <button class="modal-close" id="modalClose">×</button>
         <div class="modal-content">
@@ -319,13 +378,11 @@
     </div>
 
     <script>
-        // 严格按照文档定义的树形数据 修正项目名+完整结构
         const treeData = {
             name: 'XinYU20040412 (XinYu)',
             link: 'https://github.com/XinYU20040412',
             nodeType: 'root',
             children: [
-                // 分支一：确定性模型
                 {
                     name: '确定性模型',
                     nodeType: 'level1',
@@ -335,14 +392,14 @@
                             fullName: '基于递推模型的板凳龙运行调控',
                             link: 'https://github.com/XinYU20040412/Operation-Regulation-of-Bench-Dragon-Dance-Based-on-Recursive-Model',
                             nodeType: 'large',
-                            specialClass: 'node-super node-fire'
+                            specialClass: 'node-hurricane-lightning node-highlight-red'
                         },
                         {
                             name: '无人机投弹策略优化',
                             fullName: '基于AESAGA-WITH-Newton算法的无人机投弹策略优化',
                             link: 'https://github.com/XinYU20040412/AESAGA-Newton-Based-UAV-Bombing-Strategy-Optimization',
                             nodeType: 'large',
-                            specialClass: 'node-super node-lightning'
+                            specialClass: 'node-hurricane-lightning node-highlight-red'
                         },
                         {
                             name: '机械臂路径优化',
@@ -370,7 +427,6 @@
                         }
                     ]
                 },
-                // 分支二：随机模型-深度学习 修正最下级为项目名
                 {
                     name: '随机模型-深度学习',
                     nodeType: 'level1',
@@ -385,7 +441,7 @@
                                     tooltip: '基于DiT+Flowmatch的3D牙冠结构一体优化生成',
                                     link: 'https://github.com/XinYU20040412/tooth_decoupled_modeling',
                                     nodeType: 'large',
-                                    specialClass: 'node-super node-space'
+                                    specialClass: 'node-hurricane-lightning node-highlight-red'
                                 }
                             ]
                         },
@@ -399,7 +455,7 @@
                                     tooltip: '《基于等变神经网络的CMOS管二维栅极材料性能预测以及逆向结构优化生成》',
                                     link: 'https://github.com/XinYU20040412/equivariant-nn-cmos-2d-op',
                                     nodeType: 'large',
-                                    specialClass: 'node-super node-neon'
+                                    specialClass: 'node-hurricane-lightning node-highlight-red'
                                 },
                                 {
                                     name: '布洛赫定理深度学习规范',
@@ -412,7 +468,6 @@
                         }
                     ]
                 },
-                // 分支三：自修改实用代码储藏库
                 {
                     name: '实用代码储藏库',
                     fullName: '自修改实用代码储藏库',
@@ -446,7 +501,6 @@
                         }
                     ]
                 },
-                // 分支四：关于我
                 {
                     name: '关于我',
                     nodeType: 'level1',
@@ -470,7 +524,7 @@
                                 `
                             },
                             nodeType: 'large',
-                            specialClass: 'node-super node-pulse'
+                            specialClass: 'node-hurricane-lightning node-highlight-red'
                         },
                         {
                             name: '教育背景',
@@ -493,9 +547,9 @@
                                     2023-2024 国家奖学金<br>
                                     2024-2025 国家奖学金<br>
                                     2023-2025 连续两年湖南大学校优秀学生称号<br>
-                                    全国大学生数学建模竞赛二等奖<br>
-                                    湖南大学数学建模竞赛一等奖<br>
-                                    湖南大学数学竞赛一等奖</p>
+                                    2024-2025 全国大学生数学建模竞赛二等奖<br>
+                                   湖南大学数学建模竞赛一等奖<br>
+                                   湖南大学数学竞赛一等奖</p>
                                 `
                             },
                             nodeType: 'large'
@@ -518,7 +572,7 @@
                                 `
                             },
                             nodeType: 'large',
-                            specialClass: 'node-super node-neon'
+                            specialClass: 'node-hurricane-lightning node-highlight-red'
                         },
                         {
                             name: '竞赛经历',
@@ -549,143 +603,121 @@
             ]
         };
 
-        // 初始化SVG与径向布局
         const svg = d3.select('#treeSvg');
         const width = document.querySelector('.tree-container').clientWidth;
         const height = document.querySelector('.tree-container').clientHeight;
-        const radius = Math.min(width, height) / 2 - 120; // 布局半径 预留边距
+        const radius = Math.min(width, height) / 2 - 120;
 
-        // 设置SVG中心坐标
         const g = svg.attr('viewBox', `0 0 ${width} ${height}`)
             .append('g')
             .attr('transform', `translate(${width / 2}, ${height / 2})`);
 
-        // 定义球形渐变
+        // 核心滤镜定义
         const defs = g.append('defs');
-        // 根节点渐变
-        defs.append('radialGradient')
-            .attr('id', 'rootGradient')
-            .attr('cx', '30%').attr('cy', '30%').attr('r', '100%')
-            .html(`<stop offset="0%" stop-color="#6dd5fa" /><stop offset="100%" stop-color="#2980b9" />`);
-        // 一级节点渐变
-        defs.append('radialGradient')
-            .attr('id', 'level1Gradient')
-            .attr('cx', '30%').attr('cy', '30%').attr('r', '100%')
-            .html(`<stop offset="0%" stop-color="#a78bfa" /><stop offset="100%" stop-color="#7c3aed" />`);
-        // 大节点渐变
-        defs.append('radialGradient')
-            .attr('id', 'largeGradient')
-            .attr('cx', '30%').attr('cy', '30%').attr('r', '100%')
-            .html(`<stop offset="0%" stop-color="#4fc3f7" /><stop offset="100%" stop-color="#0284c7" />`);
-        // 中节点渐变
-        defs.append('radialGradient')
-            .attr('id', 'mediumGradient')
-            .attr('cx', '30%').attr('cy', '30%').attr('r', '100%')
-            .html(`<stop offset="0%" stop-color="#6aaf7c" /><stop offset="100%" stop-color="#2d7d46" />`);
-        // 小节点渐变
-        defs.append('radialGradient')
-            .attr('id', 'smallGradient')
-            .attr('cx', '30%').attr('cy', '30%').attr('r', '100%')
-            .html(`<stop offset="0%" stop-color="#ffb74d" /><stop offset="100%" stop-color="#f97316" />`);
 
-        // 径向树布局
+        // 1. 蓝色节点 水波浪滤镜
+        defs.append('filter')
+            .attr('id', 'water-wave-filter')
+            .attr('x', '-50%').attr('y', '-50%').attr('width', '200%').attr('height', '200%')
+            .html(`
+                <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="1" seed="2" result="wave">
+                    <animate attributeName="seed" values="2;5;2" dur="6s" repeatCount="indefinite" />
+                </feTurbulence>
+                <feDisplacementMap in="SourceGraphic" in2="wave" scale="6" xChannelSelector="R" yChannelSelector="G" />
+            `);
+
+        // 2. 超级熔岩渐变（极致燃烧色）
+        defs.append('radialGradient')
+            .attr('id', 'super-lava-gradient')
+            .html(`
+                <stop offset="0%" stop-color="#ffff00" />
+                <stop offset="25%" stop-color="#ff6600" />
+                <stop offset="50%" stop-color="#ff0000" />
+                <stop offset="85%" stop-color="#990000" />
+                <stop offset="100%" stop-color="#330000" />
+            `);
+
+        // 3. 静态超级熔岩滤镜
+        defs.append('filter')
+            .attr('id', 'super-lava-filter')
+            .attr('x', '-80%').attr('y', '-80%').attr('width', '260%').attr('height', '260%')
+            .html(`
+                <feTurbulence type="fractalNoise" baseFrequency="0.09" numOctaves="3" seed="1" result="fire">
+                    <animate attributeName="seed" values="1;8;1" dur="3s" repeatCount="indefinite" />
+                </feTurbulence>
+                <feDisplacementMap in="SourceGraphic" in2="fire" scale="25" xChannelSelector="R" yChannelSelector="G" />
+            `);
+
+        // 4. 悬停超级熔岩滤镜
+        defs.append('filter')
+            .attr('id', 'super-lava-hover')
+            .attr('x', '-100%').attr('y', '-100%').attr('width', '300%').attr('height', '300%')
+            .html(`
+                <feTurbulence type="fractalNoise" baseFrequency="0.15" numOctaves="3" seed="1" result="fire">
+                    <animate attributeName="seed" values="1;12;1" dur="1.5s" repeatCount="indefinite" />
+                </feTurbulence>
+                <feDisplacementMap in="SourceGraphic" in2="fire" scale="40" xChannelSelector="R" yChannelSelector="G" />
+            `);
+
+        // 原有渐变
+        defs.append('radialGradient').attr('id', 'rootGradient').html(`<stop offset="0%" stop-color="#6dd5fa" /><stop offset="100%" stop-color="#2980b9" />`);
+        defs.append('radialGradient').attr('id', 'level1Gradient').html(`<stop offset="0%" stop-color="#a78bfa" /><stop offset="100%" stop-color="#7c3aed" />`);
+        defs.append('radialGradient').attr('id', 'largeGradient').html(`<stop offset="0%" stop-color="#4fc3f7" /><stop offset="100%" stop-color="#0284c7" />`);
+        defs.append('radialGradient').attr('id', 'mediumGradient').html(`<stop offset="0%" stop-color="#6aaf7c" /><stop offset="100%" stop-color="#2d7d46" />`);
+        defs.append('radialGradient').attr('id', 'smallGradient').html(`<stop offset="0%" stop-color="#ffb74d" /><stop offset="100%" stop-color="#f97316" />`);
+
         const tree = d3.tree()
             .size([2 * Math.PI, radius])
             .separation((a, b) => (a.parent === b.parent ? 1.2 : 2) / a.depth);
 
-        // 处理层级数据
         const root = d3.hierarchy(treeData);
         tree(root);
 
-        // 绘制连线
         const link = g.selectAll('.tree-link')
             .data(root.links())
             .join('path')
             .attr('class', d => `tree-link link-level${d.source.depth}`)
-            .attr('d', d3.linkRadial()
-                .angle(d => d.x)
-                .radius(d => d.y)
-            );
+            .attr('d', d3.linkRadial().angle(d => d.x).radius(d => d.y));
 
-        // 绘制节点组
         const node = g.selectAll('.node')
             .data(root.descendants())
             .join('g')
             .attr('class', 'node')
-            .attr('transform', d => `rotate(${d.x * 180 / Math.PI - 90}) translate(${d.y},0) rotate(${-(d.x * 180 / Math.PI - 90})`);
+            .attr('transform', d => `rotate(${d.x * 180 / Math.PI - 90}) translate(${d.y},0) rotate(${-(d.x * 180 / Math.PI - 90)})`);
 
-        // 绘制球形节点
-        node.append('circle')
+        const circles = node.append('circle')
             .attr('class', d => `node-circle node-${d.data.nodeType} ${d.data.specialClass || ''}`)
             .on('mouseover', function(event, d) {
-                // 显示tooltip
                 if (d.data.tooltip || d.data.fullName) {
                     const tooltip = document.getElementById('tooltip');
                     tooltip.innerHTML = d.data.fullName || d.data.tooltip;
                     tooltip.classList.add('show');
-                    tooltip.style.left = event.pageX + 10 + 'px';
-                    tooltip.style.top = event.pageY + 10 + 'px';
                 }
-                // 高亮连线
                 d3.selectAll('.tree-link').style('opacity', 0.2);
                 let current = d;
                 while (current.parent) {
-                    d3.selectAll(`.tree-link`)
-                        .filter(l => l.target === current)
-                        .style('opacity', 1)
-                        .style('stroke-width', 3);
+                    d3.selectAll(`.tree-link`).filter(l => l.target === current).style('opacity', 1).style('stroke-width', 3);
                     current = current.parent;
                 }
             })
             .on('mouseout', function() {
-                // 隐藏tooltip
                 document.getElementById('tooltip').classList.remove('show');
-                // 恢复连线
-                d3.selectAll('.tree-link')
-                    .style('opacity', 1)
-                    .style('stroke-width', 2);
+                d3.selectAll('.tree-link').style('opacity', 1).style('stroke-width', 2);
             })
             .on('click', function(event, d) {
-                // 跳转链接
-                if (d.data.link) {
-                    window.open(d.data.link, '_blank');
-                }
-                // 打开弹窗
-                if (d.data.modal) {
-                    openModal(d.data.modal.title, d.data.modal.content, d.data.modal.key);
-                }
+                if (d.data.link) window.open(d.data.link, '_blank');
+                if (d.data.modal) openModal(d.data.modal.title, d.data.modal.content, d.data.modal.key);
             });
 
-        // 绘制节点文本
         node.append('text')
-            .attr('class', d => `node-text text-${d.data.nodeType} ${d.data.nodeType === 'small' ? 'text-small' : ''}`)
+            .attr('class', d => `node-text text-${d.data.nodeType}`)
             .text(d => d.data.name);
 
-        // 弹窗控制
-        function openModal(title, content, key) {
-            try {
-                if (key && window.parent && window.parent !== window) {
-                    window.parent.postMessage({ type: 'OPEN_HERO_NODE_MODAL', key, title }, '*');
-                    return;
-                }
-            } catch (e) {}
-            const modal = document.getElementById('modal');
-            document.getElementById('modalTitle').textContent = title;
-            document.getElementById('modalContent').innerHTML = content;
-            modal.classList.add('active');
-        }
-
-        function closeModal() {
-            document.getElementById('modal').classList.remove('active');
-        }
-
-        document.getElementById('modalClose').addEventListener('click', closeModal);
-        document.getElementById('modal').addEventListener('click', (e) => {
-            if (e.target === document.getElementById('modal')) closeModal();
-        });
-
-        // 鼠标跟随tooltip
+        // ========== 鼠标跟随特效 ==========
+        let mouseX = 0, mouseY = 0;
         document.addEventListener('mousemove', (e) => {
+            mouseX = (e.clientX - width / 2) / 25;
+            mouseY = (e.clientY - height / 2) / 25;
             const tooltip = document.getElementById('tooltip');
             if (tooltip.classList.contains('show')) {
                 tooltip.style.left = e.pageX + 10 + 'px';
@@ -693,10 +725,27 @@
             }
         });
 
-        // 窗口大小自适应重绘
-        window.onresize = () => {
-            window.location.reload();
-        };
+        function updateLavaNodePosition() {
+            d3.selectAll('.node-highlight-red')
+                .style('transform', `translate(${mouseX}px, ${mouseY}px)`);
+            requestAnimationFrame(updateLavaNodePosition);
+        }
+        updateLavaNodePosition();
+
+        // 弹窗功能
+        function openModal(title, content, key) {
+            const modal = document.getElementById('modal');
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalContent').innerHTML = content;
+            modal.classList.add('active');
+        }
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+        }
+        document.getElementById('modalClose').addEventListener('click', closeModal);
+        document.getElementById('modal').addEventListener('click', (e) => e.target === document.getElementById('modal') && closeModal());
+
+        window.onresize = () => window.location.reload();
     </script>
 </body>
 </html>

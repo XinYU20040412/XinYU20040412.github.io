@@ -140,6 +140,50 @@
         .node-medium { r: 22; fill: url(#mediumGradient); stroke: var(--accent-green); stroke-width: 2; color: var(--accent-green); animation-delay: 0.6s; }
         .node-small { r: 18; fill: url(#smallGradient); stroke: var(--accent-orange); stroke-width: 2; color: var(--accent-orange); animation-delay: 0.6s; }
 
+        /* 核心吸睛特效 */
+        .node-super { r: 34; stroke-width: 3; }
+        .node-pulse {
+            animation: nodeShow 0.5s ease forwards, superPulse 2.2s ease-in-out infinite;
+        }
+        .node-lightning {
+            animation: nodeShow 0.5s ease forwards, lightningFlash 2.8s linear infinite;
+            filter: drop-shadow(0 0 12px #00E4FF);
+        }
+        .node-fire {
+            animation: nodeShow 0.5s ease forwards, fireFlicker 1.8s ease-in-out infinite;
+            filter: drop-shadow(0 0 14px #FFD700);
+        }
+        .node-space {
+            animation: nodeShow 0.5s ease forwards, spaceRotate 4s linear infinite;
+            filter: drop-shadow(0 0 14px #722ED1);
+        }
+        .node-neon {
+            animation: nodeShow 0.5s ease forwards, neonGlow 2s ease-in-out infinite alternate;
+            filter: drop-shadow(0 0 18px #165DFF);
+        }
+
+        @keyframes superPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.12); }
+        }
+        @keyframes neonGlow {
+            from { filter: drop-shadow(0 0 10px #165DFF); }
+            to { filter: drop-shadow(0 0 22px #165DFF); }
+        }
+        @keyframes lightningFlash {
+            0%, 80%, 100% { filter: drop-shadow(0 0 8px #00E4FF); }
+            85% { filter: drop-shadow(0 0 28px #00E4FF) brightness(1.4); }
+        }
+        @keyframes fireFlicker {
+            0%, 100% { filter: drop-shadow(0 0 10px #FFD700); }
+            50% { filter: drop-shadow(0 0 20px #FF9500) brightness(1.2); }
+        }
+        @keyframes spaceRotate {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.08); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+
         @keyframes nodeShow {
             to { opacity: 1; }
         }
@@ -290,13 +334,15 @@
                             name: '板凳龙运行调控',
                             fullName: '基于递推模型的板凳龙运行调控',
                             link: 'https://github.com/XinYU20040412/Operation-Regulation-of-Bench-Dragon-Dance-Based-on-Recursive-Model',
-                            nodeType: 'large'
+                            nodeType: 'large',
+                            specialClass: 'node-super node-fire'
                         },
                         {
                             name: '无人机投弹策略优化',
                             fullName: '基于AESAGA-WITH-Newton算法的无人机投弹策略优化',
                             link: 'https://github.com/XinYU20040412/AESAGA-Newton-Based-UAV-Bombing-Strategy-Optimization',
-                            nodeType: 'large'
+                            nodeType: 'large',
+                            specialClass: 'node-super node-lightning'
                         },
                         {
                             name: '机械臂路径优化',
@@ -338,7 +384,8 @@
                                     fullName: '国家超算中心项目',
                                     tooltip: '基于DiT+Flowmatch的3D牙冠结构一体优化生成',
                                     link: 'https://github.com/XinYU20040412/tooth_decoupled_modeling',
-                                    nodeType: 'large'
+                                    nodeType: 'large',
+                                    specialClass: 'node-super node-space'
                                 }
                             ]
                         },
@@ -351,7 +398,8 @@
                                     fullName: '中科院物理所项目',
                                     tooltip: '《基于等变神经网络的CMOS管二维栅极材料性能预测以及逆向结构优化生成》',
                                     link: 'https://github.com/XinYU20040412/equivariant-nn-cmos-2d-op',
-                                    nodeType: 'large'
+                                    nodeType: 'large',
+                                    specialClass: 'node-super node-neon'
                                 },
                                 {
                                     name: '布洛赫定理深度学习规范',
@@ -421,7 +469,8 @@
                                     4. 从底层深度思考、处理问题的数理方向</p>
                                 `
                             },
-                            nodeType: 'large'
+                            nodeType: 'large',
+                            specialClass: 'node-super node-pulse'
                         },
                         {
                             name: '教育背景',
@@ -468,7 +517,8 @@
                                     2. 建模与算法：具备将物理问题转化为数学模型并数值求解/仿真的能力，熟悉综合分析算法、图论路径规划算法、经典及智能优化算法，拥有偏微分方程数值解经验。</p>
                                 `
                             },
-                            nodeType: 'large'
+                            nodeType: 'large',
+                            specialClass: 'node-super node-neon'
                         },
                         {
                             name: '竞赛经历',
@@ -562,11 +612,11 @@
             .data(root.descendants())
             .join('g')
             .attr('class', 'node')
-            .attr('transform', d => `rotate(${d.x * 180 / Math.PI - 90}) translate(${d.y},0) rotate(${-(d.x * 180 / Math.PI - 90)})`);
+            .attr('transform', d => `rotate(${d.x * 180 / Math.PI - 90}) translate(${d.y},0) rotate(${-(d.x * 180 / Math.PI - 90})`);
 
         // 绘制球形节点
         node.append('circle')
-            .attr('class', d => `node-circle node-${d.data.nodeType}`)
+            .attr('class', d => `node-circle node-${d.data.nodeType} ${d.data.specialClass || ''}`)
             .on('mouseover', function(event, d) {
                 // 显示tooltip
                 if (d.data.tooltip || d.data.fullName) {
@@ -613,15 +663,12 @@
 
         // 弹窗控制
         function openModal(title, content, key) {
-            // 嵌入首页时：优先请求父页面用“后续页同款卡片”打开统一弹窗，实现合并同类项
             try {
                 if (key && window.parent && window.parent !== window) {
                     window.parent.postMessage({ type: 'OPEN_HERO_NODE_MODAL', key, title }, '*');
                     return;
                 }
-            } catch (e) {
-                // ignore and fallback
-            }
+            } catch (e) {}
             const modal = document.getElementById('modal');
             document.getElementById('modalTitle').textContent = title;
             document.getElementById('modalContent').innerHTML = content;

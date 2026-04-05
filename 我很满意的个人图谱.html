@@ -25,7 +25,6 @@
             --arc-blue: #00e5ff;
             --arc-purple: #722ED1;
             --pulse-blue: rgba(0, 229, 255, 0.6);
-            --graph-vh: 1vh;
         }
 
         body {
@@ -408,248 +407,209 @@
 
         #arc-audio { display: none; }
 
-        .hierarchy-toolbar {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-bottom: 16px;
-        }
-
-        .hierarchy-btn {
-            border: 1px solid rgba(114, 46, 209, 0.45);
-            background: rgba(22, 27, 52, 0.78);
-            color: var(--bright-yellow);
-            border-radius: 10px;
-            padding: 8px 12px;
-            font-size: 13px;
-            cursor: pointer;
-            transition: all 0.25s ease;
-        }
-
-        .hierarchy-btn:hover {
-            border-color: rgba(0, 229, 255, 0.55);
-            box-shadow: 0 0 12px rgba(0, 229, 255, 0.2);
-        }
-
-        .hierarchy-grid {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 12px;
-        }
-
-        .hierarchy-card {
-            width: 100%;
-            text-align: left;
-            border: 1px solid rgba(114, 46, 209, 0.45);
-            background: linear-gradient(135deg, rgba(20, 27, 52, 0.88), rgba(10, 15, 29, 0.9));
-            border-radius: 12px;
-            padding: 12px;
-            color: var(--bright-yellow);
-            cursor: pointer;
-            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
-        }
-
-        .hierarchy-card:hover {
-            transform: translateY(-2px);
-            border-color: rgba(0, 229, 255, 0.55);
-            box-shadow: 0 0 14px rgba(0, 229, 255, 0.22);
-        }
-
-        .hierarchy-card-dot {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #00e5ff;
-            box-shadow: 0 0 10px rgba(0, 229, 255, 0.45);
-            margin-bottom: 8px;
-        }
-
-        .hierarchy-card-dot-hot {
-            background: #ff2a2a;
-            box-shadow: 0 0 12px rgba(255, 42, 42, 0.55);
-        }
-
-        .hierarchy-card-title {
-            font-size: 14px;
-            font-weight: 700;
-            line-height: 1.4;
-            margin-bottom: 6px;
-        }
-
-        .hierarchy-card-desc {
-            font-size: 12px;
-            color: rgba(255, 255, 255, 0.72);
-            line-height: 1.45;
-        }
-
-        /* 手机版独立UI - 静态网格树视图 */
-        .mobile-tree-view {
+        .mobile-map {
             display: none;
-            flex-direction: column;
-            width: 100%;
-            height: 100%;
-            padding: 12px;
-            overflow-y: auto;
-        }
-
-        .mobile-tree-view.active {
-            display: flex;
-        }
-
-        .mobile-root-card {
-            border: 1px solid rgba(114, 46, 209, 0.45);
-            background: linear-gradient(135deg, rgba(20, 27, 52, 0.88), rgba(10, 15, 29, 0.9));
-            border-radius: 12px;
-            padding: 16px;
-            color: var(--bright-yellow);
-            cursor: pointer;
-            margin-bottom: 16px;
-            transition: all 0.25s ease;
-        }
-
-        .mobile-root-card:hover {
-            transform: translateY(-2px);
-            border-color: rgba(0, 229, 255, 0.55);
-            box-shadow: 0 0 14px rgba(0, 229, 255, 0.22);
-        }
-
-        .mobile-root-name {
-            font-size: 16px;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-
-        .mobile-level1-grid {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 12px;
-        }
-
-        .mobile-level1-card {
-            border: 1px solid rgba(114, 46, 209, 0.45);
-            background: linear-gradient(135deg, rgba(20, 27, 52, 0.88), rgba(10, 15, 29, 0.9));
-            border-radius: 12px;
-            padding: 12px;
-            color: var(--bright-yellow);
-            cursor: pointer;
-            transition: all 0.25s ease;
-            text-align: left;
-        }
-
-        .mobile-level1-card:hover {
-            transform: translateY(-2px);
-            border-color: rgba(0, 229, 255, 0.55);
-            box-shadow: 0 0 14px rgba(0, 229, 255, 0.22);
-        }
-
-        .mobile-card-dot {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #00e5ff;
-            box-shadow: 0 0 10px rgba(0, 229, 255, 0.45);
-            margin-bottom: 8px;
-        }
-
-        .mobile-card-dot-hot {
-            background: #ff2a2a;
-            box-shadow: 0 0 12px rgba(255, 42, 42, 0.55);
-        }
-
-        .mobile-card-name {
-            font-size: 13px;
-            font-weight: 700;
-            line-height: 1.4;
-            margin-bottom: 4px;
-        }
-
-        .mobile-card-desc {
-            font-size: 11px;
-            color: rgba(255, 255, 255, 0.72);
-            line-height: 1.4;
         }
 
         @media (max-width: 767px) {
             body {
+                overflow-x: hidden !important;
+                overflow-y: auto !important;
                 padding: 8px !important;
             }
 
-            #treeS {
-                display: none;
-            }
-
-            .tree-title {
-                font-size: 20px !important;
-                margin: 6px 0 8px !important;
+            body::before,
+            body::after,
+            .tree-link,
+            .node-circle,
+            .node-text,
+            .arc-core-ring,
+            .lightning-path,
+            .pulse-ring {
+                animation: none !important;
             }
 
             .tree-container {
-                height: calc(var(--graph-vh, 1vh) * 100 - 52px) !important;
-                width: 100vw !important;
-                padding: 0 !important;
-                overflow-y: auto !important;
+                height: auto !important;
+                min-height: calc(100vh - 72px) !important;
+                padding-bottom: 16px !important;
+            }
+
+            .tree-svg {
+                display: none !important;
+                width: 0 !important;
+                height: 0 !important;
+                visibility: hidden !important;
+                position: absolute !important;
+                pointer-events: none !important;
             }
 
             .tooltip {
-                max-width: min(80vw, 260px);
-                white-space: normal;
-                word-break: break-word;
+                display: none !important;
             }
 
-            .modal-content {
-                width: 94%;
-                max-height: 84vh;
-                padding: 20px 16px;
+            .mobile-map {
+                display: block;
+                width: min(640px, 94vw);
+                margin: 0 auto;
+                position: relative;
             }
 
-            .modal-title {
-                font-size: 24px;
-                margin-bottom: 16px;
-                padding-right: 44px;
+            .mobile-root-wrap {
+                display: flex;
+                justify-content: center;
+                margin: 6px 0 18px;
             }
 
-            .hierarchy-grid {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-                gap: 10px;
+            .mobile-node-root {
+                appearance: none;
+                width: min(62vw, 240px);
+                min-height: 72px;
+                border-radius: 999px;
+                border: 2px solid var(--metal-silver);
+                background: radial-gradient(circle at 30% 30%, #f8f8f8 0%, #c0c0c0 45%, #2a2a2a 100%);
+                color: #111;
+                font-weight: 800;
+                text-align: center;
+                padding: 18px 20px;
+                box-shadow: 0 0 18px rgba(192, 192, 192, 0.55);
+                cursor: pointer;
             }
 
-            .hierarchy-card {
-                padding: 10px;
+            .mobile-level1-list {
+                list-style: none;
+                margin: 0;
+                padding: 0 0 0 30px;
+                position: relative;
+                display: grid;
+                gap: 12px;
             }
 
-            .hierarchy-card-title {
-                font-size: 13px;
+            .mobile-level1-list::before {
+                content: "";
+                position: absolute;
+                left: 10px;
+                top: 0;
+                bottom: 0;
+                width: 2px;
+                background: linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.15));
             }
 
-            .hierarchy-card-desc {
-                font-size: 11px;
+            .mobile-level1-item {
+                position: relative;
             }
 
-            .mobile-root-card {
-                padding: 12px;
-            }
-
-            .mobile-root-name {
-                font-size: 15px;
-                margin-bottom: 6px;
-            }
-
-            .mobile-level1-grid {
-                gap: 10px;
+            .mobile-level1-item::before {
+                content: "";
+                position: absolute;
+                left: -20px;
+                top: 50%;
+                width: 20px;
+                height: 2px;
+                background: rgba(255, 255, 255, 0.45);
+                transform: translateY(-50%);
             }
 
             .mobile-level1-card {
-                padding: 10px;
+                width: 100%;
+                border: 2px solid var(--earth-crack);
+                border-radius: 999px;
+                background: radial-gradient(circle at 30% 30%, #8B6B3B 0%, #6D4F2E 58%, #3D2B1F 100%);
+                color: var(--bright-yellow);
+                text-align: left;
+                padding: 12px 18px;
+                min-height: 72px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                font-size: 16px;
+                font-weight: 700;
+                box-shadow: 0 0 12px rgba(74, 53, 32, 0.6);
             }
 
-            .mobile-card-name {
+            .mobile-level1-sub {
+                display: block;
+                margin-top: 6px;
+                color: rgba(255, 255, 255, 0.75);
                 font-size: 12px;
+                font-weight: 500;
             }
 
-            .mobile-card-desc {
-                font-size: 10px;
+            .mobile-hierarchy-toolbar {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                margin-bottom: 12px;
+            }
+
+            .mobile-hierarchy-btn {
+                border: 1px solid rgba(114, 46, 209, 0.65);
+                background: rgba(20, 27, 52, 0.88);
+                color: var(--bright-yellow);
+                border-radius: 10px;
+                padding: 7px 12px;
+                font-size: 13px;
+                font-weight: 600;
+            }
+
+            .mobile-hierarchy-grid {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .mobile-hierarchy-card {
+                width: 100%;
+                border: 1px solid rgba(79, 211, 255, 0.55);
+                border-radius: 12px;
+                background: linear-gradient(135deg, rgba(0, 161, 228, 0.22), rgba(20, 27, 52, 0.92));
+                color: var(--bright-yellow);
+                text-align: left;
+                padding: 11px 12px;
+            }
+
+            .mobile-hierarchy-title {
+                font-size: 15px;
+                font-weight: 700;
+            }
+
+            .mobile-hierarchy-desc {
+                margin-top: 4px;
+                font-size: 12px;
+                line-height: 1.5;
+                color: rgba(255, 255, 255, 0.76);
+            }
+
+            .modal {
+                align-items: flex-end;
+                padding: 0 !important;
+            }
+
+            .modal-content {
+                width: 100%;
+                max-width: none;
+                max-height: 86vh;
+                border-radius: 16px 16px 0 0;
+                padding: 20px 16px 16px;
+            }
+
+            .modal-title {
+                font-size: 22px;
+                margin-bottom: 12px;
+                padding-right: 44px;
+            }
+
+            .modal-text {
+                font-size: 14px;
+                line-height: 1.7;
+            }
+
+            .modal-close {
+                top: 12px;
+                right: 12px;
+                width: 36px;
+                height: 36px;
+                z-index: 2001;
             }
         }
     </style>
@@ -657,8 +617,8 @@
 <body>
     <h1 class="tree-title">XinYu · 个人图谱</h1>
     <div class="tree-container">
+        <div class="mobile-map" id="mobileMap"></div>
         <svg class="tree-svg" id="treeS"></svg>
-        <div class="mobile-tree-view" id="mobileTreeView"></div>
         <div class="tooltip" id="tooltip"></div>
     </div>
 
@@ -673,18 +633,8 @@
     <audio id="arc-audio" preload="auto">
         <source src="https://assets.mixkit.co/sfx/preview/mixkit-lightning-strike-1287.mp3" type="audio/mpeg">
     </audio>
-    
 
     <script>
-        const isMobileLayout = window.matchMedia('(max-width: 767px)').matches;
-
-        // 只在手机端锁定可视高度单位，避免地址栏伸缩导致首屏频繁抖动。
-        function updateGraphViewportUnit() {
-            const vh = window.innerHeight * 0.01;
-            document.documentElement.style.setProperty('--graph-vh', `${vh}px`);
-        }
-        updateGraphViewportUnit();
-
         const treeData = {
             name: '三金的github主页',
             link: 'https://github.com/XinYU20040412',
@@ -878,10 +828,16 @@
             ]
         };
 
-        const mobileLevelNodeLookup = new Map(treeData.children.map((child) => [child.name, child]));
+        const isMobileLayout = window.matchMedia('(max-width: 767px)').matches;
+        const modalElement = document.getElementById('modal');
+        const modalTitleElement = document.getElementById('modalTitle');
+        const modalContentElement = document.getElementById('modalContent');
+        const hierarchyState = {
+            stack: []
+        };
 
-        function escapeHtml(text) {
-            return String(text || '')
+        function escapeHtml(value) {
+            return String(value || '')
                 .replace(/&/g, '&amp;')
                 .replace(/</g, '&lt;')
                 .replace(/>/g, '&gt;')
@@ -889,9 +845,25 @@
                 .replace(/'/g, '&#39;');
         }
 
-        const hierarchyState = {
-            stack: []
-        };
+        function openModal(title, content, key) {
+            hierarchyState.stack = [];
+
+            try {
+                if (key && window.parent && window.parent !== window) {
+                    window.parent.postMessage({ type: 'OPEN_HERO_NODE_MODAL', key, title }, '*');
+                    return;
+                }
+            } catch (e) {}
+
+            modalTitleElement.textContent = title;
+            modalContentElement.innerHTML = content;
+            modalElement.classList.add('active');
+        }
+
+        function closeModal() {
+            hierarchyState.stack = [];
+            modalElement.classList.remove('active');
+        }
 
         function renderHierarchyModal() {
             if (!hierarchyState.stack.length) return;
@@ -902,9 +874,9 @@
             const children = Array.isArray(currentNode.children) ? currentNode.children : [];
 
             const toolbarHtml = `
-                <div class="hierarchy-toolbar">
-                    ${hierarchyState.stack.length > 1 ? '<button class="hierarchy-btn" type="button" data-hier-action="back">返回上一级</button>' : ''}
-                    ${currentNode.link ? '<button class="hierarchy-btn" type="button" data-hier-action="open-link">打开当前节点仓库</button>' : ''}
+                <div class="mobile-hierarchy-toolbar">
+                    ${hierarchyState.stack.length > 1 ? '<button class="mobile-hierarchy-btn" type="button" data-hier-action="back">返回上一级</button>' : ''}
+                    ${currentNode.link ? '<button class="mobile-hierarchy-btn" type="button" data-hier-action="open-link">打开当前节点仓库</button>' : ''}
                 </div>
             `;
 
@@ -913,20 +885,17 @@
                     || child.tooltip
                     || (child.children && child.children.length ? `下级节点 ${child.children.length} 个` : (child.modal ? '点击查看详情' : (child.link ? '点击跳转仓库' : '点击查看')));
 
-                const dotClass = child.specialClass === 'node-highlight-red' ? 'hierarchy-card-dot hierarchy-card-dot-hot' : 'hierarchy-card-dot';
-
                 return `
-                    <button class="hierarchy-card" type="button" data-hier-index="${index}">
-                        <span class="${dotClass}"></span>
-                        <div class="hierarchy-card-title">${escapeHtml(child.name || '未命名节点')}</div>
-                        <div class="hierarchy-card-desc">${escapeHtml(desc)}</div>
+                    <button class="mobile-hierarchy-card" type="button" data-hier-index="${index}">
+                        <div class="mobile-hierarchy-title">${escapeHtml(child.name || '未命名节点')}</div>
+                        <div class="mobile-hierarchy-desc">${escapeHtml(desc)}</div>
                     </button>
                 `;
             }).join('');
 
-            document.getElementById('modalTitle').textContent = `${currentTrail.join(' · ')} · ${currentNode.name}`;
-            document.getElementById('modalContent').innerHTML = `${toolbarHtml}<div class="hierarchy-grid">${cardsHtml}</div>`;
-            document.getElementById('modal').classList.add('active');
+            modalTitleElement.textContent = `${currentTrail.join(' · ')} · ${currentNode.name}`;
+            modalContentElement.innerHTML = `${toolbarHtml}<div class="mobile-hierarchy-grid">${cardsHtml}</div>`;
+            modalElement.classList.add('active');
         }
 
         function openHierarchyModal(node, trail) {
@@ -937,38 +906,65 @@
             renderHierarchyModal();
         }
 
-        function openModal(title, content, key) {
-            hierarchyState.stack = [];
+        function renderMobileOverview() {
+            const mobileMapElement = document.getElementById('mobileMap');
+            const level1Nodes = Array.isArray(treeData.children) ? treeData.children : [];
 
-            try {
-                if (key && window.parent && window.parent !== window) {
-                    document.getElementById('modal').classList.remove('active');
-                    window.parent.postMessage({ type: 'OPEN_HERO_NODE_MODAL', key, title }, '*');
+            const cardsHtml = level1Nodes.map((item, index) => {
+                const childCount = Array.isArray(item.children) ? item.children.length : 0;
+                return `
+                    <li class="mobile-level1-item">
+                        <button class="mobile-level1-card" type="button" data-root-child-index="${index}">
+                            ${escapeHtml(item.name)}
+                            <span class="mobile-level1-sub">下级节点 ${childCount} 个</span>
+                        </button>
+                    </li>
+                `;
+            }).join('');
+
+            mobileMapElement.innerHTML = `
+                <div class="mobile-root-wrap">
+                    <button class="mobile-node-root" type="button" data-root-action="open-link">${escapeHtml(treeData.name)}</button>
+                </div>
+                <ul class="mobile-level1-list">${cardsHtml}</ul>
+            `;
+
+            mobileMapElement.addEventListener('click', (event) => {
+                const rootActionButton = event.target.closest('[data-root-action="open-link"]');
+                if (rootActionButton && treeData.link) {
+                    window.open(treeData.link, '_blank');
                     return;
                 }
-            } catch (e) {}
 
-            const m = document.getElementById('modal');
-            document.getElementById('modalTitle').textContent = title;
-            document.getElementById('modalContent').innerHTML = content;
-            m.classList.add('active');
+                const card = event.target.closest('[data-root-child-index]');
+                if (!card) return;
+
+                const index = Number(card.getAttribute('data-root-child-index'));
+                const selected = level1Nodes[index];
+                if (!selected) return;
+
+                if (selected.children && selected.children.length) {
+                    openHierarchyModal(selected, [treeData.name]);
+                    return;
+                }
+
+                if (selected.modal) {
+                    openModal(selected.modal.title, selected.modal.content, selected.modal.key);
+                    return;
+                }
+
+                if (selected.link) {
+                    window.open(selected.link, '_blank');
+                }
+            });
         }
 
-        function closeModal() {
-            hierarchyState.stack = [];
-            document.getElementById('modal').classList.remove('active');
-        }
-
-        document.getElementById('modalClose').onclick = closeModal;
-        const modal = document.getElementById('modal');
-        modal.onclick = e=>e.target===modal&&closeModal();
-
-        document.getElementById('modalContent').addEventListener('click', (event) => {
+        modalContentElement.addEventListener('click', (event) => {
             if (!hierarchyState.stack.length) return;
 
-            const actionBtn = event.target.closest('[data-hier-action]');
-            if (actionBtn) {
-                const action = actionBtn.getAttribute('data-hier-action');
+            const actionButton = event.target.closest('[data-hier-action]');
+            if (actionButton) {
+                const action = actionButton.getAttribute('data-hier-action');
                 if (action === 'back') {
                     hierarchyState.stack.pop();
                     if (hierarchyState.stack.length) {
@@ -1012,232 +1008,176 @@
             }
         });
 
-        // ===== 手机版独立UI：静态网格树视图 =====
+        document.getElementById('modalClose').onclick = closeModal;
+        modalElement.onclick = (event) => event.target === modalElement && closeModal();
+
         if (isMobileLayout) {
-            const mobileTreeView = document.getElementById('mobileTreeView');
-            mobileTreeView.classList.add('active');
+            renderMobileOverview();
+        } else {
+            const svg = d3.select('#treeS');
+            const width = document.querySelector('.tree-container').clientWidth;
+            const height = document.querySelector('.tree-container').clientHeight;
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const radius = Math.min(width, height) / 2 - 120;
 
-            // 生成根节点卡片
-            const rootCard = document.createElement('div');
-            rootCard.className = 'mobile-root-card';
-            rootCard.innerHTML = `
-                <div class="mobile-root-name">${escapeHtml(treeData.name)}</div>
-                <div style="font-size: 11px; color: rgba(255, 255, 255, 0.6);">点击展开第一级分类</div>
-            `;
-            rootCard.addEventListener('click', () => {
-                openHierarchyModal(treeData, []);
-            });
-            mobileTreeView.appendChild(rootCard);
+            const g = svg.attr('viewBox', `0 0 ${width} ${height}`)
+                .append('g')
+                .attr('transform', `translate(${centerX}, ${centerY})`);
 
-            // 生成第一级节点网格
-            const level1Grid = document.createElement('div');
-            level1Grid.className = 'mobile-level1-grid';
+            const defs = g.append('defs');
 
-            treeData.children.forEach((child, index) => {
-                const card = document.createElement('button');
-                card.className = 'mobile-level1-card';
-                card.type = 'button';
+            // 柔和水滴波浪
+            defs.append('filter')
+                .attr('id', 'soft-water-wave')
+                .attr('x', '-80%').attr('y', '-80%').attr('width', '260%').attr('height', '260%')
+                .html(`
+                    <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="1" seed="2" result="wave">
+                        <animate attributeName="seed" values="2;6;2" dur="5s" repeatCount="indefinite" />
+                    </feTurbulence>
+                    <feDisplacementMap in="SourceGraphic" in2="wave" scale="4" xChannelSelector="R" yChannelSelector="G" />
+                `);
 
-                const desc = child.fullName
-                    || child.tooltip
-                    || (child.children && child.children.length ? `下级节点 ${child.children.length} 个` : (child.modal ? '点击查看详情' : (child.link ? '点击跳转仓库' : '点击查看')));
+            defs.append('radialGradient').attr('id', 'water-gradient').html(`
+                <stop offset="0%" stop-color="#b3ecff" />
+                <stop offset="35%" stop-color="#4fd3ff" />
+                <stop offset="70%" stop-color="#00a1e4" />
+                <stop offset="100%" stop-color="#007cb5" />
+            `);
 
-                const dotClass = child.specialClass === 'node-highlight-red' ? 'mobile-card-dot mobile-card-dot-hot' : 'mobile-card-dot';
+            defs.append('filter')
+                .attr('id', 'metal-faceted-shine')
+                .attr('x', '-80%').attr('y', '-80%').attr('width', '260%').attr('height', '260%')
+                .html(`
+                    <feGaussianBlur in="SourceGraphic" stdDeviation="2" result="blur" />
+                    <feSpecularLighting in="blur" surfaceScale="4" specularConstant="1.2" specularExponent="25" lighting-color="#F0F0F0" result="spec">
+                        <fePointLight x="0" y="-10000" z="20000" />
+                    </feSpecularLighting>
+                    <feComposite in="spec" in2="SourceGraphic" operator="in" />
+                    <feConvolveMatrix kernelMatrix="0 -1 0  -1 5 -1  0 -1 0" order="3" preserveAlpha="true" />
+                `);
 
-                card.innerHTML = `
-                    <span class="${dotClass}"></span>
-                    <div class="mobile-card-name">${escapeHtml(child.name)}</div>
-                    <div class="mobile-card-desc">${escapeHtml(desc)}</div>
-                `;
+            defs.append('radialGradient').attr('id', 'metal-faceted-gradient').html(`
+                <stop offset="0%" stop-color="#F8F8F8" />
+                <stop offset="20%" stop-color="#E0E0E0" />
+                <stop offset="40%" stop-color="#C0C0C0" />
+                <stop offset="65%" stop-color="#808080" />
+                <stop offset="85%" stop-color="#404040" />
+                <stop offset="100%" stop-color="#2A2A2A" />
+            `);
 
-                card.addEventListener('click', () => {
-                    if (child.children && child.children.length) {
-                        openHierarchyModal(child, [treeData.name]);
-                    } else if (child.modal) {
-                        openModal(child.modal.title, child.modal.content, child.modal.key);
-                    } else if (child.link) {
-                        window.open(child.link, '_blank');
-                    }
-                });
+            defs.append('linearGradient').attr('id', 'silver-lightning-gradient').html(`
+                <stop offset="0%" stop-color="#ffffff" />
+                <stop offset="50%" stop-color="#d8d8d8" />
+                <stop offset="100%" stop-color="#a0a0a0" />
+            `);
 
-                level1Grid.appendChild(card);
-            });
+            defs.append('filter')
+                .attr('id', 'silver-arc-glow')
+                .attr('x', '-120%').attr('y', '-120%').attr('width', '340%').attr('height', '340%')
+                .html(`
+                    <feGaussianBlur stdDeviation="3.5" result="blur" />
+                    <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+                `);
 
-            mobileTreeView.appendChild(level1Grid);
-        }
+            defs.append('linearGradient').attr('id', 'arc-gradient').html(`
+                <stop offset="0%" stop-color="#00e5ff" /><stop offset="50%" stop-color="#722ED1" /><stop offset="100%" stop-color="#00e5ff" />
+            `);
 
-        // ===== 电脑版D3 SVG渲染 =====
-        if (!isMobileLayout) {
-        const svg = d3.select('#treeS');
-        const width = document.querySelector('.tree-container').clientWidth;
-        const height = document.querySelector('.tree-container').clientHeight;
-        const centerX = width / 2;
-        const centerY = height / 2;
+            defs.append('filter').attr('id', 'arc-glow').html(`
+                <feGaussianBlur stdDeviation="6" /><feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+            `);
 
-        const radius = Math.min(width, height) / 2 - 120;
-        const siblingSeparation = 1.2;
-        const branchSeparation = 2;
-        const mobileNodeScale = 1;
-        const renderTreeData = treeData;
-        const ARC_RING_R = 44;
+            defs.append('filter').attr('id', 'pulse-glow').html(`
+                <feGaussianBlur stdDeviation="8" /><feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+            `);
 
-        const g = svg.attr('viewBox', `0 0 ${width} ${height}`)
-            .append('g')
-            .attr('transform', `translate(${centerX}, ${centerY})`);
+            defs.append('filter')
+                .attr('id', 'earth-crack-effect')
+                .html(`
+                    <feTurbulence type="fractalNoise" baseFrequency="0.15" numOctaves="3" seed="4" result="noise">
+                        <animate attributeName="seed" values="4;12;4" dur="8s" repeatCount="indefinite" />
+                    </feTurbulence>
+                    <feDisplacementMap in="SourceGraphic" in2="noise" scale="12" />
+                `);
 
-        const defs = g.append('defs');
+            defs.append('radialGradient').attr('id', 'earth-gradient').html(`
+                <stop offset="0%" stop-color="#8B6B3B" />
+                <stop offset="35%" stop-color="#6D4F2E" />
+                <stop offset="70%" stop-color="#4A3520" />
+                <stop offset="100%" stop-color="#3D2B1F" />
+            `);
 
-        // 柔和水滴波浪
-        defs.append('filter')
-            .attr('id', 'soft-water-wave')
-            .attr('x', '-80%').attr('y', '-80%').attr('width', '260%').attr('height', '260%')
-            .html(`
-                <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="1" seed="2" result="wave">
-                    <animate attributeName="seed" values="2;6;2" dur="5s" repeatCount="indefinite" />
+            defs.append('radialGradient').attr('id', 'super-lava-gradient').html(`
+                <stop offset="0%" stop-color="#ffff00" />
+                <stop offset="25%" stop-color="#ff6600" />
+                <stop offset="50%" stop-color="#ff0000" />
+                <stop offset="85%" stop-color="#990000" />
+                <stop offset="100%" stop-color="#330000" />
+            `);
+
+            defs.append('filter').attr('id', 'super-lava-filter').html(`
+                <feTurbulence type="fractalNoise" baseFrequency="0.09" numOctaves="3" result="fire">
+                    <animate attributeName="seed" values="1;8;1" dur="3s" repeatCount="indefinite" />
                 </feTurbulence>
-                <feDisplacementMap in="SourceGraphic" in2="wave" scale="4" xChannelSelector="R" yChannelSelector="G" />
+                <feDisplacementMap in="SourceGraphic" in2="fire" scale="25" />
             `);
 
-        defs.append('radialGradient').attr('id', 'water-gradient').html(`
-            <stop offset="0%" stop-color="#b3ecff" />
-            <stop offset="35%" stop-color="#4fd3ff" />
-            <stop offset="70%" stop-color="#00a1e4" />
-            <stop offset="100%" stop-color="#007cb5" />
-        `);
-
-        defs.append('filter')
-            .attr('id', 'metal-faceted-shine')
-            .attr('x', '-80%').attr('y', '-80%').attr('width', '260%').attr('height', '260%')
-            .html(`
-                <feGaussianBlur in="SourceGraphic" stdDeviation="2" result="blur" />
-                <feSpecularLighting in="blur" surfaceScale="4" specularConstant="1.2" specularExponent="25" lighting-color="#F0F0F0" result="spec">
-                    <fePointLight x="0" y="-10000" z="20000" />
-                </feSpecularLighting>
-                <feComposite in="spec" in2="SourceGraphic" operator="in" />
-                <feConvolveMatrix kernelMatrix="0 -1 0  -1 5 -1  0 -1 0" order="3" preserveAlpha="true" />
-            `);
-
-        defs.append('radialGradient').attr('id', 'metal-faceted-gradient').html(`
-            <stop offset="0%" stop-color="#F8F8F8" />
-            <stop offset="20%" stop-color="#E0E0E0" />
-            <stop offset="40%" stop-color="#C0C0C0" />
-            <stop offset="65%" stop-color="#808080" />
-            <stop offset="85%" stop-color="#404040" />
-            <stop offset="100%" stop-color="#2A2A2A" />
-        `);
-
-        defs.append('linearGradient').attr('id', 'silver-lightning-gradient').html(`
-            <stop offset="0%" stop-color="#ffffff" />
-            <stop offset="50%" stop-color="#d8d8d8" />
-            <stop offset="100%" stop-color="#a0a0a0" />
-        `);
-
-        defs.append('filter')
-            .attr('id', 'silver-arc-glow')
-            .attr('x', '-120%').attr('y', '-120%').attr('width', '340%').attr('height', '340%')
-            .html(`
-                <feGaussianBlur stdDeviation="3.5" result="blur" />
-                <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
-            `);
-
-        defs.append('linearGradient').attr('id', 'arc-gradient').html(`
-            <stop offset="0%" stop-color="#00e5ff" /><stop offset="50%" stop-color="#722ED1" /><stop offset="100%" stop-color="#00e5ff" />
-        `);
-
-        defs.append('filter').attr('id', 'arc-glow').html(`
-            <feGaussianBlur stdDeviation="6" /><feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
-        `);
-
-        defs.append('filter').attr('id', 'pulse-glow').html(`
-            <feGaussianBlur stdDeviation="8" /><feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
-        `);
-
-        defs.append('filter')
-            .attr('id', 'earth-crack-effect')
-            .html(`
-                <feTurbulence type="fractalNoise" baseFrequency="0.15" numOctaves="3" seed="4" result="noise">
-                    <animate attributeName="seed" values="4;12;4" dur="8s" repeatCount="indefinite" />
+            defs.append('filter').attr('id', 'super-lava-hover').html(`
+                <feTurbulence type="fractalNoise" baseFrequency="0.15" numOctaves="3" result="fire">
+                    <animate attributeName="seed" values="1;12;1" dur="1.5s" repeatCount="indefinite" />
                 </feTurbulence>
-                <feDisplacementMap in="SourceGraphic" in2="noise" scale="12" />
+                <feDisplacementMap in="SourceGraphic" in2="fire" scale="40" />
             `);
 
-        defs.append('radialGradient').attr('id', 'earth-gradient').html(`
-            <stop offset="0%" stop-color="#8B6B3B" />
-            <stop offset="35%" stop-color="#6D4F2E" />
-            <stop offset="70%" stop-color="#4A3520" />
-            <stop offset="100%" stop-color="#3D2B1F" />
-        `);
+            defs.append('radialGradient').attr('id', 'mediumGradient').html(`
+                <stop offset="0%" stop-color="#6aaf7c" /><stop offset="100%" stop-color="#2d7d46" />
+            `);
+            defs.append('radialGradient').attr('id', 'smallGradient').html(`
+                <stop offset="0%" stop-color="#ffb74d" /><stop offset="100%" stop-color="#f97316" />
+            `);
 
-        defs.append('radialGradient').attr('id', 'super-lava-gradient').html(`
-            <stop offset="0%" stop-color="#ffff00" />
-            <stop offset="25%" stop-color="#ff6600" />
-            <stop offset="50%" stop-color="#ff0000" />
-            <stop offset="85%" stop-color="#990000" />
-            <stop offset="100%" stop-color="#330000" />
-        `);
+            const tree = d3.tree()
+                .size([2 * Math.PI, radius])
+                .separation((a, b) => (a.parent === b.parent ? 1.2 : 2) / a.depth);
 
-        defs.append('filter').attr('id', 'super-lava-filter').html(`
-            <feTurbulence type="fractalNoise" baseFrequency="0.09" numOctaves="3" result="fire">
-                <animate attributeName="seed" values="1;8;1" dur="3s" repeatCount="indefinite" />
-            </feTurbulence>
-            <feDisplacementMap in="SourceGraphic" in2="fire" scale="25" />
-        `);
+            const root = d3.hierarchy(treeData);
+            tree(root);
 
-        defs.append('filter').attr('id', 'super-lava-hover').html(`
-            <feTurbulence type="fractalNoise" baseFrequency="0.15" numOctaves="3" result="fire">
-                <animate attributeName="seed" values="1;12;1" dur="1.5s" repeatCount="indefinite" />
-            </feTurbulence>
-            <feDisplacementMap in="SourceGraphic" in2="fire" scale="40" />
-        `);
-
-        defs.append('radialGradient').attr('id', 'mediumGradient').html(`
-            <stop offset="0%" stop-color="#6aaf7c" /><stop offset="100%" stop-color="#2d7d46" />
-        `);
-        defs.append('radialGradient').attr('id', 'smallGradient').html(`
-            <stop offset="0%" stop-color="#ffb74d" /><stop offset="100%" stop-color="#f97316" />
-        `);
-
-        const tree = d3.tree()
-            .size([2 * Math.PI, radius])
-            .separation((a, b) => (a.parent === b.parent ? siblingSeparation : branchSeparation) / a.depth);
-
-        const root = d3.hierarchy(renderTreeData);
-        tree(root);
-
-        // 修复：电弧正确连接到圆环，无错乱
-        function jaggedPath(d) {
-            const rad = d3.linkRadial().angle(d => d.x).radius(d => d.y);
-            let p = rad(d);
-            if (d.source.depth === 0) {
-                const a = d.source.x;
-                const cx = Math.cos(a) * ARC_RING_R;
-                const cy = Math.sin(a) * ARC_RING_R;
-                p = p.replace(/^M[^,]*,[^ ]*/, `M ${cx} ${cy}`);
+            // 修复：电弧正确连接到圆环，无错乱
+            const ARC_RING_R = 44;
+            function jaggedPath(d) {
+                const rad = d3.linkRadial().angle(d => d.x).radius(d => d.y);
+                let p = rad(d);
+                if (d.source.depth === 0) {
+                    const a = d.source.x;
+                    const cx = Math.cos(a) * ARC_RING_R;
+                    const cy = Math.sin(a) * ARC_RING_R;
+                    p = p.replace(/^M[^,]*,[^ ]*/, `M ${cx} ${cy}`);
+                }
+                return p.split("L").map((seg,i)=>{
+                    if(i===0)return seg;
+                    const [x,y]=seg.trim().split(" ").map(parseFloat);
+                    const jx = x+(Math.random()-0.5)*3;
+                    const jy = y+(Math.random()-0.5)*3;
+                    return `${jx} ${jy}`;
+                }).join(" L");
             }
-            return p.split("L").map((seg,i)=>{
-                if(i===0)return seg;
-                const [x,y]=seg.trim().split(" ").map(parseFloat);
-                const jx = x+(Math.random()-0.5)*3;
-                const jy = y+(Math.random()-0.5)*3;
-                return `${jx} ${jy}`;
-            }).join(" L");
-        }
 
-        const link = g.selectAll('.tree-link')
-            .data(root.links())
-            .join('path')
-            .attr('class', 'tree-link')
-            .attr('d', jaggedPath);
+            const link = g.selectAll('.tree-link')
+                .data(root.links())
+                .join('path')
+                .attr('class', 'tree-link')
+                .attr('d', jaggedPath);
 
-        // 电弧圆环
-        g.append('circle')
-            .attr('class', 'arc-core-ring')
-            .attr('cx', 0)
-            .attr('cy', 0)
-            .attr('r', ARC_RING_R);
+            // 电弧圆环
+            g.append('circle')
+                .attr('class', 'arc-core-ring')
+                .attr('cx', 0)
+                .attr('cy', 0)
+                .attr('r', ARC_RING_R);
 
-        // 多层水波涌动扩散（手机版禁用）
-        if (!isMobileLayout) {
+            // 多层水波涌动扩散
             for (let i = 0; i < 5; i++) {
                 g.append('circle')
                     .attr('class', 'pulse-ring')
@@ -1246,226 +1186,69 @@
                     .attr('r', 42)
                     .style('animation-delay', `${i * 0.7}s`);
             }
-        }
 
-        const node = g.selectAll('.node')
-            .data(root.descendants())
-            .join('g')
-            .attr('class', 'node')
-            .attr('transform', d => `rotate(${d.x * 180 / Math.PI - 90}) translate(${d.y},0) rotate(${-(d.x * 180 / Math.PI - 90)}) scale(1)`);
+            const node = g.selectAll('.node')
+                .data(root.descendants())
+                .join('g')
+                .attr('class', 'node')
+                .attr('transform', d => `rotate(${d.x * 180 / Math.PI - 90}) translate(${d.y},0) rotate(${-(d.x * 180 / Math.PI - 90)})`);
 
-        const circles = node.append('circle')
-            .attr('class', d => `node-circle node-${d.data.nodeType} ${d.data.specialClass || ''}`)
-            .on('mouseover', function(event, d) {
-                if (d.data.tooltip || d.data.fullName) {
-                    const tooltip = document.getElementById('tooltip');
-                    tooltip.innerHTML = d.data.fullName || d.data.tooltip;
-                    tooltip.classList.add('show');
-                }
-            })
-            .on('mouseout', function() {
-                document.getElementById('tooltip').classList.remove('show');
-            })
-            .on('click', function(event, d) {
-                if (d.data.nodeType === 'root') {
-                    playArcSound();
-                }
-
-                if (isMobileLayout && d.depth === 1) {
-                    const fullNode = mobileLevelNodeLookup.get(d.data.name);
-                    if (fullNode) {
-                        openHierarchyModal(fullNode, [treeData.name]);
-                        return;
+            const circles = node.append('circle')
+                .attr('class', d => `node-circle node-${d.data.nodeType} ${d.data.specialClass || ''}`)
+                .on('mouseover', function(event, d) {
+                    if (d.data.tooltip || d.data.fullName) {
+                        const tooltip = document.getElementById('tooltip');
+                        tooltip.innerHTML = d.data.fullName || d.data.tooltip;
+                        tooltip.classList.add('show');
                     }
-                }
+                })
+                .on('mouseout', function() {
+                    document.getElementById('tooltip').classList.remove('show');
+                })
+                .on('click', function(event, d) {
+                    if (d.data.nodeType === 'root') {
+                        playArcSound();
+                    }
+                    if (d.data.link) window.open(d.data.link, '_blank');
+                    if (d.data.modal) {
+                        openModal(d.data.modal.title, d.data.modal.content, d.data.modal.key);
+                    }
+                });
 
-                if (d.data.link) window.open(d.data.link, '_blank');
-                if (d.data.modal) {
-                    openModal(d.data.modal.title, d.data.modal.content, d.data.modal.key);
+            // 闪电环绕
+            function generateLightningPath(r, seg, jit) {
+                let p = `M ${r} 0`;
+                for (let i=1; i<=seg; i++) {
+                    const a = i/seg*Math.PI*2;
+                    const j = r*jit*(Math.random()*2-1);
+                    p += ` L ${(r+j)*Math.cos(a)} ${(r+j)*Math.sin(a)}`;
+                }
+                return p+' Z';
+            }
+            for (let i=0; i<3; i++) {
+                g.append('path')
+                    .attr('class','lightning-path')
+                    .attr('d', generateLightningPath(46+i*4, 12+i*2, 0.15+i*0.05))
+                    .style('animation-delay', i*0.2+'s');
+            }
+
+            const arcAudio = document.getElementById('arc-audio');
+            function playArcSound() {
+                arcAudio.currentTime=0; arcAudio.play().catch(()=>{});
+            }
+
+            document.addEventListener('mousemove', (e) => {
+                const t = document.getElementById('tooltip');
+                if (t.classList.contains('show')) {
+                    t.style.left = e.pageX+10+'px';
+                    t.style.top = e.pageY+10+'px';
                 }
             });
 
-        // 闪电环绕
-        function generateLightningPath(r, seg, jit) {
-            let p = `M ${r} 0`;
-            for (let i=1; i<=seg; i++) {
-                const a = i/seg*Math.PI*2;
-                const j = r*jit*(Math.random()*2-1);
-                p += ` L ${(r+j)*Math.cos(a)} ${(r+j)*Math.sin(a)}`;
-            }
-            return p+' Z';
-        }
-        // 闪电环绕
-        for (let i=0; i<3; i++) {
-            g.append('path')
-                .attr('class','lightning-path')
-                .attr('d', generateLightningPath(46+i*4, 12+i*2, 0.15+i*0.05))
-                .style('animation-delay', i*0.2+'s');
-        }
+            node.append('text')
+                .attr('class', d => `node-text text-${d.data.nodeType}`)
+                .text(d => d.data.name);
 
-        const arcAudio = document.getElementById('arc-audio');
-        function playArcSound() {
-            arcAudio.currentTime=0; arcAudio.play().catch(()=>{});
-        }
-
-        document.addEventListener('mousemove', (e) => {
-            const t = document.getElementById('tooltip');
-            if (t.classList.contains('show')) {
-                t.style.left = e.pageX+10+'px';
-                t.style.top = e.pageY+10+'px';
-            }
-        });
-
-        node.append('text')
-            .attr('class', d => `node-text text-${d.data.nodeType}`)
-            .text(d => d.data.name);
-
-        const hierarchyState = {
-            stack: []
-        };
-
-        function escapeHtml(text) {
-            return String(text || '')
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#39;');
-        }
-
-        function renderHierarchyModal() {
-            if (!hierarchyState.stack.length) return;
-
-            const current = hierarchyState.stack[hierarchyState.stack.length - 1];
-            const currentNode = current.node;
-            const currentTrail = current.trail;
-            const children = Array.isArray(currentNode.children) ? currentNode.children : [];
-
-            const toolbarHtml = `
-                <div class="hierarchy-toolbar">
-                    ${hierarchyState.stack.length > 1 ? '<button class="hierarchy-btn" type="button" data-hier-action="back">返回上一级</button>' : ''}
-                    ${currentNode.link ? '<button class="hierarchy-btn" type="button" data-hier-action="open-link">打开当前节点仓库</button>' : ''}
-                </div>
-            `;
-
-            const cardsHtml = children.map((child, index) => {
-                const desc = child.fullName
-                    || child.tooltip
-                    || (child.children && child.children.length ? `下级节点 ${child.children.length} 个` : (child.modal ? '点击查看详情' : (child.link ? '点击跳转仓库' : '点击查看')));
-
-                const dotClass = child.specialClass === 'node-highlight-red' ? 'hierarchy-card-dot hierarchy-card-dot-hot' : 'hierarchy-card-dot';
-
-                return `
-                    <button class="hierarchy-card" type="button" data-hier-index="${index}">
-                        <span class="${dotClass}"></span>
-                        <div class="hierarchy-card-title">${escapeHtml(child.name || '未命名节点')}</div>
-                        <div class="hierarchy-card-desc">${escapeHtml(desc)}</div>
-                    </button>
-                `;
-            }).join('');
-
-            document.getElementById('modalTitle').textContent = `${currentTrail.join(' · ')} · ${currentNode.name}`;
-            document.getElementById('modalContent').innerHTML = `${toolbarHtml}<div class="hierarchy-grid">${cardsHtml}</div>`;
-            document.getElementById('modal').classList.add('active');
-        }
-
-        function openHierarchyModal(node, trail) {
-            hierarchyState.stack.push({
-                node,
-                trail
-            });
-            renderHierarchyModal();
-        }
-
-        function openModal(title, content, key) {
-            hierarchyState.stack = [];
-
-            try {
-                if (key && window.parent && window.parent !== window) {
-                    document.getElementById('modal').classList.remove('active');
-                    window.parent.postMessage({ type: 'OPEN_HERO_NODE_MODAL', key, title }, '*');
-                    return;
-                }
-            } catch (e) {}
-
-            const m = document.getElementById('modal');
-            document.getElementById('modalTitle').textContent = title;
-            document.getElementById('modalContent').innerHTML = content;
-            m.classList.add('active');
-        }
-        function closeModal() {
-            hierarchyState.stack = [];
-            document.getElementById('modal').classList.remove('active');
-        }
-        document.getElementById('modalClose').onclick = closeModal;
-        const modal = document.getElementById('modal');
-        modal.onclick = e=>e.target===modal&&closeModal();
-
-        document.getElementById('modalContent').addEventListener('click', (event) => {
-            if (!hierarchyState.stack.length) return;
-
-            const actionBtn = event.target.closest('[data-hier-action]');
-            if (actionBtn) {
-                const action = actionBtn.getAttribute('data-hier-action');
-                if (action === 'back') {
-                    hierarchyState.stack.pop();
-                    if (hierarchyState.stack.length) {
-                        renderHierarchyModal();
-                    } else {
-                        closeModal();
-                    }
-                    return;
-                }
-
-                if (action === 'open-link') {
-                    const current = hierarchyState.stack[hierarchyState.stack.length - 1];
-                    if (current && current.node.link) {
-                        window.open(current.node.link, '_blank');
-                    }
-                    return;
-                }
-            }
-
-            const card = event.target.closest('[data-hier-index]');
-            if (!card) return;
-
-            const childIndex = Number(card.getAttribute('data-hier-index'));
-            const current = hierarchyState.stack[hierarchyState.stack.length - 1];
-            const children = Array.isArray(current.node.children) ? current.node.children : [];
-            const selected = children[childIndex];
-            if (!selected) return;
-
-            if (selected.children && selected.children.length) {
-                openHierarchyModal(selected, [...current.trail, current.node.name]);
-                return;
-            }
-
-            if (selected.modal) {
-                openModal(selected.modal.title, selected.modal.content, selected.modal.key);
-                return;
-            }
-
-            if (selected.link) {
-                window.open(selected.link, '_blank');
-            }
-        });
-        } // 闭合 if (!isMobileLayout)
-
-        if (isMobileLayout) {
-            let lastWidth = window.innerWidth;
-            let resizeTimer = null;
-            window.addEventListener('resize', () => {
-                updateGraphViewportUnit();
-                clearTimeout(resizeTimer);
-                resizeTimer = setTimeout(() => {
-                    const widthChanged = Math.abs(window.innerWidth - lastWidth) > 80;
-                    if (widthChanged) {
-                        lastWidth = window.innerWidth;
-                        location.reload();
-                    }
-                }, 160);
-            });
-        } else {
             window.onresize = () => location.reload();
         }
     </script>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>XinYu · 项目知识树</title>
+    <title>XinYu · 个人图谱</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
         * {
@@ -14,20 +14,21 @@
         }
 
         :root {
-            --primary-blue: #00E4FF;
             --primary-purple: #722ED1;
-            --accent-purple: #165DFF;
-            --accent-green: #165DFF;
-            --accent-orange: #FFD700;
-            --highlight-red: #ff0000;
+            --bright-yellow: #FFD000;
+            --metal-silver: #C0C0C0;
+            --metal-dark: #2A2A2A;
+            --earth-yellow: #8B6B3B;
+            --earth-dark: #3D2B1F;
+            --earth-crack: #4A3520;
             --bg-deep: rgba(10, 15, 29, 0.20);
-            --text-main: rgba(255, 255, 255, 0.92);
-            --text-sub: rgba(255, 255, 255, 0.72);
+            --arc-blue: #00e5ff;
+            --arc-purple: #722ED1;
+            --pulse-blue: rgba(0, 229, 255, 0.6);
         }
 
         body {
             background-color: var(--bg-deep);
-            color: var(--text-main);
             min-height: 100vh;
             overflow: hidden;
             display: flex;
@@ -44,12 +45,12 @@
             inset: -40%;
             background:
                 conic-gradient(from 160deg at 50% 50%,
-                    rgba(0, 228, 255, 0.00) 0deg,
-                    rgba(0, 228, 255, 0.18) 70deg,
+                    rgba(0, 229, 255, 0.00) 0deg,
+                    rgba(0, 229, 255, 0.18) 70deg,
                     rgba(114, 46, 209, 0.16) 140deg,
                     rgba(22, 93, 255, 0.14) 220deg,
                     rgba(255, 215, 0, 0.10) 300deg,
-                    rgba(0, 228, 255, 0.00) 360deg
+                    rgba(0, 229, 255, 0.00) 360deg
                 );
             filter: blur(28px);
             opacity: 0.85;
@@ -63,9 +64,9 @@
             position: fixed;
             inset: 0;
             background-image:
-                linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+                linear-gradient(rgba(255, 255, 25, 0.06) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
-            background-size: 52px 52px;
+            background-size: 52px 52;
             opacity: 0.14;
             pointer-events: none;
             z-index: 0;
@@ -79,11 +80,7 @@
             font-size: 22px;
             font-weight: 700;
             margin: 8px 0 10px;
-            background: linear-gradient(90deg, var(--primary-blue), var(--primary-purple));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            letter-spacing: 1px;
+            color: var(--bright-yellow);
             z-index: 10;
         }
 
@@ -99,23 +96,19 @@
             height: 100%;
         }
 
+        /* 连接线 = 银色电弧 */
         .tree-link {
             fill: none;
-            stroke-width: 2;
+            stroke: url(#silver-lightning-gradient);
+            stroke-width: 2.2;
             stroke-linecap: round;
-            stroke-dasharray: 1500;
-            stroke-dashoffset: 1500;
-            animation: linkGrow 2s ease forwards;
-            filter: drop-shadow(0 0 6px rgba(0, 228, 255, 0.18));
+            filter: url(#silver-arc-glow);
+            animation: arcFlicker 1.4s infinite alternate;
         }
 
-        .link-root { stroke: var(--primary-blue); animation-delay: 0.2s; }
-        .link-level1 { stroke: var(--primary-purple); animation-delay: 0.5s; }
-        .link-level2 { stroke: var(--accent-purple); animation-delay: 0.8s; }
-        .link-level3 { stroke: var(--primary-blue); animation-delay: 1.1s; }
-
-        @keyframes linkGrow {
-            to { stroke-dashoffset: 0; }
+        @keyframes arcFlicker {
+            0% { opacity: 0.8; stroke-width: 2.2; }
+            100% { opacity: 1; stroke-width: 2.8; }
         }
 
         .node-circle {
@@ -123,107 +116,104 @@
             transition: all 0.3s ease;
             filter: drop-shadow(0 0 8px rgba(0,0,0,0.3));
             opacity: 0;
-            animation: nodeShow 0.5s ease forwards;
+            animation: nodeShow 0.5s ease forwards, nodeWaveSway 6s ease-in-out infinite;
             position: relative;
+        }
+
+        @keyframes nodeWaveSway {
+            0%,100% { transform: translate(0,0) scale(1); }
+            25% { transform: translate(0.6px, 0.4px) scale(1.01); }
+            50% { transform: translate(-0.3px, -0.6px) scale(0.995); }
+            75% { transform: translate(0.2px, -0.3px) scale(1.005); }
         }
 
         .node-circle:hover {
             filter: drop-shadow(0 0 15px currentColor);
-            transform: scale(1.1);
+            transform: scale(1.1) !important;
+            animation-play-state: paused;
         }
 
-        /* 蓝色节点 + 波浪特效 */
         .node-root { 
             r: 38; 
-            fill: url(#rootGradient); 
-            stroke: var(--primary-blue); 
-            stroke-width: 3; 
-            color: var(--primary-blue); 
+            fill: url(#metal-faceted-gradient) !important; 
+            stroke: var(--metal-silver) !important; 
+            stroke-width: 3 !important; 
+            color: var(--metal-silver); 
             animation-delay: 0s;
-            filter: url(#water-wave-filter) drop-shadow(0 0 12px var(--primary-blue));
-            animation: waterWavePulse 4s ease-in-out infinite;
+            filter: url(#metal-faceted-shine);
+            animation: nodeShow 0.5s ease forwards, metalPulse 3s ease-in-out infinite, nodeWaveSway 6s ease-in-out infinite;
+            display: block !important;
+            visibility: visible !important;
         }
+
+        @keyframes metalPulse {
+            0%,100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
+
+        /* 柔和水滴波浪效果 */
         .node-large { 
             r: 26; 
-            fill: url(#largeGradient); 
-            stroke: var(--primary-blue); 
-            stroke-width: 2; 
-            color: var(--primary-blue); 
+            fill: url(#water-gradient); 
+            stroke: #4fd3ff; 
+            stroke-width: 2.5; 
+            color: #00a1e4; 
             animation-delay: 0.6s;
-            filter: url(#water-wave-filter) drop-shadow(0 0 8px var(--primary-blue));
-            animation: waterWavePulse 4s ease-in-out infinite;
+            filter: url(#soft-water-wave) drop-shadow(0 0 12px #00a1e4);
+            animation: nodeShow 0.5s ease forwards, waterPulse 3s ease-in-out infinite, nodeWaveSway 6s ease-in-out infinite;
         }
-        .node-level1 { r: 30; fill: url(#level1Gradient); stroke: var(--primary-purple); stroke-width: 2; color: var(--primary-purple); animation-delay: 0.3s; }
-        .node-medium { r: 22; fill: url(#mediumGradient); stroke: var(--accent-green); stroke-width: 2; color: var(--accent-green); animation-delay: 0.6s; }
-        .node-small { r: 18; fill: url(#smallGradient); stroke: var(--accent-orange); stroke-width: 2; color: var(--accent-orange); animation-delay: 0.6s; }
 
-        /* 蓝色波浪动画 */
-        @keyframes waterWavePulse {
+        @keyframes waterPulse {
             0%,100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.03); opacity: 0.95; }
+            50% { transform: scale(1.06); opacity: 0.92; }
         }
 
-        /* ========== 飓风闪电环绕特效 ========== */
-        .node-hurricane-lightning {
-            stroke-width: 3;
-            filter: drop-shadow(0 0 12px #00E4FF) drop-shadow(0 0 6px rgba(114,46,209,0.8));
-            animation: nodeShow 0.5s ease forwards, lightningFlow 4s linear infinite;
-            position: relative;
-            z-index: 1;
+        .node-level1 { 
+            r: 30; 
+            fill: url(#earth-gradient); 
+            stroke: var(--earth-crack); 
+            stroke-width: 3; 
+            color: var(--earth-yellow); 
+            animation-delay: 0.3s;
+            filter: url(#earth-crack-effect) drop-shadow(0 0 8px rgba(74,53,32,0.8));
         }
-        .node-hurricane-lightning::before {
-            content: '';
-            position: absolute;
-            top: -12px;
-            left: -12px;
-            right: -12px;
-            bottom: -12px;
-            border-radius: 50%;
-            background: transparent;
-            border: 2px solid rgba(40,40,50,0.3);
-            filter: blur(4px);
-            animation: hurricaneSpin 8s linear infinite;
-            opacity: 0.8;
-            z-index: -1;
+        .node-medium { 
+            r: 22; 
+            fill: url(#mediumGradient); 
+            stroke: var(--primary-purple); 
+            stroke-width: 2; 
+            color: var(--primary-purple); 
+            animation-delay: 0.6s;
         }
-        .node-hurricane-lightning::after {
-            content: '';
-            position: absolute;
-            top: -18px;
-            left: -18px;
-            right: -18px;
-            bottom: -18px;
-            border-radius: 50%;
-            background: transparent;
-            border: 2px solid rgba(30,30,40,0.25);
-            filter: blur(6px);
-            animation: hurricaneSpinReverse 10s linear infinite;
-            opacity: 0.7;
-            z-index: -2;
+        .node-small { 
+            r: 18; 
+            fill: url(#smallGradient); 
+            stroke: var(--primary-purple); 
+            stroke-width: 2; 
+            color: var(--primary-purple); 
+            animation-delay: 0.6s;
         }
 
-        /* ========== 强化版熔岩燃烧特效 + 红色高亮 ========== */
         .node-highlight-red {
             fill: url(#super-lava-gradient) !important;
             stroke: #ff0000 !important;
             stroke-width: 3 !important;
-            filter: url(#super-lava-filter) drop-shadow(0 0 40px var(--highlight-red)) !important;
+            filter: url(#super-lava-filter) drop-shadow(0 0 40px #ff0000) !important;
             animation: nodeShow 0.5s ease forwards,
-                       lightningFlow 4s linear infinite,
                        superBreath 2.5s ease-in-out infinite,
-                       fireFlicker 3s linear infinite;
+                       fireFlicker 3s linear infinite,
+                       nodeWaveSway 6s ease-in-out infinite;
             will-change: transform, filter;
             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
-        /* 鼠标悬停：超级燃烧强化 */
         .node-highlight-red:hover {
             transform: scale(1.35) !important;
             filter: url(#super-lava-hover) drop-shadow(0 0 70px #ff0000) !important;
             stroke-width: 5 !important;
+            animation-play-state: paused;
         }
 
-        /* 超级燃烧动画 */
         @keyframes superBreath {
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.18); }
@@ -234,47 +224,65 @@
             66% { opacity: 0.95; }
         }
 
-        /* 基础动画 */
-        @keyframes lightningFlow {
-            0% { stroke: var(--primary-blue); }
-            50% { stroke: var(--primary-purple); }
-            100% { stroke: var(--primary-blue); }
-        }
-        @keyframes hurricaneSpin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        @keyframes hurricaneSpinReverse {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(-360deg); }
-        }
         @keyframes nodeShow {
             to { opacity: 1; }
         }
 
         .node-text {
-            fill: var(--text-main);
+            fill: var(--bright-yellow) !important;
             text-anchor: middle;
             dominant-baseline: middle;
             font-size: 13px;
-            font-weight: 500;
+            font-weight: 800 !important;
             pointer-events: none;
             user-select: none;
             opacity: 0;
-            animation: nodeShow 0.5s ease forwards;
+            animation: nodeShow 0.5s ease forwards, textWaveSway 6.5s ease-in-out infinite;
         }
 
-        .text-root { font-size: 14px; font-weight: 700; animation-delay: 0s; }
-        .text-level1 { font-size: 13px; font-weight: 600; animation-delay: 0.3s; }
-        .text-small { font-size: 11px; animation-delay: 0.6s; }
+        @keyframes textWaveSway {
+            0%,100% { transform: translate(0,0); }
+            30% { transform: translate(0.3px, 0.2px); }
+            60% { transform: translate(-0.2px, -0.2px); }
+        }
+
+        .text-root { 
+            font-size: 15px; 
+            font-weight: 900; 
+            animation-delay: 0s;
+        }
+        .text-level1 { 
+            font-size: 14px; 
+            font-weight: 800; 
+            animation-delay: 0.3s;
+        }
+        .text-small { 
+            font-size: 12px; 
+            font-weight: 700; 
+            animation-delay: 0.6s;
+        }
+
+        /* 中心电弧圆环（精致、不挡节点） */
+        .arc-core-ring {
+            fill: none;
+            stroke: url(#silver-lightning-gradient);
+            stroke-width: 2.5;
+            filter: url(#silver-arc-glow);
+            opacity: 0.9;
+            animation: corePulse 2s infinite alternate;
+        }
+        @keyframes corePulse {
+            0% { transform: scale(1); opacity: 0.7; }
+            100% { transform: scale(1.05); opacity: 1; }
+        }
 
         defs { pointer-events: none; }
 
         .tooltip {
             position: absolute;
             background: linear-gradient(135deg, rgba(20, 27, 52, 0.92), rgba(10, 15, 29, 0.92));
-            border: 1px solid var(--primary-blue);
-            color: var(--text-main);
+            border: 1px solid var(--primary-purple);
+            color: var(--bright-yellow);
             padding: 10px 16px;
             border-radius: 8px;
             font-size: 13px;
@@ -312,7 +320,7 @@
 
         .modal-content {
             width: 90%;
-            max-width: 900px;
+            max-width: 900;
             max-height: 80vh;
             background: rgba(20, 27, 52, 0.92);
             border: 1px solid var(--primary-purple);
@@ -336,7 +344,7 @@
             border-radius: 50%;
             background: #121218;
             border: 1px solid #292938;
-            color: var(--text-main);
+            color: var(--bright-yellow);
             font-size: 20px;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -344,28 +352,66 @@
 
         .modal-close:hover {
             background: var(--primary-purple);
-            border-color: var(--accent-purple);
+            color: #fff;
+            border-color: var(--primary-purple);
         }
 
         .modal-title {
             font-size: 32px;
             font-weight: 700;
             margin-bottom: 24px;
-            color: var(--accent-purple);
+            color: var(--bright-yellow);
         }
 
         .modal-text {
             font-size: 16px;
             line-height: 1.8;
-            color: var(--text-sub);
+            color: var(--bright-yellow);
             margin-bottom: 16px;
         }
+
+        .lightning-path {
+            fill: none;
+            stroke: url(#arc-gradient);
+            stroke-width: 2.5;
+            stroke-linecap: round;
+            filter: url(#arc-glow);
+            opacity: 0;
+            animation: lightningAppear 1s ease forwards, lightningFlicker 1.5s infinite;
+            pointer-events: none;
+        }
+
+        @keyframes lightningAppear { to { opacity: 0.95; } }
+        @keyframes lightningFlicker {
+            0%, 100% { opacity: 0.95; stroke-width: 2.5; }
+            50% { opacity: 0.6; stroke-width: 1.5; }
+        }
+
+        /* 水波涌动扩散（空间波动感） */
+        .pulse-ring {
+            fill: none;
+            stroke: var(--pulse-blue);
+            stroke-width: 2;
+            filter: url(#pulse-glow);
+            opacity: 0;
+            pointer-events: none;
+            animation: waveSurge 4s cubic-bezier(0.2, 0.1, 0.2, 1) infinite;
+        }
+
+        @keyframes waveSurge {
+            0% { r: 42; opacity: 0.95; stroke-width: 3; transform: scale(1); }
+            20% { r: 70; opacity: 0.8; stroke-width: 2.5; transform: scale(1.01); }
+            50% { r: 110; opacity: 0.5; stroke-width: 1.8; transform: scale(1.02); }
+            100% { r: 180; opacity: 0; stroke-width: 0.8; transform: scale(1.03); }
+        }
+
+        #arc-audio { display: none; }
     </style>
 </head>
 <body>
-    <h1 class="tree-title">XinYu · 项目知识树</h1>
+    <h1 class="tree-title">XinYu · 个人图谱</h1>
     <div class="tree-container">
-        <svg class="tree-svg" id="treeSvg"></svg>
+        <svg class="tree-svg" id="treeS"></svg>
         <div class="tooltip" id="tooltip"></div>
     </div>
 
@@ -377,9 +423,13 @@
         </div>
     </div>
 
+    <audio id="arc-audio" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-lightning-strike-1287.mp3" type="audio/mpeg">
+    
+
     <script>
         const treeData = {
-            name: 'XinYU20040412 (XinYu)',
+            name: '三金的github主页',
             link: 'https://github.com/XinYU20040412',
             nodeType: 'root',
             children: [
@@ -392,14 +442,14 @@
                             fullName: '基于递推模型的板凳龙运行调控',
                             link: 'https://github.com/XinYU20040412/Operation-Regulation-of-Bench-Dragon-Dance-Based-on-Recursive-Model',
                             nodeType: 'large',
-                            specialClass: 'node-hurricane-lightning node-highlight-red'
+                            specialClass: 'node-highlight-red'
                         },
                         {
                             name: '无人机投弹策略优化',
                             fullName: '基于AESAGA-WITH-Newton算法的无人机投弹策略优化',
                             link: 'https://github.com/XinYU20040412/AESAGA-Newton-Based-UAV-Bombing-Strategy-Optimization',
                             nodeType: 'large',
-                            specialClass: 'node-hurricane-lightning node-highlight-red'
+                            specialClass: 'node-highlight-red'
                         },
                         {
                             name: '机械臂路径优化',
@@ -441,7 +491,7 @@
                                     tooltip: '基于DiT+Flowmatch的3D牙冠结构一体优化生成',
                                     link: 'https://github.com/XinYU20040412/tooth_decoupled_modeling',
                                     nodeType: 'large',
-                                    specialClass: 'node-hurricane-lightning node-highlight-red'
+                                    specialClass: 'node-highlight-red'
                                 }
                             ]
                         },
@@ -455,7 +505,7 @@
                                     tooltip: '《基于等变神经网络的CMOS管二维栅极材料性能预测以及逆向结构优化生成》',
                                     link: 'https://github.com/XinYU20040412/equivariant-nn-cmos-2d-op',
                                     nodeType: 'large',
-                                    specialClass: 'node-hurricane-lightning node-highlight-red'
+                                    specialClass: 'node-highlight-red'
                                 },
                                 {
                                     name: '布洛赫定理深度学习规范',
@@ -506,25 +556,20 @@
                     nodeType: 'level1',
                     children: [
                         {
-                            name: '我的理念',
+                            name: '思维体系框架与前瞻',
                             modal: {
                                 key: 'philosophy',
-                                title: '我的理念：我与“模型学”',
+                                title: '我的系统性认识、归纳、前瞻：我与“模型学”',
                                 content: `
-                                    <p>物理授予我的最大特点就是无止境的思索，我也终能够理解为什么科学的起源叫做自然哲学：共同的思考范式，即无止境的探知求索到底什么才是“真”，什么才是“对”。这套深度思考的范式是可以迁移到任何学科任何方向上的，故而数学物理可以称之为“basic”—基础。</p>
+                                    <p>物理授予我的最大特点就是无止境的思索，我也终能够理解为什么科学的起源叫做自然哲学：共同的思考范式，即无止境的探知求索到底什么才是“真”，什么才是“对”。这套深度思考的范式可以迁移到任何学科方向，数学物理是真正的基础。</p>
                                     <p>我将数学物理从两个视角切入：<br>
-                                    1. 回溯视角：数学物理的起源是为了“描述”，也就是数学建模——数学提取量化特征，物理描述客观现实，力求对现实世界进行指导。<br>
-                                    2. 演绎视角：数学物理基于建模又远高于建模，核心在于基于公理/定律的逻辑闭环自洽，可在已有体系上延伸出全新的自洽逻辑，共同构建数学物理的完整大厦。</p>
-                                    <p>我找到了我的终生事业——模型学：起于数学建模，深于物理学习，升于深度学习，终于描述性。我以数学物理的“建模描述性”为纲领，不丢掉物理的“屠龙术”，不失去对客观现实的泛化能力，用深度学习处理高维灾难的本领，解决传统确定性模型精度与效率的矛盾。</p>
-                                    <p>核心研究方向：<br>
-                                    1. 用物理建模的确定性收束深度学习的随机概率空间<br>
-                                    2. 用仿物学思想，以模型量化、优化工程与科学问题<br>
-                                    3. 以热统视角审视计算系统，用物理体系指导算法优化<br>
-                                    4. 从底层深度思考、处理问题的数理方向</p>
+                                    1. 回溯视角：起源是为了“描述”，也就是数学建模<br>
+                                    2. 演绎视角：基于公理/定律的逻辑闭环自洽</p>
+                                    <p>我找到了我的终生事业——模型学：起于数学建模，深于物理学习，升于深度学习，终于描述性。</p>
                                 `
                             },
                             nodeType: 'large',
-                            specialClass: 'node-hurricane-lightning node-highlight-red'
+                            specialClass: 'node-highlight-red'
                         },
                         {
                             name: '教育背景',
@@ -533,22 +578,11 @@
                                 title: '教育背景与荣誉奖项',
                                 content: `
                                     <p><strong>2023.09-至今</strong> 湖南大学 应用物理学 本科<br>
-                                    GPA：3.95/4.0  专业排名：2/112<br>
-                                    CET4：594 | CET6：500</p>
-                                    <p><strong>核心主修课程</strong><br>
-                                    物理：热力学统计物理（99.5）、数学物理方法（95）、固体物理（96）、量子力学（96）、理论力学（97）<br>
-                                    数学：数学模型、数学建模与实验、反问题建模与求解、数值计算方法、多元统计分析<br>
-                                    计算机：机器学习、模式识别与机器学习、算法设计与分析、人工智能类脑计算</p>
-                                    <p><strong>选拔经历</strong><br>
-                                    中国科学院物理研究所严济慈班项目选拔入选<br>
-                                    国家超算中心科研项目参与经历</p>
+                                    GPA：3.95/4.0  专业排名：2/112</p>
                                     <p><strong>荣誉奖项</strong><br>
-                                    2023-2025 中国科学院物理研究所严济慈班奖学金<br>
-                                    2023-2024 国家奖学金<br>
-                                    2024-2025 国家奖学金<br>
-                                    2023-2025 连续两年湖南大学校优秀学生称号<br>
-                                    2024-2025 全国大学生数学建模竞赛二等奖<br>
-                                   湖南大学数学建模竞赛一等奖<br>
+                                    中国科学院物理研究所严济慈班奖学金<br>
+                                    国家奖学金 ×2<br>
+                                    全国大学生数学建模竞赛二等奖<br>
                                    湖南大学数学竞赛一等奖</p>
                                 `
                             },
@@ -560,19 +594,14 @@
                                 key: 'research',
                                 title: '科研经历与技能',
                                 content: `
-                                    <p><strong>1. 《限定性全集先验收束的dual_block_DiT缺陷补齐重建-内外牙冠结构一体优化生成设计》</strong><br>
-                                    湖南大学超算中心 彭绍亮教授<br>
-                                    针对问题建模为给定全集下的逆转补集重构算法，沿用DiT+流匹配框架，实现了高斯噪声空间定向收束、双模块条件向量拼接、边缘显式条件强化、时空双尺度权重门控设计。</p>
-                                    <p><strong>2. 《基于等变神经网络的CMOS管二维栅极材料性能预测以及逆向结构优化生成》</strong><br>
-                                    中国科学院物理研究所 潘金波教授<br>
-                                    输入二维范德华材料特征与微观坐标，输出带隙与介电常数预测；改进ALIGNN架构，集成KAN算子与注意力机制，基于SE(3)等变框架保障旋转平移对称性，实现材料性能精准预测与逆向生成。</p>
-                                    <p><strong>核心科研技能</strong><br>
-                                    1. 编程与框架：熟练使用Python/PyTorch，熟悉e3nn、ALIGNN等变神经网络仓库，掌握PyG/DGL图神经网络库，熟练使用Linux开发环境与NumPy、SciPy等科学计算库，可复现前沿论文模型与实验。<br>
-                                    2. 建模与算法：具备将物理问题转化为数学模型并数值求解/仿真的能力，熟悉综合分析算法、图论路径规划算法、经典及智能优化算法，拥有偏微分方程数值解经验。</p>
+                                    <p><strong>1. 国家超算中心：DiT+Flowmatch 3D牙冠生成</strong></p>
+                                    <p><strong>2. 中科院物理所：等变神经网络CMOS材料优化</strong></p>
+                                    <p><strong>核心技能</strong><br>
+                                    Python / PyTorch / 物理建模 / 智能优化算法</p>
                                 `
                             },
                             nodeType: 'large',
-                            specialClass: 'node-hurricane-lightning node-highlight-red'
+                            specialClass: 'node-highlight-red'
                         },
                         {
                             name: '竞赛经历',
@@ -580,20 +609,9 @@
                                 key: 'competition',
                                 title: '竞赛经历',
                                 content: `
-                                    <p><strong>2025年 全国大学生数学建模竞赛</strong><br>
-                                    项目：《基于AESAGA WITH Newton算法的无人机投弹策略优化问题》<br>
-                                    担任建模手+编程手，建立无人机运行与投弹轨迹模型、弹道遮掩几何模型、匈牙利算法投弹分配模型，自主设计AESAGA WITH Newton智能优化算法求解复杂组合优化问题。</p>
-                                    <p><strong>2024年 全国大学生数学建模竞赛</strong><br>
-                                    项目：《基于递推模型的板凳龙运行调控》<br>
-                                    担任建模手+编程手，设计动静态对比模型（阿基米德螺线离散点行进模型+速度传递模型+向量碰撞判断模型），通过数理分析锁定最大运行速度节点范围，大幅缩小优化搜索空间，获全国二等奖。</p>
-                                    <p><strong>2024年 华数杯全国大学生数学建模竞赛</strong><br>
-                                    项目：《机器臂关节角路径的多目标优化设计》</p>
-                                    <p><strong>2025年 华数杯全国大学生数学建模竞赛</strong><br>
-                                    项目：《多孔膜光反射性能的优化与控制》</p>
-                                    <p><strong>2024年 华中杯数学建模竞赛</strong><br>
-                                    项目：《大气能量穿透季节时变模型》</p>
-                                    <p><strong>湖南大学数学建模竞赛 一等奖</strong><br>
-                                    <strong>湖南大学数学竞赛 一等奖</strong></p>
+                                    <p>全国大学生数学建模竞赛 二等奖</p>
+                                    <p>华数杯 / 华中杯 数学建模竞赛</p>
+                                    <p>湖南大学 数学竞赛 一等奖</p>
                                 `
                             },
                             nodeType: 'large'
@@ -603,68 +621,128 @@
             ]
         };
 
-        const svg = d3.select('#treeSvg');
+        const svg = d3.select('#treeS');
         const width = document.querySelector('.tree-container').clientWidth;
         const height = document.querySelector('.tree-container').clientHeight;
+        const centerX = width / 2;
+        const centerY = height / 2;
         const radius = Math.min(width, height) / 2 - 120;
 
         const g = svg.attr('viewBox', `0 0 ${width} ${height}`)
             .append('g')
-            .attr('transform', `translate(${width / 2}, ${height / 2})`);
+            .attr('transform', `translate(${centerX}, ${centerY})`);
 
-        // 核心滤镜定义
         const defs = g.append('defs');
 
-        // 1. 蓝色节点 水波浪滤镜
+        // 柔和水滴波浪
         defs.append('filter')
-            .attr('id', 'water-wave-filter')
-            .attr('x', '-50%').attr('y', '-50%').attr('width', '200%').attr('height', '200%')
-            .html(`
-                <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="1" seed="2" result="wave">
-                    <animate attributeName="seed" values="2;5;2" dur="6s" repeatCount="indefinite" />
-                </feTurbulence>
-                <feDisplacementMap in="SourceGraphic" in2="wave" scale="6" xChannelSelector="R" yChannelSelector="G" />
-            `);
-
-        // 2. 超级熔岩渐变（极致燃烧色）
-        defs.append('radialGradient')
-            .attr('id', 'super-lava-gradient')
-            .html(`
-                <stop offset="0%" stop-color="#ffff00" />
-                <stop offset="25%" stop-color="#ff6600" />
-                <stop offset="50%" stop-color="#ff0000" />
-                <stop offset="85%" stop-color="#990000" />
-                <stop offset="100%" stop-color="#330000" />
-            `);
-
-        // 3. 静态超级熔岩滤镜
-        defs.append('filter')
-            .attr('id', 'super-lava-filter')
+            .attr('id', 'soft-water-wave')
             .attr('x', '-80%').attr('y', '-80%').attr('width', '260%').attr('height', '260%')
             .html(`
-                <feTurbulence type="fractalNoise" baseFrequency="0.09" numOctaves="3" seed="1" result="fire">
-                    <animate attributeName="seed" values="1;8;1" dur="3s" repeatCount="indefinite" />
+                <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="1" seed="2" result="wave">
+                    <animate attributeName="seed" values="2;6;2" dur="5s" repeatCount="indefinite" />
                 </feTurbulence>
-                <feDisplacementMap in="SourceGraphic" in2="fire" scale="25" xChannelSelector="R" yChannelSelector="G" />
+                <feDisplacementMap in="SourceGraphic" in2="wave" scale="4" xChannelSelector="R" yChannelSelector="G" />
             `);
 
-        // 4. 悬停超级熔岩滤镜
+        defs.append('radialGradient').attr('id', 'water-gradient').html(`
+            <stop offset="0%" stop-color="#b3ecff" />
+            <stop offset="35%" stop-color="#4fd3ff" />
+            <stop offset="70%" stop-color="#00a1e4" />
+            <stop offset="100%" stop-color="#007cb5" />
+        `);
+
         defs.append('filter')
-            .attr('id', 'super-lava-hover')
-            .attr('x', '-100%').attr('y', '-100%').attr('width', '300%').attr('height', '300%')
+            .attr('id', 'metal-faceted-shine')
+            .attr('x', '-80%').attr('y', '-80%').attr('width', '260%').attr('height', '260%')
             .html(`
-                <feTurbulence type="fractalNoise" baseFrequency="0.15" numOctaves="3" seed="1" result="fire">
-                    <animate attributeName="seed" values="1;12;1" dur="1.5s" repeatCount="indefinite" />
-                </feTurbulence>
-                <feDisplacementMap in="SourceGraphic" in2="fire" scale="40" xChannelSelector="R" yChannelSelector="G" />
+                <feGaussianBlur in="SourceGraphic" stdDeviation="2" result="blur" />
+                <feSpecularLighting in="blur" surfaceScale="4" specularConstant="1.2" specularExponent="25" lighting-color="#F0F0F0" result="spec">
+                    <fePointLight x="0" y="-10000" z="20000" />
+                </feSpecularLighting>
+                <feComposite in="spec" in2="SourceGraphic" operator="in" />
+                <feConvolveMatrix kernelMatrix="0 -1 0  -1 5 -1  0 -1 0" order="3" preserveAlpha="true" />
             `);
 
-        // 原有渐变
-        defs.append('radialGradient').attr('id', 'rootGradient').html(`<stop offset="0%" stop-color="#6dd5fa" /><stop offset="100%" stop-color="#2980b9" />`);
-        defs.append('radialGradient').attr('id', 'level1Gradient').html(`<stop offset="0%" stop-color="#a78bfa" /><stop offset="100%" stop-color="#7c3aed" />`);
-        defs.append('radialGradient').attr('id', 'largeGradient').html(`<stop offset="0%" stop-color="#4fc3f7" /><stop offset="100%" stop-color="#0284c7" />`);
-        defs.append('radialGradient').attr('id', 'mediumGradient').html(`<stop offset="0%" stop-color="#6aaf7c" /><stop offset="100%" stop-color="#2d7d46" />`);
-        defs.append('radialGradient').attr('id', 'smallGradient').html(`<stop offset="0%" stop-color="#ffb74d" /><stop offset="100%" stop-color="#f97316" />`);
+        defs.append('radialGradient').attr('id', 'metal-faceted-gradient').html(`
+            <stop offset="0%" stop-color="#F8F8F8" />
+            <stop offset="20%" stop-color="#E0E0E0" />
+            <stop offset="40%" stop-color="#C0C0C0" />
+            <stop offset="65%" stop-color="#808080" />
+            <stop offset="85%" stop-color="#404040" />
+            <stop offset="100%" stop-color="#2A2A2A" />
+        `);
+
+        defs.append('linearGradient').attr('id', 'silver-lightning-gradient').html(`
+            <stop offset="0%" stop-color="#ffffff" />
+            <stop offset="50%" stop-color="#d8d8d8" />
+            <stop offset="100%" stop-color="#a0a0a0" />
+        `);
+
+        defs.append('filter')
+            .attr('id', 'silver-arc-glow')
+            .attr('x', '-120%').attr('y', '-120%').attr('width', '340%').attr('height', '340%')
+            .html(`
+                <feGaussianBlur stdDeviation="3.5" result="blur" />
+                <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+            `);
+
+        defs.append('linearGradient').attr('id', 'arc-gradient').html(`
+            <stop offset="0%" stop-color="#00e5ff" /><stop offset="50%" stop-color="#722ED1" /><stop offset="100%" stop-color="#00e5ff" />
+        `);
+
+        defs.append('filter').attr('id', 'arc-glow').html(`
+            <feGaussianBlur stdDeviation="6" /><feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+        `);
+
+        defs.append('filter').attr('id', 'pulse-glow').html(`
+            <feGaussianBlur stdDeviation="8" /><feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+        `);
+
+        defs.append('filter')
+            .attr('id', 'earth-crack-effect')
+            .html(`
+                <feTurbulence type="fractalNoise" baseFrequency="0.15" numOctaves="3" seed="4" result="noise">
+                    <animate attributeName="seed" values="4;12;4" dur="8s" repeatCount="indefinite" />
+                </feTurbulence>
+                <feDisplacementMap in="SourceGraphic" in2="noise" scale="12" />
+            `);
+
+        defs.append('radialGradient').attr('id', 'earth-gradient').html(`
+            <stop offset="0%" stop-color="#8B6B3B" />
+            <stop offset="35%" stop-color="#6D4F2E" />
+            <stop offset="70%" stop-color="#4A3520" />
+            <stop offset="100%" stop-color="#3D2B1F" />
+        `);
+
+        defs.append('radialGradient').attr('id', 'super-lava-gradient').html(`
+            <stop offset="0%" stop-color="#ffff00" />
+            <stop offset="25%" stop-color="#ff6600" />
+            <stop offset="50%" stop-color="#ff0000" />
+            <stop offset="85%" stop-color="#990000" />
+            <stop offset="100%" stop-color="#330000" />
+        `);
+
+        defs.append('filter').attr('id', 'super-lava-filter').html(`
+            <feTurbulence type="fractalNoise" baseFrequency="0.09" numOctaves="3" result="fire">
+                <animate attributeName="seed" values="1;8;1" dur="3s" repeatCount="indefinite" />
+            </feTurbulence>
+            <feDisplacementMap in="SourceGraphic" in2="fire" scale="25" />
+        `);
+
+        defs.append('filter').attr('id', 'super-lava-hover').html(`
+            <feTurbulence type="fractalNoise" baseFrequency="0.15" numOctaves="3" result="fire">
+                <animate attributeName="seed" values="1;12;1" dur="1.5s" repeatCount="indefinite" />
+            </feTurbulence>
+            <feDisplacementMap in="SourceGraphic" in2="fire" scale="40" />
+        `);
+
+        defs.append('radialGradient').attr('id', 'mediumGradient').html(`
+            <stop offset="0%" stop-color="#6aaf7c" /><stop offset="100%" stop-color="#2d7d46" />
+        `);
+        defs.append('radialGradient').attr('id', 'smallGradient').html(`
+            <stop offset="0%" stop-color="#ffb74d" /><stop offset="100%" stop-color="#f97316" />
+        `);
 
         const tree = d3.tree()
             .size([2 * Math.PI, radius])
@@ -673,11 +751,48 @@
         const root = d3.hierarchy(treeData);
         tree(root);
 
+        // 修复：电弧正确连接到圆环，无错乱
+        const ARC_RING_R = 44;
+        function jaggedPath(d) {
+            const rad = d3.linkRadial().angle(d => d.x).radius(d => d.y);
+            let p = rad(d);
+            if (d.source.depth === 0) {
+                const a = d.source.x;
+                const cx = Math.cos(a) * ARC_RING_R;
+                const cy = Math.sin(a) * ARC_RING_R;
+                p = p.replace(/^M[^,]*,[^ ]*/, `M ${cx} ${cy}`);
+            }
+            return p.split("L").map((seg,i)=>{
+                if(i===0)return seg;
+                const [x,y]=seg.trim().split(" ").map(parseFloat);
+                const jx = x+(Math.random()-0.5)*3;
+                const jy = y+(Math.random()-0.5)*3;
+                return `${jx} ${jy}`;
+            }).join(" L");
+        }
+
         const link = g.selectAll('.tree-link')
             .data(root.links())
             .join('path')
-            .attr('class', d => `tree-link link-level${d.source.depth}`)
-            .attr('d', d3.linkRadial().angle(d => d.x).radius(d => d.y));
+            .attr('class', 'tree-link')
+            .attr('d', jaggedPath);
+
+        // 电弧圆环
+        g.append('circle')
+            .attr('class', 'arc-core-ring')
+            .attr('cx', 0)
+            .attr('cy', 0)
+            .attr('r', ARC_RING_R);
+
+        // 多层水波涌动扩散
+        for (let i = 0; i < 5; i++) {
+            g.append('circle')
+                .attr('class', 'pulse-ring')
+                .attr('cx', 0)
+                .attr('cy', 0)
+                .attr('r', 42)
+                .style('animation-delay', `${i * 0.7}s`);
+        }
 
         const node = g.selectAll('.node')
             .data(root.descendants())
@@ -693,59 +808,74 @@
                     tooltip.innerHTML = d.data.fullName || d.data.tooltip;
                     tooltip.classList.add('show');
                 }
-                d3.selectAll('.tree-link').style('opacity', 0.2);
-                let current = d;
-                while (current.parent) {
-                    d3.selectAll(`.tree-link`).filter(l => l.target === current).style('opacity', 1).style('stroke-width', 3);
-                    current = current.parent;
-                }
             })
             .on('mouseout', function() {
                 document.getElementById('tooltip').classList.remove('show');
-                d3.selectAll('.tree-link').style('opacity', 1).style('stroke-width', 2);
             })
             .on('click', function(event, d) {
+                if (d.data.nodeType === 'root') {
+                    playArcSound();
+                }
                 if (d.data.link) window.open(d.data.link, '_blank');
-                if (d.data.modal) openModal(d.data.modal.title, d.data.modal.content, d.data.modal.key);
+                if (d.data.modal) {
+                    openModal(d.data.modal.title, d.data.modal.content, d.data.modal.key);
+                }
             });
+
+        // 闪电环绕
+        function generateLightningPath(r, seg, jit) {
+            let p = `M ${r} 0`;
+            for (let i=1; i<=seg; i++) {
+                const a = i/seg*Math.PI*2;
+                const j = r*jit*(Math.random()*2-1);
+                p += ` L ${(r+j)*Math.cos(a)} ${(r+j)*Math.sin(a)}`;
+            }
+            return p+' Z';
+        }
+        for (let i=0; i<3; i++) {
+            g.append('path')
+                .attr('class','lightning-path')
+                .attr('d', generateLightningPath(46+i*4, 12+i*2, 0.15+i*0.05))
+                .style('animation-delay', i*0.2+'s');
+        }
+
+        const arcAudio = document.getElementById('arc-audio');
+        function playArcSound() {
+            arcAudio.currentTime=0; arcAudio.play().catch(()=>{});
+        }
+
+        document.addEventListener('mousemove', (e) => {
+            const t = document.getElementById('tooltip');
+            if (t.classList.contains('show')) {
+                t.style.left = e.pageX+10+'px';
+                t.style.top = e.pageY+10+'px';
+            }
+        });
 
         node.append('text')
             .attr('class', d => `node-text text-${d.data.nodeType}`)
             .text(d => d.data.name);
 
-        // ========== 鼠标跟随特效 ==========
-        let mouseX = 0, mouseY = 0;
-        document.addEventListener('mousemove', (e) => {
-            mouseX = (e.clientX - width / 2) / 25;
-            mouseY = (e.clientY - height / 2) / 25;
-            const tooltip = document.getElementById('tooltip');
-            if (tooltip.classList.contains('show')) {
-                tooltip.style.left = e.pageX + 10 + 'px';
-                tooltip.style.top = e.pageY + 10 + 'px';
-            }
-        });
-
-        function updateLavaNodePosition() {
-            d3.selectAll('.node-highlight-red')
-                .style('transform', `translate(${mouseX}px, ${mouseY}px)`);
-            requestAnimationFrame(updateLavaNodePosition);
-        }
-        updateLavaNodePosition();
-
-        // 弹窗功能
         function openModal(title, content, key) {
-            const modal = document.getElementById('modal');
+            try {
+                if (key && window.parent && window.parent !== window) {
+                    window.parent.postMessage({ type: 'OPEN_HERO_NODE_MODAL', key, title }, '*');
+                    return;
+                }
+            } catch (e) {}
+
+            const m = document.getElementById('modal');
             document.getElementById('modalTitle').textContent = title;
             document.getElementById('modalContent').innerHTML = content;
-            modal.classList.add('active');
+            m.classList.add('active');
         }
         function closeModal() {
             document.getElementById('modal').classList.remove('active');
         }
-        document.getElementById('modalClose').addEventListener('click', closeModal);
-        document.getElementById('modal').addEventListener('click', (e) => e.target === document.getElementById('modal') && closeModal());
+        document.getElementById('modalClose').onclick = closeModal;
+        modal.onclick = e=>e.target===modal&&closeModal();
 
-        window.onresize = () => window.location.reload();
+        window.onresize = () => location.reload();
     </script>
 </body>
 </html>

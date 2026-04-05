@@ -418,6 +418,15 @@
                 padding: 8px !important;
             }
 
+            /* 手机端首屏稳定性优先：关闭全局背景特效层，避免屏闪/丢帧 */
+            body::before,
+            body::after {
+                display: none !important;
+                content: none !important;
+                filter: none !important;
+                animation: none !important;
+            }
+
             body::before,
             body::after,
             .tree-link,
@@ -487,12 +496,14 @@
                 stroke: rgba(200, 200, 200, 0.5);
                 stroke-width: 1.8;
                 /* 禁用滤镜减少合成层重建，降低屏闪 */
+                filter: none !important;
             }
 
             .mobile-graph-links .mobile-link-secondary {
                 stroke: rgba(150, 100, 255, 0.72);
                 stroke-width: 1.6;
                 /* 禁用滤镜减少合成层重建，降低屏闪 */
+                filter: none !important;
             }
 
             .mobile-node {
@@ -520,6 +531,16 @@
                 -webkit-backface-visibility: hidden;
                 backface-visibility: hidden;
                 transform-origin: center center;
+                transition: none !important;
+            }
+
+            /* 手机端首屏完全静态化，保留节点位置与点击能力 */
+            .mobile-map .mobile-node,
+            .mobile-map .mobile-node *,
+            .mobile-map .mobile-graph-links,
+            .mobile-map .mobile-graph-links * {
+                animation: none !important;
+                transition: none !important;
             }
 
             .mobile-node-name {
@@ -686,6 +707,8 @@
                 max-height: 86vh;
                 border-radius: 16px 16px 0 0;
                 padding: 20px 16px 16px;
+                transition: none !important;
+                transform: none !important;
             }
 
             .modal-title {
@@ -712,16 +735,17 @@
                 font-weight: 800 !important;
                 box-shadow: 0 0 16px rgba(255, 215, 0, 0.8), 0 4px 12px rgba(0, 0, 0, 0.4), inset -1px -1px 4px rgba(0, 0, 0, 0.2), inset 1px 1px 3px rgba(255, 255, 200, 0.5) !important;
                 transition: all 0.3s ease !important;
+                transition: none !important;
             }
 
             .modal-close:hover {
                 background: linear-gradient(135deg, #ffff66 0%, #ffed4e 50%, #ffbb22 100%) !important;
                 box-shadow: 0 0 24px rgba(255, 215, 0, 1), 0 6px 16px rgba(0, 0, 0, 0.5), inset -1px -1px 4px rgba(0, 0, 0, 0.2), inset 1px 1px 3px rgba(255, 255, 200, 0.7) !important;
-                transform: scale(1.1) !important;
+                transform: none !important;
             }
 
             .modal-close:active {
-                transform: scale(0.95) !important;
+                transform: none !important;
                 box-shadow: 0 0 12px rgba(255, 215, 0, 0.6), 0 2px 6px rgba(0, 0, 0, 0.3), inset -1px -1px 4px rgba(0, 0, 0, 0.2), inset 1px 1px 3px rgba(255, 255, 200, 0.5) !important;
             }
         }
@@ -959,14 +983,16 @@
         }
 
         function openModal(title, content, key) {
-            hierarchyState.stack = [];
-
             try {
                 if (key && window.parent && window.parent !== window) {
                     window.parent.postMessage({ type: 'OPEN_HERO_NODE_MODAL', key, title }, '*');
+                    // 避免层级弹窗停留在旧状态导致后续点击失效
+                    closeModal();
                     return;
                 }
             } catch (e) {}
+
+            hierarchyState.stack = [];
 
             modalTitleElement.textContent = title;
             modalContentElement.innerHTML = content;

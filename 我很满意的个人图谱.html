@@ -486,13 +486,13 @@
             .mobile-graph-links line {
                 stroke: rgba(200, 200, 200, 0.5);
                 stroke-width: 1.8;
-                filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.3));
+                /* 禁用滤镜减少合成层重建，降低屏闪 */
             }
 
             .mobile-graph-links .mobile-link-secondary {
-                stroke: rgba(147, 100, 255, 0.65);
+                stroke: rgba(150, 100, 255, 0.72);
                 stroke-width: 1.6;
-                filter: drop-shadow(0 0 3px rgba(147, 100, 255, 0.4));
+                /* 禁用滤镜减少合成层重建，降低屏闪 */
             }
 
             .mobile-node {
@@ -510,14 +510,16 @@
                 justify-content: center;
                 padding: 8px;
                 cursor: pointer;
-                box-shadow: 0 0 14px rgba(0, 0, 0, 0.35), inset -2px -2px 8px rgba(0, 0, 0, 0.5), inset 2px 2px 8px rgba(255, 255, 255, 0.15);
-                transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-                animation: mobilePulse 3s ease-in-out infinite;
-            }
-
-            @keyframes mobilePulse {
-                0%, 100% { transform: translate(-50%, -50%) scale(1); }
-                50% { transform: translate(-50%, -50%) scale(1.06); }
+                /* 简化 box-shadow：仅保留外阴影，移除 inset 避免屏闪 */
+                box-shadow: 0 0 12px rgba(0, 0, 0, 0.4);
+                /* 禁用过渡防止频繁重排 */
+                /* transition: none; */
+                /* 禁用动画保持稳定 */
+                animation: none !important;
+                /* 添加硬件加速 hint */
+                -webkit-backface-visibility: hidden;
+                backface-visibility: hidden;
+                transform-origin: center center;
             }
 
             .mobile-node-name {
@@ -533,13 +535,10 @@
                 border-width: 3px;
                 background: radial-gradient(circle at 35% 35%, #ffffff 0%, #e8e8e8 20%, #c0c0c0 50%, #808080 75%, #1a1a1a 100%);
                 color: #111;
-                box-shadow: 0 0 28px rgba(192, 192, 192, 0.72), 0 8px 16px rgba(0, 0, 0, 0.6), inset -3px -3px 10px rgba(0, 0, 0, 0.4), inset 3px 3px 10px rgba(255, 255, 255, 0.25);
-                animation: metalShine 6s ease-in-out infinite, mobilePulse 3.2s ease-in-out infinite;
-            }
-
-            @keyframes metalShine {
-                0%, 100% { filter: brightness(1); }
-                50% { filter: brightness(1.15); }
+                /* 简化 box-shadow，移除 inset 和多层阴影 */
+                box-shadow: 0 0 20px rgba(192, 192, 192, 0.6);
+                /* 禁用动画防止屏闪 */
+                animation: none !important;
             }
 
             .mobile-node-level1 {
@@ -556,92 +555,63 @@
                 border-color: var(--earth-crack);
                 border-width: 2.5px;
                 background: 
-                    radial-gradient(circle at 40% 40%, rgba(255, 200, 100, 0.4) 0%, rgba(255, 200, 100, 0) 50%),
-                    radial-gradient(circle at 30% 30%, #A68B5B 0%, #8B6B3B 35%, #6D4F2E 65%, #3D2B1F 100%);
-                box-shadow: 
-                    0 0 24px rgba(74, 53, 32, 0.8),
-                    0 4px 12px rgba(0, 0, 0, 0.5),
-                    inset -2px -2px 6px rgba(0, 0, 0, 0.4),
-                    inset 1px 1px 4px rgba(255, 200, 100, 0.3);
+                    radial-gradient(circle at 30% 30%, #B5915D 0%, #8B6B3B 45%, #3D2B1F 100%);
+                /* 简化 box-shadow */
+                box-shadow: 0 0 16px rgba(100, 70, 30, 0.7);
             }
 
             .mobile-node-earth:hover {
-                animation-play-state: paused;
-                box-shadow: 0 0 32px rgba(200, 150, 50, 0.9), 0 6px 16px rgba(0, 0, 0, 0.6), inset -2px -2px 6px rgba(0, 0, 0, 0.4), inset 1px 1px 4px rgba(255, 200, 100, 0.5);
+                box-shadow: 0 0 20px rgba(150, 100, 40, 0.85);
             }
 
             .mobile-node-random {
-                border-color: rgba(147, 100, 255, 0.9);
+                border-color: rgba(130, 80, 220, 0.95);
                 border-width: 2.5px;
-                background: 
-                    radial-gradient(circle at 45% 45%, rgba(200, 150, 255, 0.5) 0%, rgba(200, 150, 255, 0) 40%),
-                    radial-gradient(circle at 30% 30%, #9f72ff 0%, #7f57d5 40%, #4b2f89 70%, #2a1b52 100%);
-                box-shadow: 
-                    0 0 24px rgba(114, 46, 209, 0.8),
-                    0 4px 12px rgba(0, 0, 0, 0.5),
-                    inset -2px -2px 6px rgba(0, 0, 0, 0.4),
-                    inset 1px 1px 4px rgba(200, 150, 255, 0.4);
+                background: radial-gradient(circle at 30% 30%, #8F5FD5 0%, #5F3D99 60%, #2a1b52 100%);
+                /* 简化 box-shadow */
+                box-shadow: 0 0 16px rgba(114, 46, 209, 0.65);
             }
 
             .mobile-node-random:hover {
-                animation-play-state: paused;
-                box-shadow: 0 0 32px rgba(147, 100, 255, 1), 0 6px 16px rgba(0, 0, 0, 0.6), inset -2px -2px 6px rgba(0, 0, 0, 0.4), inset 1px 1px 4px rgba(200, 150, 255, 0.6);
+                box-shadow: 0 0 22px rgba(147, 100, 255, 0.85);
             }
 
             .mobile-node-repo {
-                border-color: rgba(79, 255, 255, 0.9);
+                border-color: rgba(79, 240, 255, 0.92);
                 border-width: 2.5px;
-                background: 
-                    radial-gradient(circle at 40% 40%, rgba(100, 220, 255, 0.5) 0%, rgba(100, 220, 255, 0) 45%),
-                    radial-gradient(circle at 30% 30%, #6fdeff 0%, #3fdaf2 35%, #1b6f95 65%, #143247 100%);
-                box-shadow: 
-                    0 0 24px rgba(0, 228, 255, 0.8),
-                    0 4px 12px rgba(0, 0, 0, 0.5),
-                    inset -2px -2px 6px rgba(0, 0, 0, 0.4),
-                    inset 1px 1px 4px rgba(100, 220, 255, 0.4);
+                background: radial-gradient(circle at 30% 30%, #5FD8FF 0%, #2B9EBD 60%, #143247 100%);
+                /* 简化 box-shadow */
+                box-shadow: 0 0 16px rgba(0, 200, 255, 0.65);
             }
 
             .mobile-node-repo:hover {
-                animation-play-state: paused;
-                box-shadow: 0 0 32px rgba(79, 255, 255, 1), 0 6px 16px rgba(0, 0, 0, 0.6), inset -2px -2px 6px rgba(0, 0, 0, 0.4), inset 1px 1px 4px rgba(100, 220, 255, 0.6);
+                box-shadow: 0 0 22px rgba(100, 230, 255, 0.85);
             }
 
             .mobile-node-about {
                 border-color: #ffaa00;
                 border-width: 2.5px;
-                background: 
-                    radial-gradient(circle at 45% 45%, rgba(255, 200, 80, 0.6) 0%, rgba(255, 200, 80, 0) 45%),
-                    radial-gradient(circle at 30% 30%, #ffdd44 0%, #ffd000 30%, #ff6600 55%, #cc3300 100%);
-                box-shadow: 
-                    0 0 26px rgba(255, 100, 0, 0.9),
-                    0 4px 14px rgba(0, 0, 0, 0.5),
-                    inset -2px -2px 6px rgba(0, 0, 0, 0.4),
-                    inset 1px 1px 4px rgba(255, 200, 80, 0.5);
+                background: radial-gradient(circle at 30% 30%, #FFD966 0%, #FF9900 50%, #CC4400 100%);
+                /* 简化 box-shadow */
+                box-shadow: 0 0 18px rgba(255, 100, 0, 0.75);
             }
 
             .mobile-node-about:hover {
-                animation-play-state: paused;
-                box-shadow: 0 0 36px rgba(255, 120, 0, 1), 0 6px 16px rgba(0, 0, 0, 0.6), inset -2px -2px 6px rgba(0, 0, 0, 0.4), inset 1px 1px 4px rgba(255, 200, 80, 0.7);
+                box-shadow: 0 0 24px rgba(255, 150, 0, 0.9);
             }
 
             .mobile-node-level2 {
                 width: 76px;
                 height: 76px;
-                border-color: rgba(100, 220, 255, 0.85);
+                border-color: rgba(80, 220, 255, 0.88);
                 border-width: 2px;
-                background: 
-                    radial-gradient(circle at 40% 40%, rgba(120, 240, 255, 0.5) 0%, rgba(120, 240, 255, 0) 40%),
-                    radial-gradient(circle at 30% 30%, #6ff0ff 0%, #4fd3ff 35%, #2b7ea2 60%, #1a2f44 100%);
-                box-shadow: 
-                    0 0 20px rgba(79, 211, 255, 0.8),
-                    0 3px 10px rgba(0, 0, 0, 0.4),
-                    inset -1.5px -1.5px 5px rgba(0, 0, 0, 0.3),
-                    inset 1px 1px 3px rgba(120, 240, 255, 0.4);
+                background: radial-gradient(circle at 30% 30%, #5FF0FF 0%, #2FA8D0 65%, #1a2f44 100%);
+                /* 简化 box-shadow */
+                box-shadow: 0 0 14px rgba(100, 210, 255, 0.7);
             }
 
             .mobile-node-level2:hover {
-                animation-play-state: paused;
-                box-shadow: 0 0 28px rgba(100, 220, 255, 0.95), 0 4px 12px rgba(0, 0, 0, 0.5), inset -1.5px -1.5px 5px rgba(0, 0, 0, 0.3), inset 1px 1px 3px rgba(120, 240, 255, 0.6);
+                box-shadow: 0 0 20px rgba(150, 230, 255, 0.85);
             }
 
             /* 调整二级节点位置：将第一个二级（AI for Engineer）移动到随机模型右上角 */

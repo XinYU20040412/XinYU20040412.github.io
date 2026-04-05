@@ -838,7 +838,10 @@
         defs.append('filter')
             .attr('id', 'soft-water-wave')
             .attr('x', '-80%').attr('y', '-80%').attr('width', '260%').attr('height', '260%')
-            .html(`
+            .html(isMobileLayout ? `
+                <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="1" seed="2" result="wave"></feTurbulence>
+                <feDisplacementMap in="SourceGraphic" in2="wave" scale="4" xChannelSelector="R" yChannelSelector="G" />
+            ` : `
                 <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="1" seed="2" result="wave">
                     <animate attributeName="seed" values="2;6;2" dur="5s" repeatCount="indefinite" />
                 </feTurbulence>
@@ -901,7 +904,10 @@
 
         defs.append('filter')
             .attr('id', 'earth-crack-effect')
-            .html(`
+            .html(isMobileLayout ? `
+                <feTurbulence type="fractalNoise" baseFrequency="0.15" numOctaves="3" seed="4" result="noise"></feTurbulence>
+                <feDisplacementMap in="SourceGraphic" in2="noise" scale="12" />
+            ` : `
                 <feTurbulence type="fractalNoise" baseFrequency="0.15" numOctaves="3" seed="4" result="noise">
                     <animate attributeName="seed" values="4;12;4" dur="8s" repeatCount="indefinite" />
                 </feTurbulence>
@@ -923,14 +929,20 @@
             <stop offset="100%" stop-color="#330000" />
         `);
 
-        defs.append('filter').attr('id', 'super-lava-filter').html(`
+        defs.append('filter').attr('id', 'super-lava-filter').html(isMobileLayout ? `
+            <feTurbulence type="fractalNoise" baseFrequency="0.09" numOctaves="3" result="fire"></feTurbulence>
+            <feDisplacementMap in="SourceGraphic" in2="fire" scale="25" />
+        ` : `
             <feTurbulence type="fractalNoise" baseFrequency="0.09" numOctaves="3" result="fire">
                 <animate attributeName="seed" values="1;8;1" dur="3s" repeatCount="indefinite" />
             </feTurbulence>
             <feDisplacementMap in="SourceGraphic" in2="fire" scale="25" />
         `);
 
-        defs.append('filter').attr('id', 'super-lava-hover').html(`
+        defs.append('filter').attr('id', 'super-lava-hover').html(isMobileLayout ? `
+            <feTurbulence type="fractalNoise" baseFrequency="0.15" numOctaves="3" result="fire"></feTurbulence>
+            <feDisplacementMap in="SourceGraphic" in2="fire" scale="40" />
+        ` : `
             <feTurbulence type="fractalNoise" baseFrequency="0.15" numOctaves="3" result="fire">
                 <animate attributeName="seed" values="1;12;1" dur="1.5s" repeatCount="indefinite" />
             </feTurbulence>
@@ -984,14 +996,16 @@
             .attr('cy', 0)
             .attr('r', ARC_RING_R);
 
-        // 多层水波涌动扩散
-        for (let i = 0; i < 5; i++) {
-            g.append('circle')
-                .attr('class', 'pulse-ring')
-                .attr('cx', 0)
-                .attr('cy', 0)
-                .attr('r', 42)
-                .style('animation-delay', `${i * 0.7}s`);
+        // 多层水波涌动扩散（手机版禁用）
+        if (!isMobileLayout) {
+            for (let i = 0; i < 5; i++) {
+                g.append('circle')
+                    .attr('class', 'pulse-ring')
+                    .attr('cx', 0)
+                    .attr('cy', 0)
+                    .attr('r', 42)
+                    .style('animation-delay', `${i * 0.7}s`);
+            }
         }
 
         const node = g.selectAll('.node')
@@ -1041,11 +1055,14 @@
             }
             return p+' Z';
         }
-        for (let i=0; i<3; i++) {
-            g.append('path')
-                .attr('class','lightning-path')
-                .attr('d', generateLightningPath(46+i*4, 12+i*2, 0.15+i*0.05))
-                .style('animation-delay', i*0.2+'s');
+        // 闪电环绕（手机版禁用）
+        if (!isMobileLayout) {
+            for (let i=0; i<3; i++) {
+                g.append('path')
+                    .attr('class','lightning-path')
+                    .attr('d', generateLightningPath(46+i*4, 12+i*2, 0.15+i*0.05))
+                    .style('animation-delay', i*0.2+'s');
+            }
         }
 
         const arcAudio = document.getElementById('arc-audio');

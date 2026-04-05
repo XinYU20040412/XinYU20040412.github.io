@@ -25,6 +25,7 @@
             --arc-blue: #00e5ff;
             --arc-purple: #722ED1;
             --pulse-blue: rgba(0, 229, 255, 0.6);
+            --graph-vh: 1vh;
         }
 
         body {
@@ -406,6 +407,27 @@
         }
 
         #arc-audio { display: none; }
+
+        @media (max-width: 767px) {
+            body {
+                padding: 8px !important;
+            }
+
+            .tree-title {
+                font-size: 20px !important;
+                margin: 6px 0 8px !important;
+            }
+
+            .tree-container {
+                height: calc(var(--graph-vh, 1vh) * 100 - 52px) !important;
+            }
+
+            .tooltip {
+                max-width: min(80vw, 260px);
+                white-space: normal;
+                word-break: break-word;
+            }
+        }
     </style>
 </head>
 <body>
@@ -425,9 +447,19 @@
 
     <audio id="arc-audio" preload="auto">
         <source src="https://assets.mixkit.co/sfx/preview/mixkit-lightning-strike-1287.mp3" type="audio/mpeg">
+    </audio>
     
 
     <script>
+        const isMobileLayout = window.matchMedia('(max-width: 767px)').matches;
+
+        // 只在手机端锁定可视高度单位，避免地址栏伸缩导致首屏频繁抖动。
+        function updateGraphViewportUnit() {
+            const vh = window.innerHeight * 0.01;
+            document.documentElement.style.setProperty('--graph-vh', `${vh}px`);
+        }
+        updateGraphViewportUnit();
+
         const treeData = {
             name: '三金的github主页',
             link: 'https://github.com/XinYU20040412',
@@ -626,7 +658,15 @@
         const height = document.querySelector('.tree-container').clientHeight;
         const centerX = width / 2;
         const centerY = height / 2;
-        const radius = Math.min(width, height) / 2 - 120;
+
+        // 桌面端保持原始布局参数；手机端只调排布密度与半径，内容和连接关系不变。
+        const radius = isMobileLayout
+            ? Math.max(125, Math.min(width * 0.48, height * 0.42) - Math.max(20, width * 0.06))
+            : (Math.min(width, height) / 2 - 120);
+
+        const siblingSeparation = isMobileLayout ? 1.55 : 1.2;
+        const branchSeparation = isMobileLayout ? 2.45 : 2;
+        const mobileNodeScale = isMobileLayout ? 0.9 : 1;
 
         const g = svg.attr('viewBox', `0 0 ${width} ${height}`)
             .append('g')
@@ -746,13 +786,13 @@
 
         const tree = d3.tree()
             .size([2 * Math.PI, radius])
-            .separation((a, b) => (a.parent === b.parent ? 1.2 : 2) / a.depth);
+            .separation((a, b) => (a.parent === b.parent ? siblingSeparation : branchSeparation) / a.depth);
 
         const root = d3.hierarchy(treeData);
         tree(root);
 
         // 修复：电弧正确连接到圆环，无错乱
-        const ARC_RING_R = 44;
+        const ARC_RING_R = isMobileLayout ? 38 : 44;
         function jaggedPath(d) {
             const rad = d3.linkRadial().angle(d => d.x).radius(d => d.y);
             let p = rad(d);
@@ -798,7 +838,7 @@
             .data(root.descendants())
             .join('g')
             .attr('class', 'node')
-            .attr('transform', d => `rotate(${d.x * 180 / Math.PI - 90}) translate(${d.y},0) rotate(${-(d.x * 180 / Math.PI - 90)})`);
+            .attr('transform', d => `rotate(${d.x * 180 / Math.PI - 90}) translate(${d.y},0) rotate(${-(d.x * 180 / Math.PI - 90)}) scale(${mobileNodeScale})`);
 
         const circles = node.append('circle')
             .attr('class', d => `node-circle node-${d.data.nodeType} ${d.data.specialClass || ''}`)
@@ -873,9 +913,26 @@
             document.getElementById('modal').classList.remove('active');
         }
         document.getElementById('modalClose').onclick = closeModal;
+        const modal = document.getElementById('modal');
         modal.onclick = e=>e.target===modal&&closeModal();
 
-        window.onresize = () => location.reload();
+        if (isMobileLayout) {
+            let lastWidth = window.innerWidth;
+            let resizeTimer = null;
+            window.addEventListener('resize', () => {
+                updateGraphViewportUnit();
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(() => {
+                    const widthChanged = Math.abs(window.innerWidth - lastWidth) > 80;
+                    if (widthChanged) {
+                        lastWidth = window.innerWidth;
+                        location.reload();
+                    }
+                }, 160);
+            });
+        } else {
+            window.onresize = () => location.reload();
+        }
     </script>
 </body>
 </html>

@@ -666,6 +666,7 @@
       /* 手机版第一屏：只显示图谱 */
       #hero-fullscreen {
         width: 100vw;
+        min-height: 100vh;
         height: 100vh;
         justify-content: flex-start;
         align-items: flex-start;
@@ -876,8 +877,8 @@
     /* 手机版 hero-fullscreen 特殊处理 */
     @media (max-width: 767px) {
       #hero-fullscreen {
-        min-height: 100vh;
-        height: auto;
+        min-height: 100dvh;
+        height: 100dvh;
         flex-direction: column;
       }
     }

@@ -483,54 +483,101 @@
             line-height: 1.45;
         }
 
+        /* 手机版独立UI - 静态网格树视图 */
+        .mobile-tree-view {
+            display: none;
+            flex-direction: column;
+            width: 100%;
+            height: 100%;
+            padding: 12px;
+            overflow-y: auto;
+        }
+
+        .mobile-tree-view.active {
+            display: flex;
+        }
+
+        .mobile-root-card {
+            border: 1px solid rgba(114, 46, 209, 0.45);
+            background: linear-gradient(135deg, rgba(20, 27, 52, 0.88), rgba(10, 15, 29, 0.9));
+            border-radius: 12px;
+            padding: 16px;
+            color: var(--bright-yellow);
+            cursor: pointer;
+            margin-bottom: 16px;
+            transition: all 0.25s ease;
+        }
+
+        .mobile-root-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(0, 229, 255, 0.55);
+            box-shadow: 0 0 14px rgba(0, 229, 255, 0.22);
+        }
+
+        .mobile-root-name {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .mobile-level1-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .mobile-level1-card {
+            border: 1px solid rgba(114, 46, 209, 0.45);
+            background: linear-gradient(135deg, rgba(20, 27, 52, 0.88), rgba(10, 15, 29, 0.9));
+            border-radius: 12px;
+            padding: 12px;
+            color: var(--bright-yellow);
+            cursor: pointer;
+            transition: all 0.25s ease;
+            text-align: left;
+        }
+
+        .mobile-level1-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(0, 229, 255, 0.55);
+            box-shadow: 0 0 14px rgba(0, 229, 255, 0.22);
+        }
+
+        .mobile-card-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #00e5ff;
+            box-shadow: 0 0 10px rgba(0, 229, 255, 0.45);
+            margin-bottom: 8px;
+        }
+
+        .mobile-card-dot-hot {
+            background: #ff2a2a;
+            box-shadow: 0 0 12px rgba(255, 42, 42, 0.55);
+        }
+
+        .mobile-card-name {
+            font-size: 13px;
+            font-weight: 700;
+            line-height: 1.4;
+            margin-bottom: 4px;
+        }
+
+        .mobile-card-desc {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.72);
+            line-height: 1.4;
+        }
+
         @media (max-width: 767px) {
             body {
                 padding: 8px !important;
             }
 
-            /* 手机版禁用所有动画效果 - 保持静态视觉 */
-            body::before {
-                animation: none !important;
-            }
-
-            body::after {
-                animation: none !important;
-            }
-
-            .tree-link {
-                animation: none !important;
-            }
-
-            .node-circle {
-                animation: none !important;
-            }
-
-            .arc-core-ring {
-                animation: none !important;
-            }
-
-            .pulse-ring {
-                animation: none !important;
-            }
-
-            .lightning-path {
-                animation: none !important;
-            }
-
-            .node-text {
-                animation: none !important;
-            }
-
-            .node-root {
-                animation: none !important;
-            }
-
-            .node-large {
-                animation: none !important;
-            }
-
-            .node-highlight-red {
-                animation: none !important;
+            #treeS {
+                display: none;
             }
 
             .tree-title {
@@ -540,6 +587,9 @@
 
             .tree-container {
                 height: calc(var(--graph-vh, 1vh) * 100 - 52px) !important;
+                width: 100vw !important;
+                padding: 0 !important;
+                overflow-y: auto !important;
             }
 
             .tooltip {
@@ -576,6 +626,31 @@
             .hierarchy-card-desc {
                 font-size: 11px;
             }
+
+            .mobile-root-card {
+                padding: 12px;
+            }
+
+            .mobile-root-name {
+                font-size: 15px;
+                margin-bottom: 6px;
+            }
+
+            .mobile-level1-grid {
+                gap: 10px;
+            }
+
+            .mobile-level1-card {
+                padding: 10px;
+            }
+
+            .mobile-card-name {
+                font-size: 12px;
+            }
+
+            .mobile-card-desc {
+                font-size: 10px;
+            }
         }
     </style>
 </head>
@@ -583,6 +658,7 @@
     <h1 class="tree-title">XinYu · 个人图谱</h1>
     <div class="tree-container">
         <svg class="tree-svg" id="treeS"></svg>
+        <div class="mobile-tree-view" id="mobileTreeView"></div>
         <div class="tooltip" id="tooltip"></div>
     </div>
 
@@ -803,30 +879,207 @@
         };
 
         const mobileLevelNodeLookup = new Map(treeData.children.map((child) => [child.name, child]));
-        const renderTreeData = isMobileLayout
-            ? {
-                ...treeData,
-                children: treeData.children.map((child) => ({
-                    ...child,
-                    children: []
-                }))
-            }
-            : treeData;
 
+        function escapeHtml(text) {
+            return String(text || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        const hierarchyState = {
+            stack: []
+        };
+
+        function renderHierarchyModal() {
+            if (!hierarchyState.stack.length) return;
+
+            const current = hierarchyState.stack[hierarchyState.stack.length - 1];
+            const currentNode = current.node;
+            const currentTrail = current.trail;
+            const children = Array.isArray(currentNode.children) ? currentNode.children : [];
+
+            const toolbarHtml = `
+                <div class="hierarchy-toolbar">
+                    ${hierarchyState.stack.length > 1 ? '<button class="hierarchy-btn" type="button" data-hier-action="back">返回上一级</button>' : ''}
+                    ${currentNode.link ? '<button class="hierarchy-btn" type="button" data-hier-action="open-link">打开当前节点仓库</button>' : ''}
+                </div>
+            `;
+
+            const cardsHtml = children.map((child, index) => {
+                const desc = child.fullName
+                    || child.tooltip
+                    || (child.children && child.children.length ? `下级节点 ${child.children.length} 个` : (child.modal ? '点击查看详情' : (child.link ? '点击跳转仓库' : '点击查看')));
+
+                const dotClass = child.specialClass === 'node-highlight-red' ? 'hierarchy-card-dot hierarchy-card-dot-hot' : 'hierarchy-card-dot';
+
+                return `
+                    <button class="hierarchy-card" type="button" data-hier-index="${index}">
+                        <span class="${dotClass}"></span>
+                        <div class="hierarchy-card-title">${escapeHtml(child.name || '未命名节点')}</div>
+                        <div class="hierarchy-card-desc">${escapeHtml(desc)}</div>
+                    </button>
+                `;
+            }).join('');
+
+            document.getElementById('modalTitle').textContent = `${currentTrail.join(' · ')} · ${currentNode.name}`;
+            document.getElementById('modalContent').innerHTML = `${toolbarHtml}<div class="hierarchy-grid">${cardsHtml}</div>`;
+            document.getElementById('modal').classList.add('active');
+        }
+
+        function openHierarchyModal(node, trail) {
+            hierarchyState.stack.push({
+                node,
+                trail
+            });
+            renderHierarchyModal();
+        }
+
+        function openModal(title, content, key) {
+            hierarchyState.stack = [];
+
+            try {
+                if (key && window.parent && window.parent !== window) {
+                    document.getElementById('modal').classList.remove('active');
+                    window.parent.postMessage({ type: 'OPEN_HERO_NODE_MODAL', key, title }, '*');
+                    return;
+                }
+            } catch (e) {}
+
+            const m = document.getElementById('modal');
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalContent').innerHTML = content;
+            m.classList.add('active');
+        }
+
+        function closeModal() {
+            hierarchyState.stack = [];
+            document.getElementById('modal').classList.remove('active');
+        }
+
+        document.getElementById('modalClose').onclick = closeModal;
+        const modal = document.getElementById('modal');
+        modal.onclick = e=>e.target===modal&&closeModal();
+
+        document.getElementById('modalContent').addEventListener('click', (event) => {
+            if (!hierarchyState.stack.length) return;
+
+            const actionBtn = event.target.closest('[data-hier-action]');
+            if (actionBtn) {
+                const action = actionBtn.getAttribute('data-hier-action');
+                if (action === 'back') {
+                    hierarchyState.stack.pop();
+                    if (hierarchyState.stack.length) {
+                        renderHierarchyModal();
+                    } else {
+                        closeModal();
+                    }
+                    return;
+                }
+
+                if (action === 'open-link') {
+                    const current = hierarchyState.stack[hierarchyState.stack.length - 1];
+                    if (current && current.node.link) {
+                        window.open(current.node.link, '_blank');
+                    }
+                    return;
+                }
+            }
+
+            const card = event.target.closest('[data-hier-index]');
+            if (!card) return;
+
+            const childIndex = Number(card.getAttribute('data-hier-index'));
+            const current = hierarchyState.stack[hierarchyState.stack.length - 1];
+            const children = Array.isArray(current.node.children) ? current.node.children : [];
+            const selected = children[childIndex];
+            if (!selected) return;
+
+            if (selected.children && selected.children.length) {
+                openHierarchyModal(selected, [...current.trail, current.node.name]);
+                return;
+            }
+
+            if (selected.modal) {
+                openModal(selected.modal.title, selected.modal.content, selected.modal.key);
+                return;
+            }
+
+            if (selected.link) {
+                window.open(selected.link, '_blank');
+            }
+        });
+
+        // ===== 手机版独立UI：静态网格树视图 =====
+        if (isMobileLayout) {
+            const mobileTreeView = document.getElementById('mobileTreeView');
+            mobileTreeView.classList.add('active');
+
+            // 生成根节点卡片
+            const rootCard = document.createElement('div');
+            rootCard.className = 'mobile-root-card';
+            rootCard.innerHTML = `
+                <div class="mobile-root-name">${escapeHtml(treeData.name)}</div>
+                <div style="font-size: 11px; color: rgba(255, 255, 255, 0.6);">点击展开第一级分类</div>
+            `;
+            rootCard.addEventListener('click', () => {
+                openHierarchyModal(treeData, []);
+            });
+            mobileTreeView.appendChild(rootCard);
+
+            // 生成第一级节点网格
+            const level1Grid = document.createElement('div');
+            level1Grid.className = 'mobile-level1-grid';
+
+            treeData.children.forEach((child, index) => {
+                const card = document.createElement('button');
+                card.className = 'mobile-level1-card';
+                card.type = 'button';
+
+                const desc = child.fullName
+                    || child.tooltip
+                    || (child.children && child.children.length ? `下级节点 ${child.children.length} 个` : (child.modal ? '点击查看详情' : (child.link ? '点击跳转仓库' : '点击查看')));
+
+                const dotClass = child.specialClass === 'node-highlight-red' ? 'mobile-card-dot mobile-card-dot-hot' : 'mobile-card-dot';
+
+                card.innerHTML = `
+                    <span class="${dotClass}"></span>
+                    <div class="mobile-card-name">${escapeHtml(child.name)}</div>
+                    <div class="mobile-card-desc">${escapeHtml(desc)}</div>
+                `;
+
+                card.addEventListener('click', () => {
+                    if (child.children && child.children.length) {
+                        openHierarchyModal(child, [treeData.name]);
+                    } else if (child.modal) {
+                        openModal(child.modal.title, child.modal.content, child.modal.key);
+                    } else if (child.link) {
+                        window.open(child.link, '_blank');
+                    }
+                });
+
+                level1Grid.appendChild(card);
+            });
+
+            mobileTreeView.appendChild(level1Grid);
+        }
+
+        // ===== 电脑版D3 SVG渲染 =====
+        if (!isMobileLayout) {
         const svg = d3.select('#treeS');
         const width = document.querySelector('.tree-container').clientWidth;
         const height = document.querySelector('.tree-container').clientHeight;
         const centerX = width / 2;
         const centerY = height / 2;
 
-        // 桌面端保持原始布局参数；手机端只调排布密度与半径，内容和连接关系不变。
-        const radius = isMobileLayout
-            ? Math.max(145, Math.min(width * 0.5, height * 0.46) - Math.max(16, width * 0.04))
-            : (Math.min(width, height) / 2 - 120);
-
-        const siblingSeparation = isMobileLayout ? 2.2 : 1.2;
-        const branchSeparation = isMobileLayout ? 2.8 : 2;
-        const mobileNodeScale = isMobileLayout ? 0.95 : 1;
+        const radius = Math.min(width, height) / 2 - 120;
+        const siblingSeparation = 1.2;
+        const branchSeparation = 2;
+        const mobileNodeScale = 1;
+        const renderTreeData = treeData;
+        const ARC_RING_R = 44;
 
         const g = svg.attr('viewBox', `0 0 ${width} ${height}`)
             .append('g')
@@ -838,10 +1091,7 @@
         defs.append('filter')
             .attr('id', 'soft-water-wave')
             .attr('x', '-80%').attr('y', '-80%').attr('width', '260%').attr('height', '260%')
-            .html(isMobileLayout ? `
-                <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="1" seed="2" result="wave"></feTurbulence>
-                <feDisplacementMap in="SourceGraphic" in2="wave" scale="4" xChannelSelector="R" yChannelSelector="G" />
-            ` : `
+            .html(`
                 <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="1" seed="2" result="wave">
                     <animate attributeName="seed" values="2;6;2" dur="5s" repeatCount="indefinite" />
                 </feTurbulence>
@@ -904,10 +1154,7 @@
 
         defs.append('filter')
             .attr('id', 'earth-crack-effect')
-            .html(isMobileLayout ? `
-                <feTurbulence type="fractalNoise" baseFrequency="0.15" numOctaves="3" seed="4" result="noise"></feTurbulence>
-                <feDisplacementMap in="SourceGraphic" in2="noise" scale="12" />
-            ` : `
+            .html(`
                 <feTurbulence type="fractalNoise" baseFrequency="0.15" numOctaves="3" seed="4" result="noise">
                     <animate attributeName="seed" values="4;12;4" dur="8s" repeatCount="indefinite" />
                 </feTurbulence>
@@ -929,20 +1176,14 @@
             <stop offset="100%" stop-color="#330000" />
         `);
 
-        defs.append('filter').attr('id', 'super-lava-filter').html(isMobileLayout ? `
-            <feTurbulence type="fractalNoise" baseFrequency="0.09" numOctaves="3" result="fire"></feTurbulence>
-            <feDisplacementMap in="SourceGraphic" in2="fire" scale="25" />
-        ` : `
+        defs.append('filter').attr('id', 'super-lava-filter').html(`
             <feTurbulence type="fractalNoise" baseFrequency="0.09" numOctaves="3" result="fire">
                 <animate attributeName="seed" values="1;8;1" dur="3s" repeatCount="indefinite" />
             </feTurbulence>
             <feDisplacementMap in="SourceGraphic" in2="fire" scale="25" />
         `);
 
-        defs.append('filter').attr('id', 'super-lava-hover').html(isMobileLayout ? `
-            <feTurbulence type="fractalNoise" baseFrequency="0.15" numOctaves="3" result="fire"></feTurbulence>
-            <feDisplacementMap in="SourceGraphic" in2="fire" scale="40" />
-        ` : `
+        defs.append('filter').attr('id', 'super-lava-hover').html(`
             <feTurbulence type="fractalNoise" baseFrequency="0.15" numOctaves="3" result="fire">
                 <animate attributeName="seed" values="1;12;1" dur="1.5s" repeatCount="indefinite" />
             </feTurbulence>
@@ -964,7 +1205,6 @@
         tree(root);
 
         // 修复：电弧正确连接到圆环，无错乱
-        const ARC_RING_R = isMobileLayout ? 38 : 44;
         function jaggedPath(d) {
             const rad = d3.linkRadial().angle(d => d.x).radius(d => d.y);
             let p = rad(d);
@@ -1012,7 +1252,7 @@
             .data(root.descendants())
             .join('g')
             .attr('class', 'node')
-            .attr('transform', d => `rotate(${d.x * 180 / Math.PI - 90}) translate(${d.y},0) rotate(${-(d.x * 180 / Math.PI - 90)}) scale(${mobileNodeScale})`);
+            .attr('transform', d => `rotate(${d.x * 180 / Math.PI - 90}) translate(${d.y},0) rotate(${-(d.x * 180 / Math.PI - 90)}) scale(1)`);
 
         const circles = node.append('circle')
             .attr('class', d => `node-circle node-${d.data.nodeType} ${d.data.specialClass || ''}`)
@@ -1055,14 +1295,12 @@
             }
             return p+' Z';
         }
-        // 闪电环绕（手机版禁用）
-        if (!isMobileLayout) {
-            for (let i=0; i<3; i++) {
-                g.append('path')
-                    .attr('class','lightning-path')
-                    .attr('d', generateLightningPath(46+i*4, 12+i*2, 0.15+i*0.05))
-                    .style('animation-delay', i*0.2+'s');
-            }
+        // 闪电环绕
+        for (let i=0; i<3; i++) {
+            g.append('path')
+                .attr('class','lightning-path')
+                .attr('d', generateLightningPath(46+i*4, 12+i*2, 0.15+i*0.05))
+                .style('animation-delay', i*0.2+'s');
         }
 
         const arcAudio = document.getElementById('arc-audio');
@@ -1211,6 +1449,7 @@
                 window.open(selected.link, '_blank');
             }
         });
+        } // 闭合 if (!isMobileLayout)
 
         if (isMobileLayout) {
             let lastWidth = window.innerWidth;

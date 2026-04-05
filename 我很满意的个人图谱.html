@@ -408,6 +408,81 @@
 
         #arc-audio { display: none; }
 
+        .hierarchy-toolbar {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .hierarchy-btn {
+            border: 1px solid rgba(114, 46, 209, 0.45);
+            background: rgba(22, 27, 52, 0.78);
+            color: var(--bright-yellow);
+            border-radius: 10px;
+            padding: 8px 12px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .hierarchy-btn:hover {
+            border-color: rgba(0, 229, 255, 0.55);
+            box-shadow: 0 0 12px rgba(0, 229, 255, 0.2);
+        }
+
+        .hierarchy-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .hierarchy-card {
+            width: 100%;
+            text-align: left;
+            border: 1px solid rgba(114, 46, 209, 0.45);
+            background: linear-gradient(135deg, rgba(20, 27, 52, 0.88), rgba(10, 15, 29, 0.9));
+            border-radius: 12px;
+            padding: 12px;
+            color: var(--bright-yellow);
+            cursor: pointer;
+            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+        }
+
+        .hierarchy-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(0, 229, 255, 0.55);
+            box-shadow: 0 0 14px rgba(0, 229, 255, 0.22);
+        }
+
+        .hierarchy-card-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #00e5ff;
+            box-shadow: 0 0 10px rgba(0, 229, 255, 0.45);
+            margin-bottom: 8px;
+        }
+
+        .hierarchy-card-dot-hot {
+            background: #ff2a2a;
+            box-shadow: 0 0 12px rgba(255, 42, 42, 0.55);
+        }
+
+        .hierarchy-card-title {
+            font-size: 14px;
+            font-weight: 700;
+            line-height: 1.4;
+            margin-bottom: 6px;
+        }
+
+        .hierarchy-card-desc {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.72);
+            line-height: 1.45;
+        }
+
         @media (max-width: 767px) {
             body {
                 padding: 8px !important;
@@ -426,6 +501,35 @@
                 max-width: min(80vw, 260px);
                 white-space: normal;
                 word-break: break-word;
+            }
+
+            .modal-content {
+                width: 94%;
+                max-height: 84vh;
+                padding: 20px 16px;
+            }
+
+            .modal-title {
+                font-size: 24px;
+                margin-bottom: 16px;
+                padding-right: 44px;
+            }
+
+            .hierarchy-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 10px;
+            }
+
+            .hierarchy-card {
+                padding: 10px;
+            }
+
+            .hierarchy-card-title {
+                font-size: 13px;
+            }
+
+            .hierarchy-card-desc {
+                font-size: 11px;
             }
         }
     </style>
@@ -653,6 +757,17 @@
             ]
         };
 
+        const mobileLevelNodeLookup = new Map(treeData.children.map((child) => [child.name, child]));
+        const renderTreeData = isMobileLayout
+            ? {
+                ...treeData,
+                children: treeData.children.map((child) => ({
+                    ...child,
+                    children: []
+                }))
+            }
+            : treeData;
+
         const svg = d3.select('#treeS');
         const width = document.querySelector('.tree-container').clientWidth;
         const height = document.querySelector('.tree-container').clientHeight;
@@ -661,12 +776,12 @@
 
         // 桌面端保持原始布局参数；手机端只调排布密度与半径，内容和连接关系不变。
         const radius = isMobileLayout
-            ? Math.max(125, Math.min(width * 0.48, height * 0.42) - Math.max(20, width * 0.06))
+            ? Math.max(145, Math.min(width * 0.5, height * 0.46) - Math.max(16, width * 0.04))
             : (Math.min(width, height) / 2 - 120);
 
-        const siblingSeparation = isMobileLayout ? 1.55 : 1.2;
-        const branchSeparation = isMobileLayout ? 2.45 : 2;
-        const mobileNodeScale = isMobileLayout ? 0.9 : 1;
+        const siblingSeparation = isMobileLayout ? 2.2 : 1.2;
+        const branchSeparation = isMobileLayout ? 2.8 : 2;
+        const mobileNodeScale = isMobileLayout ? 0.95 : 1;
 
         const g = svg.attr('viewBox', `0 0 ${width} ${height}`)
             .append('g')
@@ -788,7 +903,7 @@
             .size([2 * Math.PI, radius])
             .separation((a, b) => (a.parent === b.parent ? siblingSeparation : branchSeparation) / a.depth);
 
-        const root = d3.hierarchy(treeData);
+        const root = d3.hierarchy(renderTreeData);
         tree(root);
 
         // 修复：电弧正确连接到圆环，无错乱
@@ -856,6 +971,15 @@
                 if (d.data.nodeType === 'root') {
                     playArcSound();
                 }
+
+                if (isMobileLayout && d.depth === 1) {
+                    const fullNode = mobileLevelNodeLookup.get(d.data.name);
+                    if (fullNode) {
+                        openHierarchyModal(fullNode, [treeData.name]);
+                        return;
+                    }
+                }
+
                 if (d.data.link) window.open(d.data.link, '_blank');
                 if (d.data.modal) {
                     openModal(d.data.modal.title, d.data.modal.content, d.data.modal.key);
@@ -896,9 +1020,69 @@
             .attr('class', d => `node-text text-${d.data.nodeType}`)
             .text(d => d.data.name);
 
+        const hierarchyState = {
+            stack: []
+        };
+
+        function escapeHtml(text) {
+            return String(text || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function renderHierarchyModal() {
+            if (!hierarchyState.stack.length) return;
+
+            const current = hierarchyState.stack[hierarchyState.stack.length - 1];
+            const currentNode = current.node;
+            const currentTrail = current.trail;
+            const children = Array.isArray(currentNode.children) ? currentNode.children : [];
+
+            const toolbarHtml = `
+                <div class="hierarchy-toolbar">
+                    ${hierarchyState.stack.length > 1 ? '<button class="hierarchy-btn" type="button" data-hier-action="back">返回上一级</button>' : ''}
+                    ${currentNode.link ? '<button class="hierarchy-btn" type="button" data-hier-action="open-link">打开当前节点仓库</button>' : ''}
+                </div>
+            `;
+
+            const cardsHtml = children.map((child, index) => {
+                const desc = child.fullName
+                    || child.tooltip
+                    || (child.children && child.children.length ? `下级节点 ${child.children.length} 个` : (child.modal ? '点击查看详情' : (child.link ? '点击跳转仓库' : '点击查看')));
+
+                const dotClass = child.specialClass === 'node-highlight-red' ? 'hierarchy-card-dot hierarchy-card-dot-hot' : 'hierarchy-card-dot';
+
+                return `
+                    <button class="hierarchy-card" type="button" data-hier-index="${index}">
+                        <span class="${dotClass}"></span>
+                        <div class="hierarchy-card-title">${escapeHtml(child.name || '未命名节点')}</div>
+                        <div class="hierarchy-card-desc">${escapeHtml(desc)}</div>
+                    </button>
+                `;
+            }).join('');
+
+            document.getElementById('modalTitle').textContent = `${currentTrail.join(' · ')} · ${currentNode.name}`;
+            document.getElementById('modalContent').innerHTML = `${toolbarHtml}<div class="hierarchy-grid">${cardsHtml}</div>`;
+            document.getElementById('modal').classList.add('active');
+        }
+
+        function openHierarchyModal(node, trail) {
+            hierarchyState.stack.push({
+                node,
+                trail
+            });
+            renderHierarchyModal();
+        }
+
         function openModal(title, content, key) {
+            hierarchyState.stack = [];
+
             try {
                 if (key && window.parent && window.parent !== window) {
+                    document.getElementById('modal').classList.remove('active');
                     window.parent.postMessage({ type: 'OPEN_HERO_NODE_MODAL', key, title }, '*');
                     return;
                 }
@@ -910,11 +1094,61 @@
             m.classList.add('active');
         }
         function closeModal() {
+            hierarchyState.stack = [];
             document.getElementById('modal').classList.remove('active');
         }
         document.getElementById('modalClose').onclick = closeModal;
         const modal = document.getElementById('modal');
         modal.onclick = e=>e.target===modal&&closeModal();
+
+        document.getElementById('modalContent').addEventListener('click', (event) => {
+            if (!hierarchyState.stack.length) return;
+
+            const actionBtn = event.target.closest('[data-hier-action]');
+            if (actionBtn) {
+                const action = actionBtn.getAttribute('data-hier-action');
+                if (action === 'back') {
+                    hierarchyState.stack.pop();
+                    if (hierarchyState.stack.length) {
+                        renderHierarchyModal();
+                    } else {
+                        closeModal();
+                    }
+                    return;
+                }
+
+                if (action === 'open-link') {
+                    const current = hierarchyState.stack[hierarchyState.stack.length - 1];
+                    if (current && current.node.link) {
+                        window.open(current.node.link, '_blank');
+                    }
+                    return;
+                }
+            }
+
+            const card = event.target.closest('[data-hier-index]');
+            if (!card) return;
+
+            const childIndex = Number(card.getAttribute('data-hier-index'));
+            const current = hierarchyState.stack[hierarchyState.stack.length - 1];
+            const children = Array.isArray(current.node.children) ? current.node.children : [];
+            const selected = children[childIndex];
+            if (!selected) return;
+
+            if (selected.children && selected.children.length) {
+                openHierarchyModal(selected, [...current.trail, current.node.name]);
+                return;
+            }
+
+            if (selected.modal) {
+                openModal(selected.modal.title, selected.modal.content, selected.modal.key);
+                return;
+            }
+
+            if (selected.link) {
+                window.open(selected.link, '_blank');
+            }
+        });
 
         if (isMobileLayout) {
             let lastWidth = window.innerWidth;

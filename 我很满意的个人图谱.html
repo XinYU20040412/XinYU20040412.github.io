@@ -450,89 +450,214 @@
 
             .mobile-map {
                 display: block;
-                width: min(640px, 94vw);
+                width: min(680px, 95vw);
                 margin: 0 auto;
                 position: relative;
             }
 
-            .mobile-root-wrap {
+            .mobile-map-title {
+                text-align: center;
+                font-size: 22px;
+                font-weight: 800;
+                color: var(--bright-yellow);
+                margin: 2px 0 12px;
+                letter-spacing: 0.5px;
+            }
+
+            .mobile-graph-stage {
+                position: relative;
+                width: 100%;
+                min-height: 430px;
+                border-radius: 18px;
+                border: 1px solid rgba(255, 255, 255, 0.12);
+                background: linear-gradient(145deg, rgba(20, 27, 52, 0.84), rgba(10, 15, 29, 0.84));
+                box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+                overflow: hidden;
+            }
+
+            .mobile-graph-links {
+                position: absolute;
+                inset: 0;
+                width: 100%;
+                height: 100%;
+                pointer-events: none;
+            }
+
+            .mobile-graph-links line {
+                stroke: rgba(200, 200, 200, 0.5);
+                stroke-width: 1.8;
+                filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.3));
+            }
+
+            .mobile-graph-links .mobile-link-secondary {
+                stroke: rgba(147, 100, 255, 0.65);
+                stroke-width: 1.6;
+                filter: drop-shadow(0 0 3px rgba(147, 100, 255, 0.4));
+            }
+
+            .mobile-node {
+                appearance: none;
+                position: absolute;
+                transform: translate(-50%, -50%);
+                border-radius: 999px;
+                border: 2px solid transparent;
+                color: var(--bright-yellow);
+                font-weight: 700;
+                text-align: center;
+                line-height: 1.25;
                 display: flex;
+                align-items: center;
                 justify-content: center;
-                margin: 6px 0 18px;
+                padding: 8px;
+                cursor: pointer;
+                box-shadow: 0 0 14px rgba(0, 0, 0, 0.35), inset -2px -2px 8px rgba(0, 0, 0, 0.5), inset 2px 2px 8px rgba(255, 255, 255, 0.15);
+                transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+                animation: mobilePulse 3s ease-in-out infinite;
+            }
+
+            @keyframes mobilePulse {
+                0%, 100% { transform: translate(-50%, -50%) scale(1); }
+                50% { transform: translate(-50%, -50%) scale(1.06); }
+            }
+
+            .mobile-node-name {
+                font-size: 12px;
             }
 
             .mobile-node-root {
-                appearance: none;
-                width: min(62vw, 240px);
-                min-height: 72px;
-                border-radius: 999px;
-                border: 2px solid var(--metal-silver);
-                background: radial-gradient(circle at 30% 30%, #f8f8f8 0%, #c0c0c0 45%, #2a2a2a 100%);
+                width: 106px;
+                height: 106px;
+                left: 50%;
+                top: 52%;
+                border-color: var(--metal-silver);
+                border-width: 3px;
+                background: radial-gradient(circle at 35% 35%, #ffffff 0%, #e8e8e8 20%, #c0c0c0 50%, #808080 75%, #1a1a1a 100%);
                 color: #111;
-                font-weight: 800;
+                box-shadow: 0 0 28px rgba(192, 192, 192, 0.72), 0 8px 16px rgba(0, 0, 0, 0.6), inset -3px -3px 10px rgba(0, 0, 0, 0.4), inset 3px 3px 10px rgba(255, 255, 255, 0.25);
+                animation: metalShine 6s ease-in-out infinite, mobilePulse 3.2s ease-in-out infinite;
+            }
+
+            @keyframes metalShine {
+                0%, 100% { filter: brightness(1); }
+                50% { filter: brightness(1.15); }
+            }
+
+            .mobile-node-level1 {
+                width: 94px;
+                height: 94px;
+            }
+
+            .mobile-node-l1-lt { left: 28%; top: 26%; }
+            .mobile-node-l1-rt { left: 72%; top: 26%; }
+            .mobile-node-l1-lb { left: 28%; top: 76%; }
+            .mobile-node-l1-rb { left: 72%; top: 76%; }
+
+            .mobile-node-earth {
+                border-color: var(--earth-crack);
+                border-width: 2.5px;
+                background: 
+                    radial-gradient(circle at 40% 40%, rgba(255, 200, 100, 0.4) 0%, rgba(255, 200, 100, 0) 50%),
+                    radial-gradient(circle at 30% 30%, #A68B5B 0%, #8B6B3B 35%, #6D4F2E 65%, #3D2B1F 100%);
+                box-shadow: 
+                    0 0 24px rgba(74, 53, 32, 0.8),
+                    0 4px 12px rgba(0, 0, 0, 0.5),
+                    inset -2px -2px 6px rgba(0, 0, 0, 0.4),
+                    inset 1px 1px 4px rgba(255, 200, 100, 0.3);
+            }
+
+            .mobile-node-earth:hover {
+                animation-play-state: paused;
+                box-shadow: 0 0 32px rgba(200, 150, 50, 0.9), 0 6px 16px rgba(0, 0, 0, 0.6), inset -2px -2px 6px rgba(0, 0, 0, 0.4), inset 1px 1px 4px rgba(255, 200, 100, 0.5);
+            }
+
+            .mobile-node-random {
+                border-color: rgba(147, 100, 255, 0.9);
+                border-width: 2.5px;
+                background: 
+                    radial-gradient(circle at 45% 45%, rgba(200, 150, 255, 0.5) 0%, rgba(200, 150, 255, 0) 40%),
+                    radial-gradient(circle at 30% 30%, #9f72ff 0%, #7f57d5 40%, #4b2f89 70%, #2a1b52 100%);
+                box-shadow: 
+                    0 0 24px rgba(114, 46, 209, 0.8),
+                    0 4px 12px rgba(0, 0, 0, 0.5),
+                    inset -2px -2px 6px rgba(0, 0, 0, 0.4),
+                    inset 1px 1px 4px rgba(200, 150, 255, 0.4);
+            }
+
+            .mobile-node-random:hover {
+                animation-play-state: paused;
+                box-shadow: 0 0 32px rgba(147, 100, 255, 1), 0 6px 16px rgba(0, 0, 0, 0.6), inset -2px -2px 6px rgba(0, 0, 0, 0.4), inset 1px 1px 4px rgba(200, 150, 255, 0.6);
+            }
+
+            .mobile-node-repo {
+                border-color: rgba(79, 255, 255, 0.9);
+                border-width: 2.5px;
+                background: 
+                    radial-gradient(circle at 40% 40%, rgba(100, 220, 255, 0.5) 0%, rgba(100, 220, 255, 0) 45%),
+                    radial-gradient(circle at 30% 30%, #6fdeff 0%, #3fdaf2 35%, #1b6f95 65%, #143247 100%);
+                box-shadow: 
+                    0 0 24px rgba(0, 228, 255, 0.8),
+                    0 4px 12px rgba(0, 0, 0, 0.5),
+                    inset -2px -2px 6px rgba(0, 0, 0, 0.4),
+                    inset 1px 1px 4px rgba(100, 220, 255, 0.4);
+            }
+
+            .mobile-node-repo:hover {
+                animation-play-state: paused;
+                box-shadow: 0 0 32px rgba(79, 255, 255, 1), 0 6px 16px rgba(0, 0, 0, 0.6), inset -2px -2px 6px rgba(0, 0, 0, 0.4), inset 1px 1px 4px rgba(100, 220, 255, 0.6);
+            }
+
+            .mobile-node-about {
+                border-color: #ffaa00;
+                border-width: 2.5px;
+                background: 
+                    radial-gradient(circle at 45% 45%, rgba(255, 200, 80, 0.6) 0%, rgba(255, 200, 80, 0) 45%),
+                    radial-gradient(circle at 30% 30%, #ffdd44 0%, #ffd000 30%, #ff6600 55%, #cc3300 100%);
+                box-shadow: 
+                    0 0 26px rgba(255, 100, 0, 0.9),
+                    0 4px 14px rgba(0, 0, 0, 0.5),
+                    inset -2px -2px 6px rgba(0, 0, 0, 0.4),
+                    inset 1px 1px 4px rgba(255, 200, 80, 0.5);
+            }
+
+            .mobile-node-about:hover {
+                animation-play-state: paused;
+                box-shadow: 0 0 36px rgba(255, 120, 0, 1), 0 6px 16px rgba(0, 0, 0, 0.6), inset -2px -2px 6px rgba(0, 0, 0, 0.4), inset 1px 1px 4px rgba(255, 200, 80, 0.7);
+            }
+
+            .mobile-node-level2 {
+                width: 76px;
+                height: 76px;
+                border-color: rgba(100, 220, 255, 0.85);
+                border-width: 2px;
+                background: 
+                    radial-gradient(circle at 40% 40%, rgba(120, 240, 255, 0.5) 0%, rgba(120, 240, 255, 0) 40%),
+                    radial-gradient(circle at 30% 30%, #6ff0ff 0%, #4fd3ff 35%, #2b7ea2 60%, #1a2f44 100%);
+                box-shadow: 
+                    0 0 20px rgba(79, 211, 255, 0.8),
+                    0 3px 10px rgba(0, 0, 0, 0.4),
+                    inset -1.5px -1.5px 5px rgba(0, 0, 0, 0.3),
+                    inset 1px 1px 3px rgba(120, 240, 255, 0.4);
+            }
+
+            .mobile-node-level2:hover {
+                animation-play-state: paused;
+                box-shadow: 0 0 28px rgba(100, 220, 255, 0.95), 0 4px 12px rgba(0, 0, 0, 0.5), inset -1.5px -1.5px 5px rgba(0, 0, 0, 0.3), inset 1px 1px 3px rgba(120, 240, 255, 0.6);
+            }
+
+            /* 调整二级节点位置：将第一个二级（AI for Engineer）移动到随机模型右上角 */
+            .mobile-node-l2-a { left: 84%; top: 14%; }
+            .mobile-node-l2-b { left: 82%; top: 38%; }
+
+            /* 手机端：仅把首屏节点名称设为黑色（仅影响手机端个人图谱的节点命名显示） */
+            .mobile-map .mobile-node-name {
+                color: #111 !important;
+            }
+
+            .mobile-hint {
+                margin-top: 10px;
                 text-align: center;
-                padding: 18px 20px;
-                box-shadow: 0 0 18px rgba(192, 192, 192, 0.55);
-                cursor: pointer;
-            }
-
-            .mobile-level1-list {
-                list-style: none;
-                margin: 0;
-                padding: 0 0 0 30px;
-                position: relative;
-                display: grid;
-                gap: 12px;
-            }
-
-            .mobile-level1-list::before {
-                content: "";
-                position: absolute;
-                left: 10px;
-                top: 0;
-                bottom: 0;
-                width: 2px;
-                background: linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.15));
-            }
-
-            .mobile-level1-item {
-                position: relative;
-            }
-
-            .mobile-level1-item::before {
-                content: "";
-                position: absolute;
-                left: -20px;
-                top: 50%;
-                width: 20px;
-                height: 2px;
-                background: rgba(255, 255, 255, 0.45);
-                transform: translateY(-50%);
-            }
-
-            .mobile-level1-card {
-                width: 100%;
-                border: 2px solid var(--earth-crack);
-                border-radius: 999px;
-                background: radial-gradient(circle at 30% 30%, #8B6B3B 0%, #6D4F2E 58%, #3D2B1F 100%);
-                color: var(--bright-yellow);
-                text-align: left;
-                padding: 12px 18px;
-                min-height: 72px;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                font-size: 16px;
-                font-weight: 700;
-                box-shadow: 0 0 12px rgba(74, 53, 32, 0.6);
-            }
-
-            .mobile-level1-sub {
-                display: block;
-                margin-top: 6px;
-                color: rgba(255, 255, 255, 0.75);
+                color: rgba(255, 255, 255, 0.72);
                 font-size: 12px;
-                font-weight: 500;
             }
 
             .mobile-hierarchy-toolbar {
@@ -607,9 +732,27 @@
             .modal-close {
                 top: 12px;
                 right: 12px;
-                width: 36px;
-                height: 36px;
+                width: 44px;
+                height: 44px;
                 z-index: 2001;
+                background: linear-gradient(135deg, #ffea44 0%, #ffd700 50%, #ffaa00 100%) !important;
+                border: 2px solid #ffff88 !important;
+                color: #333 !important;
+                font-size: 24px !important;
+                font-weight: 800 !important;
+                box-shadow: 0 0 16px rgba(255, 215, 0, 0.8), 0 4px 12px rgba(0, 0, 0, 0.4), inset -1px -1px 4px rgba(0, 0, 0, 0.2), inset 1px 1px 3px rgba(255, 255, 200, 0.5) !important;
+                transition: all 0.3s ease !important;
+            }
+
+            .modal-close:hover {
+                background: linear-gradient(135deg, #ffff66 0%, #ffed4e 50%, #ffbb22 100%) !important;
+                box-shadow: 0 0 24px rgba(255, 215, 0, 1), 0 6px 16px rgba(0, 0, 0, 0.5), inset -1px -1px 4px rgba(0, 0, 0, 0.2), inset 1px 1px 3px rgba(255, 255, 200, 0.7) !important;
+                transform: scale(1.1) !important;
+            }
+
+            .modal-close:active {
+                transform: scale(0.95) !important;
+                box-shadow: 0 0 12px rgba(255, 215, 0, 0.6), 0 2px 6px rgba(0, 0, 0, 0.3), inset -1px -1px 4px rgba(0, 0, 0, 0.2), inset 1px 1px 3px rgba(255, 255, 200, 0.5) !important;
             }
         }
     </style>
@@ -877,6 +1020,7 @@
                 <div class="mobile-hierarchy-toolbar">
                     ${hierarchyState.stack.length > 1 ? '<button class="mobile-hierarchy-btn" type="button" data-hier-action="back">返回上一级</button>' : ''}
                     ${currentNode.link ? '<button class="mobile-hierarchy-btn" type="button" data-hier-action="open-link">打开当前节点仓库</button>' : ''}
+                    <button class="mobile-hierarchy-btn" type="button" data-hier-action="close">关闭</button>
                 </div>
             `;
 
@@ -910,24 +1054,91 @@
             const mobileMapElement = document.getElementById('mobileMap');
             const level1Nodes = Array.isArray(treeData.children) ? treeData.children : [];
 
-            const cardsHtml = level1Nodes.map((item, index) => {
-                const childCount = Array.isArray(item.children) ? item.children.length : 0;
-                return `
-                    <li class="mobile-level1-item">
-                        <button class="mobile-level1-card" type="button" data-root-child-index="${index}">
-                            ${escapeHtml(item.name)}
-                            <span class="mobile-level1-sub">下级节点 ${childCount} 个</span>
-                        </button>
-                    </li>
-                `;
-            }).join('');
+            const level1PosClasses = [
+                'mobile-node-l1-lt',
+                'mobile-node-l1-rt',
+                'mobile-node-l1-lb',
+                'mobile-node-l1-rb'
+            ];
+
+            const level1TypeClasses = [
+                'mobile-node-earth',
+                'mobile-node-random',
+                'mobile-node-repo',
+                'mobile-node-about'
+            ];
+
+            const level1Html = level1Nodes.map((item, index) => `
+                <button
+                    class="mobile-node mobile-node-level1 ${level1PosClasses[index] || ''} ${level1TypeClasses[index] || 'mobile-node-earth'}"
+                    type="button"
+                    data-node-path="${index}"
+                >
+                    <span class="mobile-node-name">${escapeHtml(item.name)}</span>
+                </button>
+            `).join('');
+
+            const randomBranch = level1Nodes[1] && Array.isArray(level1Nodes[1].children)
+                ? level1Nodes[1].children.slice(0, 2)
+                : [];
+
+            const level2PosClasses = ['mobile-node-l2-a', 'mobile-node-l2-b'];
+            const level2Html = randomBranch.map((item, index) => `
+                <button
+                    class="mobile-node mobile-node-level2 ${level2PosClasses[index] || ''}"
+                    type="button"
+                    data-node-path="1.${index}"
+                >
+                    <span class="mobile-node-name">${escapeHtml(item.name)}</span>
+                </button>
+            `).join('');
+
+            const showLevel2LineA = randomBranch[0] ? '<line class="mobile-link-secondary" x1="72" y1="26" x2="84" y2="14"></line>' : '';
+            const showLevel2LineB = randomBranch[1] ? '<line class="mobile-link-secondary" x1="72" y1="26" x2="82" y2="38"></line>' : '';
 
             mobileMapElement.innerHTML = `
-                <div class="mobile-root-wrap">
-                    <button class="mobile-node-root" type="button" data-root-action="open-link">${escapeHtml(treeData.name)}</button>
+                <h2 class="mobile-map-title">个人图谱</h2>
+                <div class="mobile-graph-stage">
+                    <svg class="mobile-graph-links" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+                        <line x1="50" y1="52" x2="28" y2="26"></line>
+                        <line x1="50" y1="52" x2="72" y2="26"></line>
+                        <line x1="50" y1="52" x2="28" y2="76"></line>
+                        <line x1="50" y1="52" x2="72" y2="76"></line>
+                        ${showLevel2LineA}
+                        ${showLevel2LineB}
+                    </svg>
+
+                    <button class="mobile-node mobile-node-root" type="button" data-root-action="open-link">
+                        <span class="mobile-node-name">${escapeHtml(treeData.name)}</span>
+                    </button>
+
+                    ${level1Html}
+                    ${level2Html}
                 </div>
-                <ul class="mobile-level1-list">${cardsHtml}</ul>
+                <p class="mobile-hint">点击节点进入下级收纳弹窗，末级节点操作保持不变</p>
             `;
+
+            const resolveNodePath = (pathValue) => {
+                const indices = String(pathValue || '')
+                    .split('.')
+                    .map((token) => Number(token))
+                    .filter((value) => !Number.isNaN(value));
+
+                if (!indices.length) return null;
+
+                let node = treeData;
+                const trail = [];
+
+                for (const childIndex of indices) {
+                    const children = Array.isArray(node.children) ? node.children : [];
+                    const nextNode = children[childIndex];
+                    if (!nextNode) return null;
+                    trail.push(node.name);
+                    node = nextNode;
+                }
+
+                return { node, trail };
+            };
 
             mobileMapElement.addEventListener('click', (event) => {
                 const rootActionButton = event.target.closest('[data-root-action="open-link"]');
@@ -936,15 +1147,16 @@
                     return;
                 }
 
-                const card = event.target.closest('[data-root-child-index]');
-                if (!card) return;
+                const nodeButton = event.target.closest('[data-node-path]');
+                if (!nodeButton) return;
 
-                const index = Number(card.getAttribute('data-root-child-index'));
-                const selected = level1Nodes[index];
-                if (!selected) return;
+                const resolved = resolveNodePath(nodeButton.getAttribute('data-node-path'));
+                if (!resolved) return;
+
+                const selected = resolved.node;
 
                 if (selected.children && selected.children.length) {
-                    openHierarchyModal(selected, [treeData.name]);
+                    openHierarchyModal(selected, resolved.trail);
                     return;
                 }
 
@@ -972,6 +1184,11 @@
                     } else {
                         closeModal();
                     }
+                    return;
+                }
+
+                if (action === 'close') {
+                    closeModal();
                     return;
                 }
 

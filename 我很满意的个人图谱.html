@@ -545,6 +545,14 @@
 
             .mobile-node-name {
                 font-size: 12px;
+                display: block;
+                width: 100%;
+                word-wrap: break-word;
+                word-break: break-word;
+                white-space: normal;
+                line-height: 1.2;
+                text-align: center;
+                letter-spacing: 0;
             }
 
             .mobile-node-root {
@@ -747,6 +755,106 @@
             .modal-close:active {
                 transform: none !important;
                 box-shadow: 0 0 12px rgba(255, 215, 0, 0.6), 0 2px 6px rgba(0, 0, 0, 0.3), inset -1px -1px 4px rgba(0, 0, 0, 0.2), inset 1px 1px 3px rgba(255, 255, 200, 0.5) !important;
+            }
+
+            /* ===== 手机端独立隔离图谱（对齐 index 深色科技风，稳定优先） ===== */
+            .mobile-map.mobile-isolated-map {
+                display: block;
+                width: min(680px, 95vw);
+                margin: 0 auto;
+                contain: layout paint style;
+            }
+
+            .mobile-isolated-map .mobile-map-title {
+                color: #00e4ff;
+                font-weight: 700;
+                letter-spacing: 0.2px;
+            }
+
+            .mobile-isolated-map .mobile-graph-stage {
+                background: linear-gradient(160deg, rgba(20, 27, 52, 0.96), rgba(10, 15, 29, 0.98));
+                border: 1px solid rgba(0, 228, 255, 0.22);
+                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+            }
+
+            .mobile-isolated-map .mobile-graph-links,
+            .mobile-isolated-map .mobile-graph-links * {
+                filter: none !important;
+                animation: none !important;
+                transition: none !important;
+            }
+
+            .mobile-isolated-map .mobile-graph-links line {
+                stroke: rgba(120, 180, 255, 0.62);
+                stroke-width: 1.4;
+            }
+
+            .mobile-isolated-map .mobile-link-secondary {
+                stroke: rgba(0, 228, 255, 0.75);
+            }
+
+            .mobile-isolated-map .mobile-node,
+            .mobile-isolated-map .mobile-node *,
+            .mobile-isolated-map .mobile-node:hover,
+            .mobile-isolated-map .mobile-node:active {
+                animation: none !important;
+                transition: none !important;
+                transform: translate(-50%, -50%) !important;
+            }
+
+            .mobile-isolated-map .mobile-node {
+                box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 4px 10px rgba(0, 0, 0, 0.35) !important;
+                will-change: auto !important;
+            }
+
+            .mobile-isolated-map .mobile-node-root {
+                background: radial-gradient(circle at 30% 30%, #f4f7fb 0%, #c3ccd8 50%, #7e8797 100%);
+                border-color: rgba(255, 255, 255, 0.65);
+                color: #0f172a;
+            }
+
+            .mobile-isolated-map .mobile-node-earth {
+                background: linear-gradient(160deg, #6a4f2f, #4f3a24);
+                border-color: rgba(255, 208, 128, 0.45);
+            }
+
+            .mobile-isolated-map .mobile-node-random {
+                background: linear-gradient(160deg, #6840b3, #3a2466);
+                border-color: rgba(178, 141, 255, 0.45);
+            }
+
+            .mobile-isolated-map .mobile-node-repo {
+                background: linear-gradient(160deg, #1f7e95, #173d52);
+                border-color: rgba(0, 228, 255, 0.45);
+            }
+
+            .mobile-isolated-map .mobile-node-about {
+                background: linear-gradient(160deg, #b6641d, #7a3f10);
+                border-color: rgba(255, 208, 0, 0.45);
+            }
+
+            .mobile-isolated-map .mobile-node-level2 {
+                background: linear-gradient(160deg, #2c92aa, #20586f);
+                border-color: rgba(120, 240, 255, 0.5);
+            }
+
+            .mobile-isolated-map .mobile-node-name {
+                color: #111 !important;
+                font-weight: 700;
+                transform: none !important;
+                position: relative;
+                top: 0;
+                left: 0;
+            }
+
+            .mobile-isolated-map .mobile-hint {
+                color: rgba(255, 255, 255, 0.72);
+            }
+
+            .mobile-isolated-map .mobile-node::before,
+            .mobile-isolated-map .mobile-node::after {
+                content: none !important;
+                display: none !important;
             }
         }
     </style>
@@ -1092,6 +1200,7 @@
             const showLevel2LineA = randomBranch[0] ? '<line class="mobile-link-secondary" x1="72" y1="26" x2="84" y2="14"></line>' : '';
             const showLevel2LineB = randomBranch[1] ? '<line class="mobile-link-secondary" x1="72" y1="26" x2="82" y2="38"></line>' : '';
 
+            mobileMapElement.className = 'mobile-map mobile-isolated-map';
             mobileMapElement.innerHTML = `
                 <h2 class="mobile-map-title">个人图谱</h2>
                 <div class="mobile-graph-stage">
@@ -1136,7 +1245,7 @@
                 return { node, trail };
             };
 
-            mobileMapElement.addEventListener('click', (event) => {
+            mobileMapElement.onclick = (event) => {
                 const rootActionButton = event.target.closest('[data-root-action="open-link"]');
                 if (rootActionButton && treeData.link) {
                     window.open(treeData.link, '_blank');
@@ -1164,7 +1273,7 @@
                 if (selected.link) {
                     window.open(selected.link, '_blank');
                 }
-            });
+            };
         }
 
         modalContentElement.addEventListener('click', (event) => {

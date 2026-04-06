@@ -117,6 +117,9 @@
       display: block;
       z-index: 2;
       background: transparent;
+      transform: translateZ(0);
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
     }
 
     /* 动态几何背景层 */
@@ -658,18 +661,49 @@
 
     /* ===== 手机版响应式适配（<768px） ===== */
     @media (max-width: 767px) {
+      html {
+        scroll-behavior: auto;
+      }
+
       /* 隐藏电脑版导航栏 */
       #navbar {
         display: none;
       }
 
+      #particles-js {
+        opacity: 0.22;
+      }
+
+      #hero-geometric-bg {
+        contain: paint;
+      }
+
+      #hero-geometric-bg::before,
+      #hero-geometric-bg::after,
+      .geometric-shape {
+        animation: none !important;
+      }
+
+      #hero-geometric-bg::before,
+      #hero-geometric-bg::after {
+        filter: blur(16px);
+        opacity: 0.35;
+      }
+
+      .geometric-shape {
+        opacity: 0.03;
+        filter: none;
+      }
+
       /* 手机版第一屏：只显示图谱 */
       #hero-fullscreen {
         width: 100vw;
-        min-height: 100vh;
-        height: 100vh;
+        min-height: 100svh;
+        height: 100svh;
         justify-content: flex-start;
         align-items: flex-start;
+        contain: layout paint;
+        isolation: isolate;
       }
 
       /* 隐藏电脑版信息卡片 */
@@ -690,6 +724,9 @@
       /* 图谱全屏占用 */
       #hero-tree-iframe {
         z-index: 10;
+        width: 100%;
+        height: 100%;
+        background: #0A0F1D;
       }
 
       /* 手机版导航栏 */
@@ -706,7 +743,7 @@
         justify-content: space-between;
         padding: 0 16px;
         z-index: 100;
-        backdrop-filter: blur(10px);
+        backdrop-filter: none;
       }
 
       .mobile-navbar-title {
@@ -756,7 +793,7 @@
         border-right: 1px solid rgba(0, 228, 255, 0.2);
         z-index: 99;
         transition: left 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-        backdrop-filter: blur(12px);
+        backdrop-filter: none;
         overflow-y: auto;
         padding-top: 80px;
       }
@@ -871,14 +908,15 @@
       /* 禁用水平滚动 */
       body {
         overflow-x: hidden;
+        overscroll-behavior-y: none;
       }
     }
 
     /* 手机版 hero-fullscreen 特殊处理 */
     @media (max-width: 767px) {
       #hero-fullscreen {
-        min-height: 100dvh;
-        height: 100dvh;
+        min-height: 100svh;
+        height: 100svh;
         flex-direction: column;
       }
     }
@@ -951,7 +989,7 @@
       <!-- 项目知识树 iframe -->
       <iframe
         id="hero-tree-iframe"
-        src="./我很满意的个人图谱.html"
+        src="about:blank" data-embedded-srcdoc="true"
         title="XinYu · 项目知识树（点击节点跳转 GitHub）"
         loading="eager"
         sandbox="allow-same-origin allow-scripts allow-popups"
@@ -1533,10 +1571,1593 @@
     </div>
   </div>
 
+  <template id="hero-tree-srcdoc-template">
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XinYu · 个人图谱</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        :root {
+            --primary-purple: #722ED1;
+            --bright-yellow: #FFD000;
+            --metal-silver: #C0C0C0;
+            --metal-dark: #2A2A2A;
+            --earth-yellow: #8B6B3B;
+            --earth-dark: #3D2B1F;
+            --earth-crack: #4A3520;
+            --bg-deep: rgba(10, 15, 29, 0.20);
+            --arc-blue: #00e5ff;
+            --arc-purple: #722ED1;
+            --pulse-blue: rgba(0, 229, 255, 0.6);
+        }
+
+        body {
+            background-color: var(--bg-deep) !important;
+            min-height: 100vh !important;
+            overflow: hidden !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            padding: 12px !important;
+            position: relative !important;
+            cursor: default !important;
+        }
+
+        body::before {
+            content: "" !important;
+            position: fixed !important;
+            inset: -40% !important;
+            background:
+                conic-gradient(from 160deg at 50% 50%,
+                    rgba(0, 229, 255, 0.00) 0deg,
+                    rgba(0, 229, 255, 0.18) 70deg,
+                    rgba(114, 46, 209, 0.16) 140deg,
+                    rgba(22, 93, 255, 0.14) 220deg,
+                    rgba(255, 215, 0, 0.10) 300deg,
+                    rgba(0, 229, 255, 0.00) 360deg
+                ) !important;
+            filter: blur(28px) !important;
+            opacity: 0.85 !important;
+            animation: bgSpin 22s linear infinite !important;
+            pointer-events: none !important;
+            z-index: 0 !important;
+        }
+
+        body::after {
+            content: "" !important;
+            position: fixed !important;
+            inset: 0 !important;
+            background-image:
+                linear-gradient(rgba(255, 255, 25, 0.06) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px) !important;
+            background-size: 52px 52px !important;
+            opacity: 0.14 !important;
+            pointer-events: none !important;
+            z-index: 0 !important;
+        }
+
+        @keyframes bgSpin {
+            to { transform: rotate(360deg); }
+        }
+
+        .tree-title {
+            font-size: 22px !important;
+            font-weight: 700 !important;
+            margin: 8px 0 10px !important;
+            color: var(--bright-yellow) !important;
+            z-index: 10 !important;
+        }
+
+        .tree-container {
+            width: 100vw !important;
+            height: calc(100vh - 64px) !important;
+            position: relative !important;
+            z-index: 1 !important;
+        }
+
+        .tree-svg {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        /* 连接线 = 银色电弧 */
+        .tree-link {
+            fill: none;
+            stroke: url(#silver-lightning-gradient);
+            stroke-width: 2.2;
+            stroke-linecap: round;
+            filter: url(#silver-arc-glow);
+            animation: arcFlicker 1.4s infinite alternate;
+        }
+
+        @keyframes arcFlicker {
+            0% { opacity: 0.8; stroke-width: 2.2; }
+            100% { opacity: 1; stroke-width: 2.8; }
+        }
+
+        .node-circle {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            filter: drop-shadow(0 0 8px rgba(0,0,0,0.3));
+            opacity: 0;
+            animation: nodeShow 0.5s ease forwards, nodeWaveSway 6s ease-in-out infinite;
+            position: relative;
+        }
+
+        @keyframes nodeWaveSway {
+            0%,100% { transform: translate(0,0) scale(1); }
+            25% { transform: translate(0.6px, 0.4px) scale(1.01); }
+            50% { transform: translate(-0.3px, -0.6px) scale(0.995); }
+            75% { transform: translate(0.2px, -0.3px) scale(1.005); }
+        }
+
+        .node-circle:hover {
+            filter: drop-shadow(0 0 15px currentColor);
+            transform: scale(1.1) !important;
+            animation-play-state: paused;
+        }
+
+        .node-root { 
+            r: 38; 
+            fill: url(#metal-faceted-gradient) !important; 
+            stroke: var(--metal-silver) !important; 
+            stroke-width: 3 !important; 
+            color: var(--metal-silver); 
+            animation-delay: 0s;
+            filter: url(#metal-faceted-shine);
+            animation: nodeShow 0.5s ease forwards, metalPulse 3s ease-in-out infinite, nodeWaveSway 6s ease-in-out infinite;
+            display: block !important;
+            visibility: visible !important;
+        }
+
+        @keyframes metalPulse {
+            0%,100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
+
+        /* 柔和水滴波浪效果 */
+        .node-large { 
+            r: 26; 
+            fill: url(#water-gradient); 
+            stroke: #4fd3ff; 
+            stroke-width: 2.5; 
+            color: #00a1e4; 
+            animation-delay: 0.6s;
+            filter: url(#soft-water-wave) drop-shadow(0 0 12px #00a1e4);
+            animation: nodeShow 0.5s ease forwards, waterPulse 3s ease-in-out infinite, nodeWaveSway 6s ease-in-out infinite;
+        }
+
+        @keyframes waterPulse {
+            0%,100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.06); opacity: 0.92; }
+        }
+
+        .node-level1 { 
+            r: 30; 
+            fill: url(#earth-gradient); 
+            stroke: var(--earth-crack); 
+            stroke-width: 3; 
+            color: var(--earth-yellow); 
+            animation-delay: 0.3s;
+            filter: url(#earth-crack-effect) drop-shadow(0 0 8px rgba(74,53,32,0.8));
+        }
+        .node-medium { 
+            r: 22; 
+            fill: url(#mediumGradient); 
+            stroke: var(--primary-purple); 
+            stroke-width: 2; 
+            color: var(--primary-purple); 
+            animation-delay: 0.6s;
+        }
+        .node-small { 
+            r: 18; 
+            fill: url(#smallGradient); 
+            stroke: var(--primary-purple); 
+            stroke-width: 2; 
+            color: var(--primary-purple); 
+            animation-delay: 0.6s;
+        }
+
+        .node-highlight-red {
+            fill: url(#super-lava-gradient) !important;
+            stroke: #ff0000 !important;
+            stroke-width: 3 !important;
+            filter: url(#super-lava-filter) drop-shadow(0 0 40px #ff0000) !important;
+            animation: nodeShow 0.5s ease forwards,
+                       superBreath 2.5s ease-in-out infinite,
+                       fireFlicker 3s linear infinite,
+                       nodeWaveSway 6s ease-in-out infinite;
+            will-change: transform, filter;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .node-highlight-red:hover {
+            transform: scale(1.35) !important;
+            filter: url(#super-lava-hover) drop-shadow(0 0 70px #ff0000) !important;
+            stroke-width: 5 !important;
+            animation-play-state: paused;
+        }
+
+        @keyframes superBreath {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.18); }
+        }
+        @keyframes fireFlicker {
+            0%,100% { opacity: 1; }
+            33% { opacity: 0.85; }
+            66% { opacity: 0.95; }
+        }
+
+        @keyframes nodeShow {
+            to { opacity: 1; }
+        }
+
+        .node-text {
+            fill: var(--bright-yellow) !important;
+            text-anchor: middle;
+            dominant-baseline: middle;
+            font-size: 13px;
+            font-weight: 800 !important;
+            pointer-events: none;
+            user-select: none;
+            opacity: 0;
+            animation: nodeShow 0.5s ease forwards, textWaveSway 6.5s ease-in-out infinite;
+        }
+
+        @keyframes textWaveSway {
+            0%,100% { transform: translate(0,0); }
+            30% { transform: translate(0.3px, 0.2px); }
+            60% { transform: translate(-0.2px, -0.2px); }
+        }
+
+        .text-root { 
+            font-size: 15px; 
+            font-weight: 900; 
+            animation-delay: 0s;
+        }
+        .text-level1 { 
+            font-size: 14px; 
+            font-weight: 800; 
+            animation-delay: 0.3s;
+        }
+        .text-small { 
+            font-size: 12px; 
+            font-weight: 700; 
+            animation-delay: 0.6s;
+        }
+
+        /* 中心电弧圆环（精致、不挡节点） */
+        .arc-core-ring {
+            fill: none;
+            stroke: url(#silver-lightning-gradient);
+            stroke-width: 2.5;
+            filter: url(#silver-arc-glow);
+            opacity: 0.9;
+            animation: corePulse 2s infinite alternate;
+        }
+        @keyframes corePulse {
+            0% { transform: scale(1); opacity: 0.7; }
+            100% { transform: scale(1.05); opacity: 1; }
+        }
+
+        defs { pointer-events: none; }
+
+        .tooltip {
+            position: absolute;
+            background: linear-gradient(135deg, rgba(20, 27, 52, 0.92), rgba(10, 15, 29, 0.92));
+            border: 1px solid var(--primary-purple);
+            color: var(--bright-yellow);
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            white-space: nowrap;
+            z-index: 1000;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            backdrop-filter: blur(10px);
+        }
+
+        .tooltip.show { opacity: 1; }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 15, 29, 0.85);
+            backdrop-filter: blur(8px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            width: 90%;
+          max-width: 900px;
+            max-height: 80vh;
+            background: rgba(20, 27, 52, 0.92);
+            border: 1px solid var(--primary-purple);
+            border-radius: 16px;
+            padding: 40px;
+            overflow-y: auto;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #121218;
+            border: 1px solid #292938;
+            color: var(--bright-yellow);
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: var(--primary-purple);
+            color: #fff;
+            border-color: var(--primary-purple);
+        }
+
+        .modal-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            color: var(--bright-yellow);
+        }
+
+        .modal-text {
+            font-size: 16px;
+            line-height: 1.8;
+            color: var(--bright-yellow);
+            margin-bottom: 16px;
+        }
+
+        .lightning-path {
+            fill: none;
+            stroke: url(#arc-gradient);
+            stroke-width: 2.5;
+            stroke-linecap: round;
+            filter: url(#arc-glow);
+            opacity: 0;
+            animation: lightningAppear 1s ease forwards, lightningFlicker 1.5s infinite;
+            pointer-events: none;
+        }
+
+        @keyframes lightningAppear { to { opacity: 0.95; } }
+        @keyframes lightningFlicker {
+            0%, 100% { opacity: 0.95; stroke-width: 2.5; }
+            50% { opacity: 0.6; stroke-width: 1.5; }
+        }
+
+        /* 水波涌动扩散（空间波动感） */
+        .pulse-ring {
+            fill: none;
+            stroke: var(--pulse-blue);
+            stroke-width: 2;
+            filter: url(#pulse-glow);
+            opacity: 0;
+            pointer-events: none;
+            animation: waveSurge 4s cubic-bezier(0.2, 0.1, 0.2, 1) infinite;
+        }
+
+        @keyframes waveSurge {
+            0% { r: 42; opacity: 0.95; stroke-width: 3; transform: scale(1); }
+            20% { r: 70; opacity: 0.8; stroke-width: 2.5; transform: scale(1.01); }
+            50% { r: 110; opacity: 0.5; stroke-width: 1.8; transform: scale(1.02); }
+            100% { r: 180; opacity: 0; stroke-width: 0.8; transform: scale(1.03); }
+        }
+
+        #arc-audio { display: none; }
+
+        .mobile-map {
+            display: none;
+        }
+
+        @media (max-width: 767px) {
+            body {
+                overflow-x: hidden !important;
+                overflow-y: auto !important;
+                padding: 8px !important;
+            }
+
+            /* 手机端首屏稳定性优先：关闭全局背景特效层，避免屏闪/丢帧 */
+            body::before,
+            body::after {
+                display: none !important;
+                content: none !important;
+                filter: none !important;
+                animation: none !important;
+            }
+
+            body::before,
+            body::after,
+            .tree-link,
+            .node-circle,
+            .node-text,
+            .arc-core-ring,
+            .lightning-path,
+            .pulse-ring {
+                animation: none !important;
+            }
+
+            .tree-container {
+                height: auto !important;
+                min-height: calc(100vh - 72px) !important;
+                padding-bottom: 16px !important;
+            }
+
+            .tree-svg {
+                display: none !important;
+                width: 0 !important;
+                height: 0 !important;
+                visibility: hidden !important;
+                position: absolute !important;
+                pointer-events: none !important;
+            }
+
+            .tooltip {
+                display: none !important;
+            }
+
+            .mobile-map {
+                display: block;
+                width: min(680px, 95vw);
+                margin: 0 auto;
+                position: relative;
+            }
+
+            .mobile-map-title {
+                text-align: center;
+                font-size: 22px;
+                font-weight: 800;
+                color: var(--bright-yellow);
+                margin: 2px 0 12px;
+                letter-spacing: 0.5px;
+            }
+
+            .mobile-graph-stage {
+                position: relative;
+                width: 100%;
+                min-height: 430px;
+                border-radius: 18px;
+                border: 1px solid rgba(255, 255, 255, 0.12);
+                background: linear-gradient(145deg, rgba(20, 27, 52, 0.84), rgba(10, 15, 29, 0.84));
+                box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+                overflow: hidden;
+            }
+
+            .mobile-graph-links {
+                position: absolute;
+                inset: 0;
+                width: 100%;
+                height: 100%;
+                pointer-events: none;
+            }
+
+            .mobile-graph-links line {
+                stroke: rgba(200, 200, 200, 0.5);
+                stroke-width: 1.8;
+                /* 禁用滤镜减少合成层重建，降低屏闪 */
+                filter: none !important;
+            }
+
+            .mobile-graph-links .mobile-link-secondary {
+                stroke: rgba(150, 100, 255, 0.72);
+                stroke-width: 1.6;
+                /* 禁用滤镜减少合成层重建，降低屏闪 */
+                filter: none !important;
+            }
+
+            .mobile-node {
+                appearance: none;
+                position: absolute;
+                transform: translate(-50%, -50%);
+                border-radius: 999px;
+                border: 2px solid transparent;
+                color: var(--bright-yellow);
+                font-weight: 700;
+                text-align: center;
+                line-height: 1.25;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 8px;
+                cursor: pointer;
+                /* 简化 box-shadow：仅保留外阴影，移除 inset 避免屏闪 */
+                box-shadow: 0 0 12px rgba(0, 0, 0, 0.4);
+                /* 禁用过渡防止频繁重排 */
+                /* transition: none; */
+                /* 禁用动画保持稳定 */
+                animation: none !important;
+                /* 添加硬件加速 hint */
+                -webkit-backface-visibility: hidden;
+                backface-visibility: hidden;
+                transform-origin: center center;
+                transition: none !important;
+            }
+
+            /* 手机端首屏完全静态化，保留节点位置与点击能力 */
+            .mobile-map .mobile-node,
+            .mobile-map .mobile-node *,
+            .mobile-map .mobile-graph-links,
+            .mobile-map .mobile-graph-links * {
+                animation: none !important;
+                transition: none !important;
+            }
+
+            .mobile-node-name {
+                font-size: 12px;
+                display: block;
+                width: 100%;
+                word-wrap: break-word;
+                word-break: break-word;
+                white-space: normal;
+                line-height: 1.2;
+                text-align: center;
+                letter-spacing: 0;
+            }
+
+            .mobile-node-root {
+                width: 106px;
+                height: 106px;
+                left: 50%;
+                top: 52%;
+                border-color: var(--metal-silver);
+                border-width: 3px;
+                background: radial-gradient(circle at 35% 35%, #ffffff 0%, #e8e8e8 20%, #c0c0c0 50%, #808080 75%, #1a1a1a 100%);
+                color: #111;
+                /* 简化 box-shadow，移除 inset 和多层阴影 */
+                box-shadow: 0 0 20px rgba(192, 192, 192, 0.6);
+                /* 禁用动画防止屏闪 */
+                animation: none !important;
+            }
+
+            .mobile-node-level1 {
+                width: 94px;
+                height: 94px;
+            }
+
+            .mobile-node-l1-lt { left: 28%; top: 26%; }
+            .mobile-node-l1-rt { left: 72%; top: 26%; }
+            .mobile-node-l1-lb { left: 28%; top: 76%; }
+            .mobile-node-l1-rb { left: 72%; top: 76%; }
+
+            .mobile-node-earth {
+                border-color: var(--earth-crack);
+                border-width: 2.5px;
+                background: 
+                    radial-gradient(circle at 30% 30%, #B5915D 0%, #8B6B3B 45%, #3D2B1F 100%);
+                /* 简化 box-shadow */
+                box-shadow: 0 0 16px rgba(100, 70, 30, 0.7);
+            }
+
+            .mobile-node-earth:hover {
+                box-shadow: 0 0 20px rgba(150, 100, 40, 0.85);
+            }
+
+            .mobile-node-random {
+                border-color: rgba(130, 80, 220, 0.95);
+                border-width: 2.5px;
+                background: radial-gradient(circle at 30% 30%, #8F5FD5 0%, #5F3D99 60%, #2a1b52 100%);
+                /* 简化 box-shadow */
+                box-shadow: 0 0 16px rgba(114, 46, 209, 0.65);
+            }
+
+            .mobile-node-random:hover {
+                box-shadow: 0 0 22px rgba(147, 100, 255, 0.85);
+            }
+
+            .mobile-node-repo {
+                border-color: rgba(79, 240, 255, 0.92);
+                border-width: 2.5px;
+                background: radial-gradient(circle at 30% 30%, #5FD8FF 0%, #2B9EBD 60%, #143247 100%);
+                /* 简化 box-shadow */
+                box-shadow: 0 0 16px rgba(0, 200, 255, 0.65);
+            }
+
+            .mobile-node-repo:hover {
+                box-shadow: 0 0 22px rgba(100, 230, 255, 0.85);
+            }
+
+            .mobile-node-about {
+                border-color: #ffaa00;
+                border-width: 2.5px;
+                background: radial-gradient(circle at 30% 30%, #FFD966 0%, #FF9900 50%, #CC4400 100%);
+                /* 简化 box-shadow */
+                box-shadow: 0 0 18px rgba(255, 100, 0, 0.75);
+            }
+
+            .mobile-node-about:hover {
+                box-shadow: 0 0 24px rgba(255, 150, 0, 0.9);
+            }
+
+            .mobile-node-level2 {
+                width: 76px;
+                height: 76px;
+                border-color: rgba(80, 220, 255, 0.88);
+                border-width: 2px;
+                background: radial-gradient(circle at 30% 30%, #5FF0FF 0%, #2FA8D0 65%, #1a2f44 100%);
+                /* 简化 box-shadow */
+                box-shadow: 0 0 14px rgba(100, 210, 255, 0.7);
+            }
+
+            .mobile-node-level2:hover {
+                box-shadow: 0 0 20px rgba(150, 230, 255, 0.85);
+            }
+
+            /* 调整二级节点位置：将第一个二级（AI for Engineer）移动到随机模型右上角 */
+            .mobile-node-l2-a { left: 84%; top: 14%; }
+            .mobile-node-l2-b { left: 82%; top: 38%; }
+
+            /* 手机端：仅把首屏节点名称设为黑色（仅影响手机端个人图谱的节点命名显示） */
+            .mobile-map .mobile-node-name {
+                color: #111 !important;
+            }
+
+            .mobile-hint {
+                margin-top: 10px;
+                text-align: center;
+                color: rgba(255, 255, 255, 0.72);
+                font-size: 12px;
+            }
+
+            .mobile-hierarchy-toolbar {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                margin-bottom: 12px;
+            }
+
+            .mobile-hierarchy-btn {
+                border: 1px solid rgba(114, 46, 209, 0.65);
+                background: rgba(20, 27, 52, 0.88);
+                color: var(--bright-yellow);
+                border-radius: 10px;
+                padding: 7px 12px;
+                font-size: 13px;
+                font-weight: 600;
+            }
+
+            .mobile-hierarchy-grid {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .mobile-hierarchy-card {
+                width: 100%;
+                border: 1px solid rgba(79, 211, 255, 0.55);
+                border-radius: 12px;
+                background: linear-gradient(135deg, rgba(0, 161, 228, 0.22), rgba(20, 27, 52, 0.92));
+                color: var(--bright-yellow);
+                text-align: left;
+                padding: 11px 12px;
+            }
+
+            .mobile-hierarchy-title {
+                font-size: 15px;
+                font-weight: 700;
+            }
+
+            .mobile-hierarchy-desc {
+                margin-top: 4px;
+                font-size: 12px;
+                line-height: 1.5;
+                color: rgba(255, 255, 255, 0.76);
+            }
+
+            .modal {
+                align-items: flex-end;
+                padding: 0 !important;
+            }
+
+            .modal-content {
+                width: 100%;
+                max-width: none;
+                max-height: 86vh;
+                border-radius: 16px 16px 0 0;
+                padding: 20px 16px 16px;
+                transition: none !important;
+                transform: none !important;
+            }
+
+            .modal-title {
+                font-size: 22px;
+                margin-bottom: 12px;
+                padding-right: 44px;
+            }
+
+            .modal-text {
+                font-size: 14px;
+                line-height: 1.7;
+            }
+
+            .modal-close {
+                top: 12px;
+                right: 12px;
+                width: 44px;
+                height: 44px;
+                z-index: 2001;
+                background: linear-gradient(135deg, #ffea44 0%, #ffd700 50%, #ffaa00 100%) !important;
+                border: 2px solid #ffff88 !important;
+                color: #333 !important;
+                font-size: 24px !important;
+                font-weight: 800 !important;
+                box-shadow: 0 0 16px rgba(255, 215, 0, 0.8), 0 4px 12px rgba(0, 0, 0, 0.4), inset -1px -1px 4px rgba(0, 0, 0, 0.2), inset 1px 1px 3px rgba(255, 255, 200, 0.5) !important;
+                transition: all 0.3s ease !important;
+                transition: none !important;
+            }
+
+            .modal-close:hover {
+                background: linear-gradient(135deg, #ffff66 0%, #ffed4e 50%, #ffbb22 100%) !important;
+                box-shadow: 0 0 24px rgba(255, 215, 0, 1), 0 6px 16px rgba(0, 0, 0, 0.5), inset -1px -1px 4px rgba(0, 0, 0, 0.2), inset 1px 1px 3px rgba(255, 255, 200, 0.7) !important;
+                transform: none !important;
+            }
+
+            .modal-close:active {
+                transform: none !important;
+                box-shadow: 0 0 12px rgba(255, 215, 0, 0.6), 0 2px 6px rgba(0, 0, 0, 0.3), inset -1px -1px 4px rgba(0, 0, 0, 0.2), inset 1px 1px 3px rgba(255, 255, 200, 0.5) !important;
+            }
+
+            /* ===== 手机端独立隔离图谱（对齐 index 深色科技风，稳定优先） ===== */
+            .mobile-map.mobile-isolated-map {
+                display: block;
+                width: min(680px, 95vw);
+                margin: 0 auto;
+                contain: layout paint style;
+            }
+
+            .mobile-isolated-map .mobile-map-title {
+                color: #00e4ff;
+                font-weight: 700;
+                letter-spacing: 0.2px;
+            }
+
+            .mobile-isolated-map .mobile-graph-stage {
+                background: linear-gradient(160deg, rgba(20, 27, 52, 0.96), rgba(10, 15, 29, 0.98));
+                border: 1px solid rgba(0, 228, 255, 0.22);
+                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+            }
+
+            .mobile-isolated-map .mobile-graph-links,
+            .mobile-isolated-map .mobile-graph-links * {
+                filter: none !important;
+                animation: none !important;
+                transition: none !important;
+            }
+
+            .mobile-isolated-map .mobile-graph-links line {
+                stroke: rgba(120, 180, 255, 0.62);
+                stroke-width: 1.4;
+            }
+
+            .mobile-isolated-map .mobile-link-secondary {
+                stroke: rgba(0, 228, 255, 0.75);
+            }
+
+            .mobile-isolated-map .mobile-node,
+            .mobile-isolated-map .mobile-node *,
+            .mobile-isolated-map .mobile-node:hover,
+            .mobile-isolated-map .mobile-node:active {
+                animation: none !important;
+                transition: none !important;
+                transform: translate(-50%, -50%) !important;
+            }
+
+            .mobile-isolated-map .mobile-node {
+                box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 4px 10px rgba(0, 0, 0, 0.35) !important;
+                will-change: auto !important;
+            }
+
+            .mobile-isolated-map .mobile-node-root {
+                background: radial-gradient(circle at 30% 30%, #f4f7fb 0%, #c3ccd8 50%, #7e8797 100%);
+                border-color: rgba(255, 255, 255, 0.65);
+                color: #0f172a;
+            }
+
+            .mobile-isolated-map .mobile-node-earth {
+                background: linear-gradient(160deg, #6a4f2f, #4f3a24);
+                border-color: rgba(255, 208, 128, 0.45);
+            }
+
+            .mobile-isolated-map .mobile-node-random {
+                background: linear-gradient(160deg, #6840b3, #3a2466);
+                border-color: rgba(178, 141, 255, 0.45);
+            }
+
+            .mobile-isolated-map .mobile-node-repo {
+                background: linear-gradient(160deg, #1f7e95, #173d52);
+                border-color: rgba(0, 228, 255, 0.45);
+            }
+
+            .mobile-isolated-map .mobile-node-about {
+                background: linear-gradient(160deg, #b6641d, #7a3f10);
+                border-color: rgba(255, 208, 0, 0.45);
+            }
+
+            .mobile-isolated-map .mobile-node-level2 {
+                background: linear-gradient(160deg, #2c92aa, #20586f);
+                border-color: rgba(120, 240, 255, 0.5);
+            }
+
+            .mobile-isolated-map .mobile-node-name {
+                color: #111 !important;
+                font-weight: 700;
+                transform: none !important;
+                position: relative;
+                top: 0;
+                left: 0;
+            }
+
+            .mobile-isolated-map .mobile-hint {
+                color: rgba(255, 255, 255, 0.72);
+            }
+
+            .mobile-isolated-map .mobile-node::before,
+            .mobile-isolated-map .mobile-node::after {
+                content: none !important;
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1 class="tree-title">XinYu · 个人图谱</h1>
+    <div class="tree-container">
+        <div class="mobile-map" id="mobileMap"></div>
+        <svg class="tree-svg" id="treeS"></svg>
+        <div class="tooltip" id="tooltip"></div>
+    </div>
+
+    <div class="modal" id="modal">
+        <button class="modal-close" id="modalClose">×</button>
+        <div class="modal-content">
+            <h2 class="modal-title" id="modalTitle"></h2>
+            <div class="modal-text" id="modalContent"></div>
+        </div>
+    </div>
+
+    <audio id="arc-audio" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-lightning-strike-1287.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        const treeData = {
+            name: '三金的github主页',
+            link: 'https://github.com/XinYU20040412',
+            nodeType: 'root',
+            children: [
+                {
+                    name: '确定性模型',
+                    nodeType: 'level1',
+                    children: [
+                        {
+                            name: '板凳龙运行调控',
+                            fullName: '基于递推模型的板凳龙运行调控',
+                            link: 'https://github.com/XinYU20040412/Operation-Regulation-of-Bench-Dragon-Dance-Based-on-Recursive-Model',
+                            nodeType: 'large',
+                            specialClass: 'node-highlight-red'
+                        },
+                        {
+                            name: '无人机投弹策略优化',
+                            fullName: '基于AESAGA-WITH-Newton算法的无人机投弹策略优化',
+                            link: 'https://github.com/XinYU20040412/AESAGA-Newton-Based-UAV-Bombing-Strategy-Optimization',
+                            nodeType: 'large',
+                            specialClass: 'node-highlight-red'
+                        },
+                        {
+                            name: '机械臂路径优化',
+                            fullName: '机器臂关节角路径的多目标优化设计',
+                            link: 'https://github.com/XinYU20040412/Multi-objective-Optimization-for-Manipulator-Joint-Trajectory',
+                            nodeType: 'medium'
+                        },
+                        {
+                            name: '多孔膜光反射优化',
+                            fullName: '多孔膜光反射性能的优化与控制',
+                            link: 'https://github.com/XinYU20040412/Optimization-and-Modulation-of-Optical-Reflectance-Properties-of-Porous-Membranes',
+                            nodeType: 'medium'
+                        },
+                        {
+                            name: '反射镜优化调控',
+                            fullName: '基于重连续化的反射镜优化调控',
+                            link: 'https://github.com/XinYU20040412/Optimization-and-Modulation-of-Reflector-Based-on-Re-continuation',
+                            nodeType: 'medium'
+                        },
+                        {
+                            name: '大气能量穿透模型',
+                            fullName: '大气能量穿透季节时变模型',
+                            link: 'https://github.com/XinYU20040412/A-Atmospheric-Energy-Penetration-Seasonal-Model',
+                            nodeType: 'small'
+                        }
+                    ]
+                },
+                {
+                    name: '随机模型-深度学习',
+                    nodeType: 'level1',
+                    children: [
+                        {
+                            name: 'AI for Engineer',
+                            nodeType: 'level1',
+                            children: [
+                                {
+                                    name: 'DiT+Flowmatch 3D生成',
+                                    fullName: '国家超算中心项目',
+                                    tooltip: '基于DiT+Flowmatch的3D牙冠结构一体优化生成',
+                                    link: 'https://github.com/XinYU20040412/tooth_decoupled_modeling',
+                                    nodeType: 'large',
+                                    specialClass: 'node-highlight-red'
+                                }
+                            ]
+                        },
+                        {
+                            name: 'AI for Materials',
+                            nodeType: 'level1',
+                            children: [
+                                {
+                                    name: 'CMOS材料等变网络优化',
+                                    fullName: '中科院物理所项目',
+                                    tooltip: '《基于等变神经网络的CMOS管二维栅极材料性能预测以及逆向结构优化生成》',
+                                    link: 'https://github.com/XinYU20040412/equivariant-nn-cmos-2d-op',
+                                    nodeType: 'large',
+                                    specialClass: 'node-highlight-red'
+                                },
+                                {
+                                    name: '布洛赫定理深度学习规范',
+                                    fullName: '个人科研探索',
+                                    tooltip: '布洛赫定理在深度学习中的内在规范研究',
+                                    link: 'https://github.com/XinYU20040412/bloch-nn-intrinsic',
+                                    nodeType: 'large'
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    name: '实用代码储藏库',
+                    fullName: '自修改实用代码储藏库',
+                    link: 'https://github.com/XinYU20040412/self-creat-great-code',
+                    nodeType: 'level1',
+                    children: [
+                        {
+                            name: '优化算法',
+                            link: 'https://github.com/XinYU20040412/self-creat-great-code/tree/main/优化算法',
+                            nodeType: 'large'
+                        },
+                        {
+                            name: '多元统计分析',
+                            link: 'https://github.com/XinYU20040412/self-creat-great-code/tree/main/多元统计分析',
+                            nodeType: 'large'
+                        },
+                        {
+                            name: '数值计算',
+                            link: 'https://github.com/XinYU20040412/self-creat-great-code/tree/main/数值计算',
+                            nodeType: 'large'
+                        },
+                        {
+                            name: '机器学习经典原型',
+                            link: 'https://github.com/XinYU20040412/self-creat-great-code/tree/main/机器学习经典原型',
+                            nodeType: 'large'
+                        },
+                        {
+                            name: '自建工具箱',
+                            link: 'https://github.com/XinYU20040412/self-creat-great-code/tree/main/自建工具箱',
+                            nodeType: 'large'
+                        }
+                    ]
+                },
+                {
+                    name: '关于我',
+                    nodeType: 'level1',
+                    children: [
+                        {
+                            name: '思维体系框架与前瞻',
+                            modal: {
+                                key: 'philosophy',
+                                title: '我的系统性认识、归纳、前瞻：我与“模型学”',
+                                content: `
+                                    <p>物理授予我的最大特点就是无止境的思索，我也终能够理解为什么科学的起源叫做自然哲学：共同的思考范式，即无止境的探知求索到底什么才是“真”，什么才是“对”。这套深度思考的范式可以迁移到任何学科方向，数学物理是真正的基础。</p>
+                                    <p>我将数学物理从两个视角切入：<br>
+                                    1. 回溯视角：起源是为了“描述”，也就是数学建模<br>
+                                    2. 演绎视角：基于公理/定律的逻辑闭环自洽</p>
+                                    <p>我找到了我的终生事业——模型学：起于数学建模，深于物理学习，升于深度学习，终于描述性。</p>
+                                `
+                            },
+                            nodeType: 'large',
+                            specialClass: 'node-highlight-red'
+                        },
+                        {
+                            name: '教育背景',
+                            modal: {
+                                key: 'education',
+                                title: '教育背景与荣誉奖项',
+                                content: `
+                                    <p><strong>2023.09-至今</strong> 湖南大学 应用物理学 本科<br>
+                                    GPA：3.95/4.0  专业排名：2/112</p>
+                                    <p><strong>荣誉奖项</strong><br>
+                                    中国科学院物理研究所严济慈班奖学金<br>
+                                    国家奖学金 ×2<br>
+                                    全国大学生数学建模竞赛二等奖<br>
+                                   湖南大学数学竞赛一等奖</p>
+                                `
+                            },
+                            nodeType: 'large'
+                        },
+                        {
+                            name: '科研经历',
+                            modal: {
+                                key: 'research',
+                                title: '科研经历与技能',
+                                content: `
+                                    <p><strong>1. 国家超算中心：DiT+Flowmatch 3D牙冠生成</strong></p>
+                                    <p><strong>2. 中科院物理所：等变神经网络CMOS材料优化</strong></p>
+                                    <p><strong>核心技能</strong><br>
+                                    Python / PyTorch / 物理建模 / 智能优化算法</p>
+                                `
+                            },
+                            nodeType: 'large',
+                            specialClass: 'node-highlight-red'
+                        },
+                        {
+                            name: '竞赛经历',
+                            modal: {
+                                key: 'competition',
+                                title: '竞赛经历',
+                                content: `
+                                    <p>全国大学生数学建模竞赛 二等奖</p>
+                                    <p>华数杯 / 华中杯 数学建模竞赛</p>
+                                    <p>湖南大学 数学竞赛 一等奖</p>
+                                `
+                            },
+                            nodeType: 'large'
+                        }
+                    ]
+                }
+            ]
+        };
+
+        const isMobileLayout = window.matchMedia('(max-width: 767px)').matches;
+        const modalElement = document.getElementById('modal');
+        const modalTitleElement = document.getElementById('modalTitle');
+        const modalContentElement = document.getElementById('modalContent');
+        const hierarchyState = {
+            stack: []
+        };
+
+        function escapeHtml(value) {
+            return String(value || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function openModal(title, content, key) {
+            try {
+                if (key && window.parent && window.parent !== window) {
+                    window.parent.postMessage({ type: 'OPEN_HERO_NODE_MODAL', key, title }, '*');
+                    // 避免层级弹窗停留在旧状态导致后续点击失效
+                    closeModal();
+                    return;
+                }
+            } catch (e) {}
+
+            hierarchyState.stack = [];
+
+            modalTitleElement.textContent = title;
+            modalContentElement.innerHTML = content;
+            modalElement.classList.add('active');
+        }
+
+        function closeModal() {
+            hierarchyState.stack = [];
+            modalElement.classList.remove('active');
+        }
+
+        function renderHierarchyModal() {
+            if (!hierarchyState.stack.length) return;
+
+            const current = hierarchyState.stack[hierarchyState.stack.length - 1];
+            const currentNode = current.node;
+            const currentTrail = current.trail;
+            const children = Array.isArray(currentNode.children) ? currentNode.children : [];
+
+            const toolbarHtml = `
+                <div class="mobile-hierarchy-toolbar">
+                    ${hierarchyState.stack.length > 1 ? '<button class="mobile-hierarchy-btn" type="button" data-hier-action="back">返回上一级</button>' : ''}
+                    ${currentNode.link ? '<button class="mobile-hierarchy-btn" type="button" data-hier-action="open-link">打开当前节点仓库</button>' : ''}
+                    <button class="mobile-hierarchy-btn" type="button" data-hier-action="close">关闭</button>
+                </div>
+            `;
+
+            const cardsHtml = children.map((child, index) => {
+                const desc = child.fullName
+                    || child.tooltip
+                    || (child.children && child.children.length ? `下级节点 ${child.children.length} 个` : (child.modal ? '点击查看详情' : (child.link ? '点击跳转仓库' : '点击查看')));
+
+                return `
+                    <button class="mobile-hierarchy-card" type="button" data-hier-index="${index}">
+                        <div class="mobile-hierarchy-title">${escapeHtml(child.name || '未命名节点')}</div>
+                        <div class="mobile-hierarchy-desc">${escapeHtml(desc)}</div>
+                    </button>
+                `;
+            }).join('');
+
+            modalTitleElement.textContent = `${currentTrail.join(' · ')} · ${currentNode.name}`;
+            modalContentElement.innerHTML = `${toolbarHtml}<div class="mobile-hierarchy-grid">${cardsHtml}</div>`;
+            modalElement.classList.add('active');
+        }
+
+        function openHierarchyModal(node, trail) {
+            hierarchyState.stack.push({
+                node,
+                trail
+            });
+            renderHierarchyModal();
+        }
+
+        function renderMobileOverview() {
+            const mobileMapElement = document.getElementById('mobileMap');
+            const level1Nodes = Array.isArray(treeData.children) ? treeData.children : [];
+
+            const level1PosClasses = [
+                'mobile-node-l1-lt',
+                'mobile-node-l1-rt',
+                'mobile-node-l1-lb',
+                'mobile-node-l1-rb'
+            ];
+
+            const level1TypeClasses = [
+                'mobile-node-earth',
+                'mobile-node-random',
+                'mobile-node-repo',
+                'mobile-node-about'
+            ];
+
+            const level1Html = level1Nodes.map((item, index) => `
+                <button
+                    class="mobile-node mobile-node-level1 ${level1PosClasses[index] || ''} ${level1TypeClasses[index] || 'mobile-node-earth'}"
+                    type="button"
+                    data-node-path="${index}"
+                >
+                    <span class="mobile-node-name">${escapeHtml(item.name)}</span>
+                </button>
+            `).join('');
+
+            const randomBranch = level1Nodes[1] && Array.isArray(level1Nodes[1].children)
+                ? level1Nodes[1].children.slice(0, 2)
+                : [];
+
+            const level2PosClasses = ['mobile-node-l2-a', 'mobile-node-l2-b'];
+            const level2Html = randomBranch.map((item, index) => `
+                <button
+                    class="mobile-node mobile-node-level2 ${level2PosClasses[index] || ''}"
+                    type="button"
+                    data-node-path="1.${index}"
+                >
+                    <span class="mobile-node-name">${escapeHtml(item.name)}</span>
+                </button>
+            `).join('');
+
+            const showLevel2LineA = randomBranch[0] ? '<line class="mobile-link-secondary" x1="72" y1="26" x2="84" y2="14"></line>' : '';
+            const showLevel2LineB = randomBranch[1] ? '<line class="mobile-link-secondary" x1="72" y1="26" x2="82" y2="38"></line>' : '';
+
+            mobileMapElement.className = 'mobile-map mobile-isolated-map';
+            mobileMapElement.innerHTML = `
+                <h2 class="mobile-map-title">个人图谱</h2>
+                <div class="mobile-graph-stage">
+                    <svg class="mobile-graph-links" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+                        <line x1="50" y1="52" x2="28" y2="26"></line>
+                        <line x1="50" y1="52" x2="72" y2="26"></line>
+                        <line x1="50" y1="52" x2="28" y2="76"></line>
+                        <line x1="50" y1="52" x2="72" y2="76"></line>
+                        ${showLevel2LineA}
+                        ${showLevel2LineB}
+                    </svg>
+
+                    <button class="mobile-node mobile-node-root" type="button" data-root-action="open-link">
+                        <span class="mobile-node-name">${escapeHtml(treeData.name)}</span>
+                    </button>
+
+                    ${level1Html}
+                    ${level2Html}
+                </div>
+                <p class="mobile-hint">点击节点进入下级收纳弹窗，末级节点操作保持不变</p>
+            `;
+
+            const resolveNodePath = (pathValue) => {
+                const indices = String(pathValue || '')
+                    .split('.')
+                    .map((token) => Number(token))
+                    .filter((value) => !Number.isNaN(value));
+
+                if (!indices.length) return null;
+
+                let node = treeData;
+                const trail = [];
+
+                for (const childIndex of indices) {
+                    const children = Array.isArray(node.children) ? node.children : [];
+                    const nextNode = children[childIndex];
+                    if (!nextNode) return null;
+                    trail.push(node.name);
+                    node = nextNode;
+                }
+
+                return { node, trail };
+            };
+
+            mobileMapElement.onclick = (event) => {
+                const rootActionButton = event.target.closest('[data-root-action="open-link"]');
+                if (rootActionButton && treeData.link) {
+                    window.open(treeData.link, '_blank');
+                    return;
+                }
+
+                const nodeButton = event.target.closest('[data-node-path]');
+                if (!nodeButton) return;
+
+                const resolved = resolveNodePath(nodeButton.getAttribute('data-node-path'));
+                if (!resolved) return;
+
+                const selected = resolved.node;
+
+                if (selected.children && selected.children.length) {
+                    openHierarchyModal(selected, resolved.trail);
+                    return;
+                }
+
+                if (selected.modal) {
+                    openModal(selected.modal.title, selected.modal.content, selected.modal.key);
+                    return;
+                }
+
+                if (selected.link) {
+                    window.open(selected.link, '_blank');
+                }
+            };
+        }
+
+        modalContentElement.addEventListener('click', (event) => {
+            if (!hierarchyState.stack.length) return;
+
+            const actionButton = event.target.closest('[data-hier-action]');
+            if (actionButton) {
+                const action = actionButton.getAttribute('data-hier-action');
+                if (action === 'back') {
+                    hierarchyState.stack.pop();
+                    if (hierarchyState.stack.length) {
+                        renderHierarchyModal();
+                    } else {
+                        closeModal();
+                    }
+                    return;
+                }
+
+                if (action === 'close') {
+                    closeModal();
+                    return;
+                }
+
+                if (action === 'open-link') {
+                    const current = hierarchyState.stack[hierarchyState.stack.length - 1];
+                    if (current && current.node.link) {
+                        window.open(current.node.link, '_blank');
+                    }
+                    return;
+                }
+            }
+
+            const card = event.target.closest('[data-hier-index]');
+            if (!card) return;
+
+            const childIndex = Number(card.getAttribute('data-hier-index'));
+            const current = hierarchyState.stack[hierarchyState.stack.length - 1];
+            const children = Array.isArray(current.node.children) ? current.node.children : [];
+            const selected = children[childIndex];
+            if (!selected) return;
+
+            if (selected.children && selected.children.length) {
+                openHierarchyModal(selected, [...current.trail, current.node.name]);
+                return;
+            }
+
+            if (selected.modal) {
+                openModal(selected.modal.title, selected.modal.content, selected.modal.key);
+                return;
+            }
+
+            if (selected.link) {
+                window.open(selected.link, '_blank');
+            }
+        });
+
+        document.getElementById('modalClose').onclick = closeModal;
+        modalElement.onclick = (event) => event.target === modalElement && closeModal();
+
+        if (isMobileLayout) {
+            renderMobileOverview();
+        } else {
+            const svg = d3.select('#treeS');
+            const width = document.querySelector('.tree-container').clientWidth;
+            const height = document.querySelector('.tree-container').clientHeight;
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const radius = Math.min(width, height) / 2 - 120;
+
+            const g = svg.attr('viewBox', `0 0 ${width} ${height}`)
+                .append('g')
+                .attr('transform', `translate(${centerX}, ${centerY})`);
+
+            const defs = g.append('defs');
+
+            // 柔和水滴波浪
+            defs.append('filter')
+                .attr('id', 'soft-water-wave')
+                .attr('x', '-80%').attr('y', '-80%').attr('width', '260%').attr('height', '260%')
+                .html(`
+                    <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="1" seed="2" result="wave">
+                        <animate attributeName="seed" values="2;6;2" dur="5s" repeatCount="indefinite" />
+                    </feTurbulence>
+                    <feDisplacementMap in="SourceGraphic" in2="wave" scale="4" xChannelSelector="R" yChannelSelector="G" />
+                `);
+
+            defs.append('radialGradient').attr('id', 'water-gradient').html(`
+                <stop offset="0%" stop-color="#b3ecff" />
+                <stop offset="35%" stop-color="#4fd3ff" />
+                <stop offset="70%" stop-color="#00a1e4" />
+                <stop offset="100%" stop-color="#007cb5" />
+            `);
+
+            defs.append('filter')
+                .attr('id', 'metal-faceted-shine')
+                .attr('x', '-80%').attr('y', '-80%').attr('width', '260%').attr('height', '260%')
+                .html(`
+                    <feGaussianBlur in="SourceGraphic" stdDeviation="2" result="blur" />
+                    <feSpecularLighting in="blur" surfaceScale="4" specularConstant="1.2" specularExponent="25" lighting-color="#F0F0F0" result="spec">
+                        <fePointLight x="0" y="-10000" z="20000" />
+                    </feSpecularLighting>
+                    <feComposite in="spec" in2="SourceGraphic" operator="in" />
+                    <feConvolveMatrix kernelMatrix="0 -1 0  -1 5 -1  0 -1 0" order="3" preserveAlpha="true" />
+                `);
+
+            defs.append('radialGradient').attr('id', 'metal-faceted-gradient').html(`
+                <stop offset="0%" stop-color="#F8F8F8" />
+                <stop offset="20%" stop-color="#E0E0E0" />
+                <stop offset="40%" stop-color="#C0C0C0" />
+                <stop offset="65%" stop-color="#808080" />
+                <stop offset="85%" stop-color="#404040" />
+                <stop offset="100%" stop-color="#2A2A2A" />
+            `);
+
+            defs.append('linearGradient').attr('id', 'silver-lightning-gradient').html(`
+                <stop offset="0%" stop-color="#ffffff" />
+                <stop offset="50%" stop-color="#d8d8d8" />
+                <stop offset="100%" stop-color="#a0a0a0" />
+            `);
+
+            defs.append('filter')
+                .attr('id', 'silver-arc-glow')
+                .attr('x', '-120%').attr('y', '-120%').attr('width', '340%').attr('height', '340%')
+                .html(`
+                    <feGaussianBlur stdDeviation="3.5" result="blur" />
+                    <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+                `);
+
+            defs.append('linearGradient').attr('id', 'arc-gradient').html(`
+                <stop offset="0%" stop-color="#00e5ff" /><stop offset="50%" stop-color="#722ED1" /><stop offset="100%" stop-color="#00e5ff" />
+            `);
+
+            defs.append('filter').attr('id', 'arc-glow').html(`
+                <feGaussianBlur stdDeviation="6" /><feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+            `);
+
+            defs.append('filter').attr('id', 'pulse-glow').html(`
+                <feGaussianBlur stdDeviation="8" /><feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+            `);
+
+            defs.append('filter')
+                .attr('id', 'earth-crack-effect')
+                .html(`
+                    <feTurbulence type="fractalNoise" baseFrequency="0.15" numOctaves="3" seed="4" result="noise">
+                        <animate attributeName="seed" values="4;12;4" dur="8s" repeatCount="indefinite" />
+                    </feTurbulence>
+                    <feDisplacementMap in="SourceGraphic" in2="noise" scale="12" />
+                `);
+
+            defs.append('radialGradient').attr('id', 'earth-gradient').html(`
+                <stop offset="0%" stop-color="#8B6B3B" />
+                <stop offset="35%" stop-color="#6D4F2E" />
+                <stop offset="70%" stop-color="#4A3520" />
+                <stop offset="100%" stop-color="#3D2B1F" />
+            `);
+
+            defs.append('radialGradient').attr('id', 'super-lava-gradient').html(`
+                <stop offset="0%" stop-color="#ffff00" />
+                <stop offset="25%" stop-color="#ff6600" />
+                <stop offset="50%" stop-color="#ff0000" />
+                <stop offset="85%" stop-color="#990000" />
+                <stop offset="100%" stop-color="#330000" />
+            `);
+
+            defs.append('filter').attr('id', 'super-lava-filter').html(`
+                <feTurbulence type="fractalNoise" baseFrequency="0.09" numOctaves="3" result="fire">
+                    <animate attributeName="seed" values="1;8;1" dur="3s" repeatCount="indefinite" />
+                </feTurbulence>
+                <feDisplacementMap in="SourceGraphic" in2="fire" scale="25" />
+            `);
+
+            defs.append('filter').attr('id', 'super-lava-hover').html(`
+                <feTurbulence type="fractalNoise" baseFrequency="0.15" numOctaves="3" result="fire">
+                    <animate attributeName="seed" values="1;12;1" dur="1.5s" repeatCount="indefinite" />
+                </feTurbulence>
+                <feDisplacementMap in="SourceGraphic" in2="fire" scale="40" />
+            `);
+
+            defs.append('radialGradient').attr('id', 'mediumGradient').html(`
+                <stop offset="0%" stop-color="#6aaf7c" /><stop offset="100%" stop-color="#2d7d46" />
+            `);
+            defs.append('radialGradient').attr('id', 'smallGradient').html(`
+                <stop offset="0%" stop-color="#ffb74d" /><stop offset="100%" stop-color="#f97316" />
+            `);
+
+            const tree = d3.tree()
+                .size([2 * Math.PI, radius])
+                .separation((a, b) => (a.parent === b.parent ? 1.2 : 2) / a.depth);
+
+            const root = d3.hierarchy(treeData);
+            tree(root);
+
+            // 修复：电弧正确连接到圆环，无错乱
+            const ARC_RING_R = 44;
+            function jaggedPath(d) {
+                const rad = d3.linkRadial().angle(d => d.x).radius(d => d.y);
+                let p = rad(d);
+                if (d.source.depth === 0) {
+                    const a = d.source.x;
+                    const cx = Math.cos(a) * ARC_RING_R;
+                    const cy = Math.sin(a) * ARC_RING_R;
+                    p = p.replace(/^M[^,]*,[^ ]*/, `M ${cx} ${cy}`);
+                }
+                return p.split("L").map((seg,i)=>{
+                    if(i===0)return seg;
+                    const [x,y]=seg.trim().split(" ").map(parseFloat);
+                    const jx = x+(Math.random()-0.5)*3;
+                    const jy = y+(Math.random()-0.5)*3;
+                    return `${jx} ${jy}`;
+                }).join(" L");
+            }
+
+            const link = g.selectAll('.tree-link')
+                .data(root.links())
+                .join('path')
+                .attr('class', 'tree-link')
+                .attr('d', jaggedPath);
+
+            // 电弧圆环
+            g.append('circle')
+                .attr('class', 'arc-core-ring')
+                .attr('cx', 0)
+                .attr('cy', 0)
+                .attr('r', ARC_RING_R);
+
+            // 多层水波涌动扩散
+            for (let i = 0; i < 5; i++) {
+                g.append('circle')
+                    .attr('class', 'pulse-ring')
+                    .attr('cx', 0)
+                    .attr('cy', 0)
+                    .attr('r', 42)
+                    .style('animation-delay', `${i * 0.7}s`);
+            }
+
+            const node = g.selectAll('.node')
+                .data(root.descendants())
+                .join('g')
+                .attr('class', 'node')
+                .attr('transform', d => `rotate(${d.x * 180 / Math.PI - 90}) translate(${d.y},0) rotate(${-(d.x * 180 / Math.PI - 90)})`);
+
+            const circles = node.append('circle')
+                .attr('class', d => `node-circle node-${d.data.nodeType} ${d.data.specialClass || ''}`)
+                .on('mouseover', function(event, d) {
+                    if (d.data.tooltip || d.data.fullName) {
+                        const tooltip = document.getElementById('tooltip');
+                        tooltip.innerHTML = d.data.fullName || d.data.tooltip;
+                        tooltip.classList.add('show');
+                    }
+                })
+                .on('mouseout', function() {
+                    document.getElementById('tooltip').classList.remove('show');
+                })
+                .on('click', function(event, d) {
+                    if (d.data.nodeType === 'root') {
+                        playArcSound();
+                    }
+                    if (d.data.link) window.open(d.data.link, '_blank');
+                    if (d.data.modal) {
+                        openModal(d.data.modal.title, d.data.modal.content, d.data.modal.key);
+                    }
+                });
+
+            // 闪电环绕
+            function generateLightningPath(r, seg, jit) {
+                let p = `M ${r} 0`;
+                for (let i=1; i<=seg; i++) {
+                    const a = i/seg*Math.PI*2;
+                    const j = r*jit*(Math.random()*2-1);
+                    p += ` L ${(r+j)*Math.cos(a)} ${(r+j)*Math.sin(a)}`;
+                }
+                return p+' Z';
+            }
+            for (let i=0; i<3; i++) {
+                g.append('path')
+                    .attr('class','lightning-path')
+                    .attr('d', generateLightningPath(46+i*4, 12+i*2, 0.15+i*0.05))
+                    .style('animation-delay', i*0.2+'s');
+            }
+
+            const arcAudio = document.getElementById('arc-audio');
+            function playArcSound() {
+                arcAudio.currentTime=0; arcAudio.play().catch(()=>{});
+            }
+
+            document.addEventListener('mousemove', (e) => {
+                const t = document.getElementById('tooltip');
+                if (t.classList.contains('show')) {
+                    t.style.left = e.pageX+10+'px';
+                    t.style.top = e.pageY+10+'px';
+                }
+            });
+
+            node.append('text')
+                .attr('class', d => `node-text text-${d.data.nodeType}`)
+                .text(d => d.data.name);
+
+            window.onresize = () => location.reload();
+        }
+    </script>
+</body>
+</html>
+
+  </template>
   <!-- JS脚本 -->
   <script>
     // 粒子背景初始化
-    particlesJS('particles-js', {
+    const isMobileViewport = window.matchMedia('(max-width: 767px)').matches;
+
+    const desktopParticlesConfig = {
       "particles": {
         "number": { "value": 80, "density": { "enable": true, "value_area": 800 } },
         "color": { "value": ["#00E4FF", "#722ED1", "#165DFF"] },
@@ -1559,11 +3180,39 @@
         }
       },
       "retina_detect": true
-    });
+    };
+
+    const mobileParticlesConfig = {
+      "particles": {
+        "number": { "value": 24, "density": { "enable": true, "value_area": 900 } },
+        "color": { "value": ["#00E4FF", "#722ED1", "#165DFF"] },
+        "shape": { "type": "circle" },
+        "opacity": { "value": 0.25, "random": true },
+        "size": { "value": 2.2, "random": true },
+        "line_linked": { "enable": false, "distance": 150, "color": "#165DFF", "opacity": 0.2, "width": 1 },
+        "move": { "enable": true, "speed": 0.35, "direction": "none", "random": true, "straight": false, "out_mode": "out", "bounce": false }
+      },
+      "interactivity": {
+        "detect_on": "canvas",
+        "events": {
+          "onhover": { "enable": false, "mode": "grab" },
+          "onclick": { "enable": false, "mode": "push" },
+          "resize": true
+        },
+        "modes": {
+          "grab": { "distance": 120, "line_linked": { "opacity": 0.3 } },
+          "push": { "particles_nb": 1 }
+        }
+      },
+      "retina_detect": true
+    };
+
+    particlesJS('particles-js', isMobileViewport ? mobileParticlesConfig : desktopParticlesConfig);
 
     // 导航栏滚动效果
     window.addEventListener('scroll', () => {
       const navbar = document.getElementById('navbar');
+      if (!navbar) return;
       if (window.scrollY > 50) {
         navbar.classList.add('bg-deep/80', 'backdrop-blur-md', 'shadow-lg');
         navbar.classList.remove('py-4');
@@ -1629,6 +3278,10 @@
     const heroNodeModalBody = document.getElementById('heroNodeModalBody');
     const heroNodeModalClose = document.getElementById('heroNodeModalClose');
     const heroTreeIframe = document.getElementById('hero-tree-iframe');
+    const heroTreeTemplate = document.getElementById('hero-tree-srcdoc-template');
+    if (heroTreeIframe && heroTreeTemplate) {
+      heroTreeIframe.srcdoc = heroTreeTemplate.innerHTML;
+    }
 
     const heroNodeTitles = {
       philosophy: '关于我 · 研究理念',
@@ -1777,27 +3430,29 @@
     const mobileOverlay = document.getElementById('mobile-sidebar-overlay');
     const mobileLinks = document.querySelectorAll('.mobile-sidebar-link');
 
-    // 打开菜单
-    mobileMenuBtn.addEventListener('click', () => {
-      mobileSidebar.classList.add('active');
-      mobileOverlay.classList.add('active');
-      document.body.style.overflow = 'hidden';
-    });
+    if (mobileMenuBtn && mobileSidebar && mobileOverlay) {
+      // 打开菜单
+      mobileMenuBtn.addEventListener('click', () => {
+        mobileSidebar.classList.add('active');
+        mobileOverlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      });
 
-    // 关闭菜单
-    const closeMobileMenu = () => {
-      mobileSidebar.classList.remove('active');
-      mobileOverlay.classList.remove('active');
-      document.body.style.overflow = '';
-    };
+      // 关闭菜单
+      const closeMobileMenu = () => {
+        mobileSidebar.classList.remove('active');
+        mobileOverlay.classList.remove('active');
+        document.body.style.overflow = '';
+      };
 
-    // 遮罩层点击关闭
-    mobileOverlay.addEventListener('click', closeMobileMenu);
+      // 遮罩层点击关闭
+      mobileOverlay.addEventListener('click', closeMobileMenu);
 
-    // 菜单链接点击关闭
-    mobileLinks.forEach(link => {
-      link.addEventListener('click', closeMobileMenu);
-    });
+      // 菜单链接点击关闭
+      mobileLinks.forEach(link => {
+        link.addEventListener('click', closeMobileMenu);
+      });
+    }
   </script>
 </body>
 </html>

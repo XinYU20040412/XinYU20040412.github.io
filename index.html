@@ -3094,13 +3094,27 @@
           const target = String(url || '').trim();
           if (!/^https?:\/\//i.test(target)) return;
 
-          // 手机端：直接导航以保留浏览历史（这样关闭后退可回到个人网页）
+          const inIframe = (() => {
+            try {
+              return window.parent && window.parent !== window;
+            } catch (e) {
+              return false;
+            }
+          })();
+
+          // 手机端：在 iframe 内交给父页同页跳转，保证可后退回个人页
           if (isMobileLayout) {
+            if (inIframe) {
+              try {
+                window.parent.postMessage({ type: 'OPEN_EXTERNAL_LINK', url: target, sameTab: true }, '*');
+                return;
+              } catch (e) {}
+            }
             window.location.href = target;
             return;
           }
 
-          // 桌面端：尝试打开新标签
+          // 桌面端：仅新开标签页，不改写当前个人页
           let popup = null;
           try {
             popup = window.open(target, '_blank', 'noopener,noreferrer');
@@ -3110,19 +3124,21 @@
             return;
           }
 
-          try {
-            if (window.parent && window.parent !== window) {
-              window.parent.postMessage({ type: 'OPEN_EXTERNAL_LINK', url: target }, '*');
+          if (inIframe) {
+            try {
+              window.parent.postMessage({ type: 'OPEN_EXTERNAL_LINK', url: target, sameTab: false }, '*');
               return;
-            }
-          } catch (e) {}
+            } catch (e) {}
+          }
 
-          window.location.href = target;
+          // 桌面端被拦截时也保持当前页不变
+          console.warn('External link popup blocked:', target);
         }
 
         function openModal(title, content, key) {
             try {
-                if (key && window.parent && window.parent !== window) {
+            // 手机端一律本页弹窗，避免父页消息链导致点击无响应
+            if (!isMobileLayout && key && window.parent && window.parent !== window) {
                     window.parent.postMessage({ type: 'OPEN_HERO_NODE_MODAL', key, title }, '*');
                     // 避免层级弹窗停留在旧状态导致后续点击失效
                     closeModal();
@@ -3897,9 +3913,18 @@
         const targetUrl = String(data.url || '').trim();
         if (!/^https?:\/\//i.test(targetUrl)) return;
 
-        const popup = window.open(targetUrl, '_blank', 'noopener,noreferrer');
-        if (!popup) {
+        const sameTab = Boolean(data.sameTab);
+        const isMobileView = window.matchMedia('(max-width: 767px)').matches;
+
+        if (sameTab || isMobileView) {
           window.location.href = targetUrl;
+          return;
+        }
+
+        const popup = window.open(targetUrl, '_blank', 'noopener,noreferrer');
+        if (!popup || popup.closed) {
+          // 桌面端：弹窗被拦截时不覆盖当前页
+          console.warn('Parent popup blocked for external link:', targetUrl);
         }
         return;
       }

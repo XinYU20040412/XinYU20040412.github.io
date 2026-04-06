@@ -2403,48 +2403,68 @@
             }
 
             .mobile-isolated-map .mobile-node {
-                box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 4px 10px rgba(0, 0, 0, 0.35) !important;
-                will-change: auto !important;
+              box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 4px 10px rgba(0, 0, 0, 0.35) !important;
+              will-change: box-shadow, border-color, opacity;
             }
 
             .mobile-isolated-map .mobile-node-root {
-                background: radial-gradient(circle at 30% 30%, #f4f7fb 0%, #c3ccd8 50%, #7e8797 100%);
-                border-color: rgba(255, 255, 255, 0.65);
-                color: #0f172a;
+              background: radial-gradient(circle at 33% 28%, #fefefe 0%, #ecf1f7 20%, #d3dce8 42%, #97a8ba 67%, #5d6a78 86%, #2f3741 100%);
+              border-color: rgba(236, 245, 255, 0.94);
+              border-width: 3px;
+              color: #0f172a;
+              overflow: visible;
+              animation: mobileRootMetalPulse 3.2s ease-in-out infinite !important;
             }
 
-            .mobile-isolated-map .mobile-node-earth {
-                background: linear-gradient(160deg, #6a4f2f, #4f3a24);
-                border-color: rgba(255, 208, 128, 0.45);
+            .mobile-isolated-map .mobile-node-root::before,
+            .mobile-isolated-map .mobile-node-root::after {
+              content: "" !important;
+              display: block !important;
+              position: absolute;
+              border-radius: 999px;
+              pointer-events: none;
             }
 
-            .mobile-isolated-map .mobile-node-random {
-                background: linear-gradient(160deg, #6840b3, #3a2466);
-                border-color: rgba(178, 141, 255, 0.45);
+            .mobile-isolated-map .mobile-node-root::before {
+              inset: -12px;
+              border: 2px solid rgba(176, 222, 255, 0.7);
+              border-top-color: rgba(255, 255, 255, 0.98);
+              border-right-color: rgba(128, 211, 255, 0.3);
+              box-shadow: 0 0 14px rgba(104, 194, 255, 0.45);
+              opacity: 0.86;
+              animation: mobileRootArcPulse 2.1s ease-in-out infinite, mobileRootArcSpin 7.8s linear infinite;
             }
 
-            .mobile-isolated-map .mobile-node-repo {
-                background: linear-gradient(160deg, #1f7e95, #173d52);
-                border-color: rgba(0, 228, 255, 0.45);
-            }
-
-            .mobile-isolated-map .mobile-node-about {
-                background: linear-gradient(160deg, #b6641d, #7a3f10);
-                border-color: rgba(255, 208, 0, 0.45);
-            }
-
-            .mobile-isolated-map .mobile-node-level2 {
-                background: linear-gradient(160deg, #2c92aa, #20586f);
-                border-color: rgba(120, 240, 255, 0.5);
+            .mobile-isolated-map .mobile-node-root::after {
+              inset: -19px;
+              border: 1.5px dashed rgba(185, 233, 255, 0.58);
+              border-bottom-color: rgba(255, 255, 255, 0.18);
+              border-right-color: rgba(255, 255, 255, 0.9);
+              box-shadow: 0 0 12px rgba(117, 206, 255, 0.35);
+              opacity: 0.72;
+              animation: mobileRootArcSpinReverse 10.4s linear infinite;
             }
 
             .mobile-isolated-map .mobile-node-name {
-                color: #111 !important;
-                font-weight: 700;
-                transform: none !important;
-                position: relative;
-                top: 0;
-                left: 0;
+              color: #111 !important;
+              font-weight: 700;
+              transform: none !important;
+              position: relative;
+              top: 0;
+              left: 0;
+            }
+
+            .mobile-isolated-map .mobile-node.mobile-node-root .mobile-node-name {
+              color: #111b24 !important;
+              text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
+            }
+
+            .mobile-isolated-map .mobile-node.mobile-effect-fire .mobile-node-name,
+            .mobile-isolated-map .mobile-node.mobile-effect-water .mobile-node-name,
+            .mobile-isolated-map .mobile-node.mobile-effect-earth .mobile-node-name,
+            .mobile-isolated-map .mobile-node.mobile-effect-wood .mobile-node-name {
+              color: #f9f4d7 !important;
+              text-shadow: 0 0 6px rgba(0, 0, 0, 0.48);
             }
 
             .mobile-isolated-map .mobile-hint {
@@ -2458,84 +2478,183 @@
             }
 
             .mobile-isolated-map .mobile-graph-links line {
-              animation: mobileLinkPulse 3.6s ease-in-out infinite !important;
+              animation: mobileLinkPulse 3.2s ease-in-out infinite !important;
             }
 
             .mobile-isolated-map .mobile-link-secondary {
-              animation-duration: 2.9s !important;
+              animation-duration: 2.4s !important;
             }
 
-            .mobile-isolated-map .mobile-node.mobile-node-root,
-            .mobile-isolated-map .mobile-node.mobile-node-level1,
-            .mobile-isolated-map .mobile-node.mobile-node-level2 {
-              will-change: box-shadow, border-color, opacity;
+            /* 十个分支槽位（同分支可复用同槽位效果） */
+            .mobile-isolated-map .mobile-branch-1 { --branch-delay: 0s; }
+            .mobile-isolated-map .mobile-branch-2 { --branch-delay: 0.16s; }
+            .mobile-isolated-map .mobile-branch-3 { --branch-delay: 0.28s; }
+            .mobile-isolated-map .mobile-branch-4 { --branch-delay: 0.42s; }
+            .mobile-isolated-map .mobile-branch-5 { --branch-delay: 0.58s; }
+            .mobile-isolated-map .mobile-branch-6 { --branch-delay: 0.72s; }
+            .mobile-isolated-map .mobile-branch-7 { --branch-delay: 0.9s; }
+            .mobile-isolated-map .mobile-branch-8 { --branch-delay: 1.04s; }
+            .mobile-isolated-map .mobile-branch-9 { --branch-delay: 1.18s; }
+            .mobile-isolated-map .mobile-branch-10 { --branch-delay: 1.34s; }
+
+            .mobile-isolated-map .mobile-node.mobile-effect-fire,
+            .mobile-isolated-map .mobile-node.mobile-effect-water,
+            .mobile-isolated-map .mobile-node.mobile-effect-earth,
+            .mobile-isolated-map .mobile-node.mobile-effect-wood {
+                overflow: visible;
             }
 
-            .mobile-isolated-map .mobile-node.mobile-node-root {
-              overflow: visible;
-              animation: mobileRootPulse 4.8s ease-in-out infinite !important;
+            .mobile-isolated-map .mobile-node.mobile-effect-fire {
+                background: radial-gradient(circle at 35% 28%, #ffe47d 0%, #ff9a3d 24%, #ff4e1f 52%, #a61a12 82%, #43110f 100%) !important;
+                border-color: rgba(255, 126, 66, 0.95);
+                box-shadow: 0 0 0 1px rgba(255, 145, 79, 0.25), 0 6px 14px rgba(0, 0, 0, 0.44), 0 0 20px rgba(255, 74, 44, 0.45) !important;
+                animation: mobileFirePulse 2.7s ease-in-out infinite !important;
+                animation-delay: var(--branch-delay, 0s);
             }
 
-            .mobile-isolated-map .mobile-node.mobile-node-root::before {
-              content: "" !important;
-              display: block !important;
-              position: absolute;
-              inset: -10px;
-              border-radius: 999px;
-              border: 1.5px solid rgba(180, 230, 255, 0.56);
-              opacity: 0.72;
-              animation: mobileRootRing 3.9s ease-in-out infinite;
-              pointer-events: none;
+            .mobile-isolated-map .mobile-node.mobile-effect-fire::before {
+                content: "" !important;
+                display: block !important;
+                position: absolute;
+                inset: -7px;
+                border-radius: 999px;
+                border: 1.5px solid rgba(255, 156, 88, 0.55);
+                opacity: 0.6;
+                animation: mobileFireFlicker 1.45s linear infinite;
+                pointer-events: none;
             }
 
-            .mobile-isolated-map .mobile-node.mobile-node-root::after {
-              content: "" !important;
-              display: block !important;
-              position: absolute;
-              inset: 6px;
-              border-radius: 999px;
-              background: linear-gradient(130deg, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0));
-              opacity: 0.6;
-              animation: mobileRootSheen 5.4s ease-in-out infinite;
-              pointer-events: none;
+            .mobile-isolated-map .mobile-node.mobile-effect-water {
+                background: radial-gradient(circle at 32% 26%, #d6f8ff 0%, #84deff 30%, #2ea9d6 64%, #15507c 100%) !important;
+                border-color: rgba(132, 222, 255, 0.9);
+                box-shadow: 0 0 0 1px rgba(130, 228, 255, 0.24), 0 6px 14px rgba(0, 0, 0, 0.4), 0 0 20px rgba(0, 170, 222, 0.35) !important;
+                animation: mobileWaterPulse 3.5s ease-in-out infinite !important;
+                animation-delay: var(--branch-delay, 0s);
             }
 
-            .mobile-isolated-map .mobile-node.mobile-node-level1 {
-              animation: mobileNodePulse 5.8s ease-in-out infinite !important;
+            .mobile-isolated-map .mobile-node.mobile-effect-water::before {
+                content: "" !important;
+                display: block !important;
+                position: absolute;
+                inset: -6px;
+                border-radius: 999px;
+                border: 1.4px solid rgba(175, 240, 255, 0.58);
+                opacity: 0.62;
+                animation: mobileWaterRing 3.1s ease-in-out infinite;
+                pointer-events: none;
             }
 
-            .mobile-isolated-map .mobile-node.mobile-node-level2 {
-              animation: mobileNodePulseSoft 6.4s ease-in-out infinite !important;
+            .mobile-isolated-map .mobile-node.mobile-effect-earth {
+                background:
+                    radial-gradient(circle at 30% 26%, #c89f65 0%, #8f683a 48%, #4b341f 100%),
+                    repeating-linear-gradient(145deg, rgba(255, 214, 156, 0.12) 0 3px, rgba(64, 41, 23, 0.18) 3px 6px) !important;
+                border-color: rgba(165, 118, 68, 0.9);
+                box-shadow: 0 0 0 1px rgba(188, 146, 96, 0.2), 0 6px 14px rgba(0, 0, 0, 0.45), 0 0 18px rgba(116, 78, 40, 0.34) !important;
+                animation: mobileEarthPulse 4.2s ease-in-out infinite !important;
+                animation-delay: var(--branch-delay, 0s);
+            }
+
+            .mobile-isolated-map .mobile-node.mobile-effect-earth::before {
+                content: "" !important;
+                display: block !important;
+                position: absolute;
+                inset: -6px;
+                border-radius: 999px;
+                border: 1.4px dashed rgba(196, 148, 101, 0.45);
+                opacity: 0.58;
+                animation: mobileEarthCrack 4.8s ease-in-out infinite;
+                pointer-events: none;
+            }
+
+            .mobile-isolated-map .mobile-node.mobile-effect-wood {
+                background:
+                    radial-gradient(circle at 32% 24%, #dbf8b6 0%, #83c86f 34%, #3f7d43 67%, #1d4229 100%),
+                    repeating-linear-gradient(128deg, rgba(225, 255, 200, 0.14) 0 4px, rgba(35, 66, 40, 0.18) 4px 8px) !important;
+                border-color: rgba(139, 208, 127, 0.92);
+                box-shadow: 0 0 0 1px rgba(178, 236, 169, 0.22), 0 6px 14px rgba(0, 0, 0, 0.42), 0 0 20px rgba(73, 168, 94, 0.34) !important;
+                animation: mobileWoodPulse 3.8s ease-in-out infinite !important;
+                animation-delay: var(--branch-delay, 0s);
+            }
+
+            .mobile-isolated-map .mobile-node.mobile-effect-wood::before {
+                content: "" !important;
+                display: block !important;
+                position: absolute;
+                inset: -7px;
+                border-radius: 999px;
+                border: 1.4px solid rgba(167, 235, 149, 0.52);
+                opacity: 0.6;
+                animation: mobileWoodBreathe 4.6s ease-in-out infinite;
+                pointer-events: none;
             }
 
             @keyframes mobileLinkPulse {
-              0%, 100% { opacity: 0.62; }
-              50% { opacity: 0.95; }
+              0%, 100% { opacity: 0.55; }
+              50% { opacity: 0.9; }
             }
 
-            @keyframes mobileRootPulse {
-              0%, 100% { box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1), 0 4px 12px rgba(0, 0, 0, 0.35), 0 0 14px rgba(200, 220, 255, 0.42) !important; }
-              50% { box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2), 0 8px 18px rgba(0, 0, 0, 0.45), 0 0 24px rgba(220, 235, 255, 0.65) !important; }
+            @keyframes mobileRootMetalPulse {
+              0%, 100% {
+                box-shadow: 0 0 0 1px rgba(237, 246, 255, 0.3), 0 6px 16px rgba(0, 0, 0, 0.42), 0 0 18px rgba(133, 203, 255, 0.46) !important;
+              }
+              50% {
+                box-shadow: 0 0 0 1px rgba(245, 251, 255, 0.52), 0 10px 21px rgba(0, 0, 0, 0.5), 0 0 32px rgba(166, 219, 255, 0.7) !important;
+              }
             }
 
-            @keyframes mobileNodePulse {
-              0%, 100% { box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 4px 10px rgba(0, 0, 0, 0.35) !important; opacity: 0.95; }
-              50% { box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.14), 0 8px 16px rgba(0, 0, 0, 0.42) !important; opacity: 1; }
+            @keyframes mobileRootArcPulse {
+              0%, 100% { opacity: 0.54; transform: scale(0.985); }
+              50% { opacity: 0.95; transform: scale(1.035); }
             }
 
-            @keyframes mobileNodePulseSoft {
-              0%, 100% { box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 4px 10px rgba(0, 0, 0, 0.35) !important; opacity: 0.9; }
-              50% { box-shadow: 0 0 0 1px rgba(120, 240, 255, 0.22), 0 7px 14px rgba(0, 0, 0, 0.4) !important; opacity: 1; }
+            @keyframes mobileRootArcSpin {
+              to { transform: rotate(360deg); }
             }
 
-            @keyframes mobileRootRing {
-              0%, 100% { opacity: 0.35; transform: scale(0.96); }
-              50% { opacity: 0.82; transform: scale(1.04); }
+            @keyframes mobileRootArcSpinReverse {
+              to { transform: rotate(-360deg); }
             }
 
-            @keyframes mobileRootSheen {
-              0%, 100% { opacity: 0.35; }
-              50% { opacity: 0.7; }
+            @keyframes mobileFirePulse {
+              0%, 100% { transform: translate(-50%, -50%) scale(0.98); opacity: 0.92; }
+              45% { transform: translate(-50%, -50%) scale(1.03); opacity: 1; }
+              70% { transform: translate(-50%, -50%) scale(1.01); opacity: 0.95; }
+            }
+
+            @keyframes mobileFireFlicker {
+              0%, 100% { opacity: 0.42; }
+              35% { opacity: 0.78; }
+              65% { opacity: 0.55; }
+            }
+
+            @keyframes mobileWaterPulse {
+              0%, 100% { transform: translate(-50%, -50%) scale(0.985); opacity: 0.92; }
+              50% { transform: translate(-50%, -50%) scale(1.03); opacity: 1; }
+            }
+
+            @keyframes mobileWaterRing {
+              0%, 100% { opacity: 0.35; transform: scale(0.95); }
+              50% { opacity: 0.76; transform: scale(1.06); }
+            }
+
+            @keyframes mobileEarthPulse {
+              0%, 100% { transform: translate(-50%, -50%) scale(0.985); opacity: 0.93; }
+              50% { transform: translate(-50%, -50%) scale(1.02); opacity: 1; }
+            }
+
+            @keyframes mobileEarthCrack {
+              0%, 100% { opacity: 0.32; transform: rotate(0deg); }
+              50% { opacity: 0.6; transform: rotate(8deg); }
+            }
+
+            @keyframes mobileWoodPulse {
+              0%, 100% { transform: translate(-50%, -50%) scale(0.985); opacity: 0.92; }
+              50% { transform: translate(-50%, -50%) scale(1.028); opacity: 1; }
+            }
+
+            @keyframes mobileWoodBreathe {
+              0%, 100% { opacity: 0.35; transform: scale(0.95); }
+              50% { opacity: 0.72; transform: scale(1.05); }
             }
         }
     </style>
@@ -2870,10 +2989,16 @@
             ];
 
             const level1TypeClasses = [
-                'mobile-node-earth',
-                'mobile-node-random',
-                'mobile-node-repo',
-                'mobile-node-about'
+              'mobile-node-earth mobile-effect-earth mobile-branch-1',
+              'mobile-node-random mobile-effect-fire mobile-branch-2',
+              'mobile-node-repo mobile-effect-water mobile-branch-3',
+              'mobile-node-about mobile-effect-wood mobile-branch-4'
+            ];
+
+            // 预留十个分支槽位（当前首屏可见节点使用前六个）
+            const level2TypeClasses = [
+              'mobile-effect-fire mobile-branch-5',
+              'mobile-effect-fire mobile-branch-6'
             ];
 
             const level1Html = level1Nodes.map((item, index) => `
@@ -2893,7 +3018,7 @@
             const level2PosClasses = ['mobile-node-l2-a', 'mobile-node-l2-b'];
             const level2Html = randomBranch.map((item, index) => `
                 <button
-                    class="mobile-node mobile-node-level2 ${level2PosClasses[index] || ''}"
+                class="mobile-node mobile-node-level2 ${level2PosClasses[index] || ''} ${level2TypeClasses[index] || 'mobile-effect-fire mobile-branch-10'}"
                     type="button"
                     data-node-path="1.${index}"
                 >

@@ -333,20 +333,76 @@
     }
 
     #hero-info-card h1 {
-      font-size: 32px;
+      font-size: 40px;
       font-weight: 700;
       background: linear-gradient(90deg, #00E4FF, #722ED1);
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
-      margin-bottom: 4px;
+      margin-bottom: 0;
+      line-height: 1.04;
     }
 
     #hero-info-card p {
       font-size: 14px;
       color: rgba(255, 255, 255, 0.78);
       line-height: 1.5;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
+    }
+
+    .hero-name-row {
+      display: flex;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .hero-name-main {
+      margin: 0;
+      line-height: 1.04;
+    }
+
+    .hero-name-divider {
+      color: rgba(255, 255, 255, 0.55);
+      font-size: 23px;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .hero-name-honor {
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.35;
+      color: #C8B2FF;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(114, 46, 209, 0.46);
+      background: rgba(114, 46, 209, 0.16);
+    }
+
+    .hero-priority-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 0 0 10px;
+    }
+
+    .hero-priority-item {
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1;
+      color: #FFE08D;
+      padding: 6px 11px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 220, 120, 0.38);
+      background: rgba(255, 208, 0, 0.12);
+    }
+
+    .hero-priority-item.major {
+      color: #7BEFFF;
+      border-color: rgba(0, 228, 255, 0.42);
+      background: rgba(0, 228, 255, 0.14);
     }
 
     .hero-mini-title {
@@ -916,6 +972,26 @@
         animation: slideUp 0.8s ease-out forwards;
       }
 
+      #hero-info-card-mobile .hero-name-main {
+        font-size: 34px;
+        font-weight: 800;
+        margin: 0;
+        line-height: 1.06;
+        background: linear-gradient(90deg, #66ECFF, #9A7CFF);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+
+      #hero-info-card-mobile .hero-name-honor {
+        font-size: 12px;
+      }
+
+      #hero-info-card-mobile .hero-priority-item {
+        font-size: 12px;
+        padding: 6px 10px;
+      }
+
       /* 隐藏电脑版卡片 - 已上面设置 display: none */
 
       /* 页脚适配 */
@@ -1022,8 +1098,17 @@
 
       <!-- 左侧信息卡片 -->
       <div id="hero-info-card">
-        <h1>余鑫</h1>
-        <p><span class="text-white/90 font-semibold">湖南大学</span> · 应用物理学（本科）</p>
+        <div class="hero-name-row">
+          <h1 class="hero-name-main">余鑫</h1>
+          <span class="hero-name-divider">|</span>
+          <span class="hero-name-honor">两届国家奖学金/中科院严济慈班奖学金获得者</span>
+        </div>
+        <div class="hero-priority-row">
+          <span class="hero-priority-item major">应用物理学（本科）</span>
+          <span class="hero-priority-item">GPA 3.95/4.0</span>
+          <span class="hero-priority-item">专业 2/112</span>
+        </div>
+        <p><span class="text-white/90 font-semibold">湖南大学</span></p>
 
         <div class="hero-mini-title">经历（顺序）</div>
         <div class="hero-timeline">
@@ -1049,11 +1134,6 @@
           <div class="hero-track purple"><i class="fa fa-cube"></i> 3D-AIGC</div>
           <div class="hero-track gold"><i class="fa fa-atom"></i> 仿生仿物机制建模->科学计算体系</div>
         </div>
-        <div class="hero-badges">
-          <span class="hero-badge">GPA 3.95/4.0</span>
-          <span class="hero-badge gold">专业 2/112</span>
-          <span class="hero-badge purple">两届国家奖学金/中科院严济慈班奖学金获得者</span>
-        </div>
         <div class="hero-cta">
           <a href="#about" class="hero-cta-primary">了解我</a>
           <a href="#repo-grid" class="hero-cta-secondary">github开源库</a>
@@ -1076,8 +1156,17 @@
         
         <!-- 手机版个人卡片 -->
         <div id="hero-info-card-mobile" class="md:hidden mb-12 card-gradient rounded-2xl p-8 glow-border">
-          <h1 class="text-2xl font-bold mb-2">余鑫</h1>
-          <p><span class="text-white/90 font-semibold">湖南大学</span> · 应用物理学（本科）</p>
+          <div class="hero-name-row">
+            <h1 class="hero-name-main">余鑫</h1>
+            <span class="hero-name-divider">|</span>
+            <span class="hero-name-honor">两届国家奖学金/中科院严济慈班奖学金获得者</span>
+          </div>
+          <div class="hero-priority-row">
+            <span class="hero-priority-item major">应用物理学（本科）</span>
+            <span class="hero-priority-item">GPA 3.95/4.0</span>
+            <span class="hero-priority-item">专业 2/112</span>
+          </div>
+          <p><span class="text-white/90 font-semibold">湖南大学</span></p>
 
           <div class="hero-mini-title">经历（顺序）</div>
           <div class="hero-timeline">
@@ -1102,11 +1191,6 @@
             <div class="hero-track"><i class="fa fa-compass"></i> 确定性模式引导的随机模型</div>
             <div class="hero-track purple"><i class="fa fa-cube"></i> 3D-AIGC</div>
             <div class="hero-track gold"><i class="fa fa-atom"></i> 仿生仿物机制建模->科学计算体系</div>
-          </div>
-          <div class="hero-badges">
-            <span class="hero-badge">GPA 3.95/4.0</span>
-            <span class="hero-badge gold">专业 2/112</span>
-            <span class="hero-badge purple">两届国家奖学金/中科院严济慈班奖学金获得者</span>
           </div>
         </div>
         
@@ -1969,6 +2053,43 @@
             margin-bottom: 16px;
         }
 
+        .modal-link-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+          gap: 14px;
+          margin-top: 8px;
+        }
+
+        .modal-link-card {
+          display: block;
+          text-decoration: none;
+          color: var(--bright-yellow);
+          border: 1px solid rgba(0, 228, 255, 0.34);
+          border-radius: 12px;
+          padding: 14px 16px;
+          background: linear-gradient(145deg, rgba(20, 27, 52, 0.72), rgba(10, 15, 29, 0.9));
+          transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+        }
+
+        .modal-link-card strong {
+          display: block;
+          font-size: 16px;
+          color: #7BEFFF;
+          margin-bottom: 5px;
+        }
+
+        .modal-link-card span {
+          display: block;
+          font-size: 13px;
+          color: rgba(255, 255, 255, 0.7);
+        }
+
+        .modal-link-card:hover {
+          border-color: rgba(255, 215, 0, 0.5);
+          box-shadow: 0 10px 26px rgba(0, 0, 0, 0.34), 0 0 16px rgba(0, 228, 255, 0.24);
+          transform: translateY(-2px);
+        }
+
         .lightning-path {
             fill: none;
             stroke: url(#arc-gradient);
@@ -2408,10 +2529,10 @@
             }
 
             .mobile-isolated-map .mobile-node-root {
-              background: radial-gradient(circle at 33% 28%, #fefefe 0%, #ecf1f7 20%, #d3dce8 42%, #97a8ba 67%, #5d6a78 86%, #2f3741 100%);
+              background: radial-gradient(circle at 34% 30%, #fefefe 0%, #e6edf5 18%, #c9d4e2 42%, #8393a6 70%, #36404a 100%);
               border-color: rgba(236, 245, 255, 0.94);
               border-width: 3px;
-              color: #0f172a;
+                color: #0f172a;
               overflow: visible;
               animation: mobileRootMetalPulse 3.2s ease-in-out infinite !important;
             }
@@ -2436,7 +2557,7 @@
             }
 
             .mobile-isolated-map .mobile-node-root::after {
-              inset: -19px;
+              inset: -20px;
               border: 1.5px dashed rgba(185, 233, 255, 0.58);
               border-bottom-color: rgba(255, 255, 255, 0.18);
               border-right-color: rgba(255, 255, 255, 0.9);
@@ -2445,13 +2566,42 @@
               animation: mobileRootArcSpinReverse 10.4s linear infinite;
             }
 
+            .mobile-isolated-map .mobile-node-earth {
+              background: radial-gradient(circle at 32% 26%, #bd8b54 0%, #7d5630 50%, #4d311d 100%);
+              border-color: rgba(188, 146, 96, 0.8);
+            }
+
+            .mobile-isolated-map .mobile-node-random {
+              background: radial-gradient(circle at 35% 28%, #ffd37f 0%, #ff7a38 32%, #db2f25 65%, #4f0f0c 100%);
+              border-color: rgba(255, 126, 66, 0.92);
+            }
+
+            .mobile-isolated-map .mobile-node-repo {
+              background: radial-gradient(circle at 32% 28%, #d7f8ff 0%, #7edcff 30%, #2b93da 62%, #123f73 100%);
+              border-color: rgba(132, 222, 255, 0.9);
+            }
+
+            .mobile-isolated-map .mobile-node-about {
+              background: radial-gradient(circle at 32% 24%, #ddffc6 0%, #8fdc78 34%, #3f8a49 68%, #1a3f28 100%);
+              border-color: rgba(139, 208, 127, 0.92);
+            }
+
+            .mobile-isolated-map .mobile-node-level2 {
+              background: radial-gradient(circle at 35% 28%, #ffd37f 0%, #ff7a38 32%, #db2f25 65%, #4f0f0c 100%);
+              border-color: rgba(255, 126, 66, 0.92);
+            }
+
             .mobile-isolated-map .mobile-node-name {
-              color: #111 !important;
-              font-weight: 700;
-              transform: none !important;
-              position: relative;
-              top: 0;
-              left: 0;
+                color: #111 !important;
+                font-weight: 700;
+                transform: none !important;
+                position: relative;
+                top: 0;
+                left: 0;
+            }
+
+            .mobile-isolated-map .mobile-hint {
+                color: rgba(255, 255, 255, 0.72);
             }
 
             .mobile-isolated-map .mobile-node.mobile-node-root .mobile-node-name {
@@ -2460,15 +2610,11 @@
             }
 
             .mobile-isolated-map .mobile-node.mobile-effect-fire .mobile-node-name,
-            .mobile-isolated-map .mobile-node.mobile-effect-water .mobile-node-name,
-            .mobile-isolated-map .mobile-node.mobile-effect-earth .mobile-node-name,
-            .mobile-isolated-map .mobile-node.mobile-effect-wood .mobile-node-name {
+            .mobile-isolated-map .mobile-node.mobile-effect-wave .mobile-node-name,
+            .mobile-isolated-map .mobile-node.mobile-effect-hurricane .mobile-node-name,
+            .mobile-isolated-map .mobile-node.mobile-effect-earth .mobile-node-name {
               color: #f9f4d7 !important;
               text-shadow: 0 0 6px rgba(0, 0, 0, 0.48);
-            }
-
-            .mobile-isolated-map .mobile-hint {
-                color: rgba(255, 255, 255, 0.72);
             }
 
             .mobile-isolated-map .mobile-node::before,
@@ -2477,15 +2623,47 @@
                 display: none !important;
             }
 
+            .mobile-isolated-map .mobile-node.mobile-node-root {
+              animation: mobileRootMetalPulse 3.2s ease-in-out infinite !important;
+            }
+
+            .mobile-isolated-map .mobile-node.mobile-node-root::before,
+            .mobile-isolated-map .mobile-node.mobile-node-root::after {
+              content: "" !important;
+              display: block !important;
+              position: absolute;
+              border-radius: 999px;
+              pointer-events: none;
+            }
+
+            .mobile-isolated-map .mobile-node.mobile-node-root::before {
+              inset: -12px;
+              border: 2px solid rgba(176, 222, 255, 0.7);
+              border-top-color: rgba(255, 255, 255, 0.98);
+              border-right-color: rgba(128, 211, 255, 0.3);
+              box-shadow: 0 0 14px rgba(104, 194, 255, 0.45);
+              opacity: 0.86;
+              animation: mobileRootArcPulse 2.1s ease-in-out infinite, mobileRootArcSpin 7.8s linear infinite;
+            }
+
+            .mobile-isolated-map .mobile-node.mobile-node-root::after {
+              inset: -20px;
+              border: 1.5px dashed rgba(185, 233, 255, 0.58);
+              border-bottom-color: rgba(255, 255, 255, 0.18);
+              border-right-color: rgba(255, 255, 255, 0.9);
+              box-shadow: 0 0 12px rgba(117, 206, 255, 0.35);
+              opacity: 0.72;
+              animation: mobileRootArcSpinReverse 10.4s linear infinite;
+            }
+
             .mobile-isolated-map .mobile-graph-links line {
-              animation: mobileLinkPulse 3.2s ease-in-out infinite !important;
+              animation: mobileLinkPulse 3.6s ease-in-out infinite !important;
             }
 
             .mobile-isolated-map .mobile-link-secondary {
               animation-duration: 2.4s !important;
             }
 
-            /* 十个分支槽位（同分支可复用同槽位效果） */
             .mobile-isolated-map .mobile-branch-1 { --branch-delay: 0s; }
             .mobile-isolated-map .mobile-branch-2 { --branch-delay: 0.16s; }
             .mobile-isolated-map .mobile-branch-3 { --branch-delay: 0.28s; }
@@ -2498,18 +2676,16 @@
             .mobile-isolated-map .mobile-branch-10 { --branch-delay: 1.34s; }
 
             .mobile-isolated-map .mobile-node.mobile-effect-fire,
-            .mobile-isolated-map .mobile-node.mobile-effect-water,
-            .mobile-isolated-map .mobile-node.mobile-effect-earth,
-            .mobile-isolated-map .mobile-node.mobile-effect-wood {
+            .mobile-isolated-map .mobile-node.mobile-effect-wave,
+            .mobile-isolated-map .mobile-node.mobile-effect-hurricane,
+            .mobile-isolated-map .mobile-node.mobile-effect-earth {
                 overflow: visible;
             }
 
             .mobile-isolated-map .mobile-node.mobile-effect-fire {
-                background: radial-gradient(circle at 35% 28%, #ffe47d 0%, #ff9a3d 24%, #ff4e1f 52%, #a61a12 82%, #43110f 100%) !important;
-                border-color: rgba(255, 126, 66, 0.95);
-                box-shadow: 0 0 0 1px rgba(255, 145, 79, 0.25), 0 6px 14px rgba(0, 0, 0, 0.44), 0 0 20px rgba(255, 74, 44, 0.45) !important;
                 animation: mobileFirePulse 2.7s ease-in-out infinite !important;
                 animation-delay: var(--branch-delay, 0s);
+                box-shadow: 0 0 0 1px rgba(255, 145, 79, 0.26), 0 6px 14px rgba(0, 0, 0, 0.44), 0 0 20px rgba(255, 74, 44, 0.45) !important;
             }
 
             .mobile-isolated-map .mobile-node.mobile-effect-fire::before {
@@ -2524,67 +2700,70 @@
                 pointer-events: none;
             }
 
-            .mobile-isolated-map .mobile-node.mobile-effect-water {
-                background: radial-gradient(circle at 32% 26%, #d6f8ff 0%, #84deff 30%, #2ea9d6 64%, #15507c 100%) !important;
-                border-color: rgba(132, 222, 255, 0.9);
-                box-shadow: 0 0 0 1px rgba(130, 228, 255, 0.24), 0 6px 14px rgba(0, 0, 0, 0.4), 0 0 20px rgba(0, 170, 222, 0.35) !important;
-                animation: mobileWaterPulse 3.5s ease-in-out infinite !important;
+            .mobile-isolated-map .mobile-node.mobile-effect-wave {
+                animation: mobileWavePulse 3.5s ease-in-out infinite !important;
                 animation-delay: var(--branch-delay, 0s);
+                box-shadow: 0 0 0 1px rgba(130, 228, 255, 0.26), 0 6px 14px rgba(0, 0, 0, 0.4), 0 0 20px rgba(0, 170, 222, 0.35) !important;
             }
 
-            .mobile-isolated-map .mobile-node.mobile-effect-water::before {
+            .mobile-isolated-map .mobile-node.mobile-effect-wave::before {
                 content: "" !important;
                 display: block !important;
                 position: absolute;
-                inset: -6px;
+                inset: -7px;
                 border-radius: 999px;
                 border: 1.4px solid rgba(175, 240, 255, 0.58);
                 opacity: 0.62;
-                animation: mobileWaterRing 3.1s ease-in-out infinite;
+                animation: mobileWaveRing 3.1s ease-in-out infinite;
                 pointer-events: none;
             }
 
+            .mobile-isolated-map .mobile-node.mobile-effect-hurricane {
+                animation: mobileHurricaneBreath 3.8s ease-in-out infinite !important;
+                animation-delay: var(--branch-delay, 0s);
+                box-shadow: 0 0 0 1px rgba(178, 236, 169, 0.24), 0 6px 14px rgba(0, 0, 0, 0.42), 0 0 20px rgba(73, 168, 94, 0.34) !important;
+            }
+
+            .mobile-isolated-map .mobile-node.mobile-effect-hurricane::before,
+            .mobile-isolated-map .mobile-node.mobile-effect-hurricane::after {
+                content: "" !important;
+                display: block !important;
+                position: absolute;
+                border-radius: 999px;
+                pointer-events: none;
+            }
+
+            .mobile-isolated-map .mobile-node.mobile-effect-hurricane::before {
+                inset: -10px;
+                border: 1.5px solid rgba(164, 236, 146, 0.48);
+                border-left-color: rgba(164, 236, 146, 0.2);
+                animation: mobileHurricaneSpin 3.4s linear infinite;
+                opacity: 0.68;
+            }
+
+            .mobile-isolated-map .mobile-node.mobile-effect-hurricane::after {
+                inset: -16px;
+                border: 1.2px dashed rgba(130, 220, 134, 0.36);
+                border-right-color: rgba(130, 220, 134, 0.75);
+                animation: mobileHurricaneSpin 5.2s linear infinite reverse;
+                opacity: 0.46;
+            }
+
             .mobile-isolated-map .mobile-node.mobile-effect-earth {
-                background:
-                    radial-gradient(circle at 30% 26%, #c89f65 0%, #8f683a 48%, #4b341f 100%),
-                    repeating-linear-gradient(145deg, rgba(255, 214, 156, 0.12) 0 3px, rgba(64, 41, 23, 0.18) 3px 6px) !important;
-                border-color: rgba(165, 118, 68, 0.9);
-                box-shadow: 0 0 0 1px rgba(188, 146, 96, 0.2), 0 6px 14px rgba(0, 0, 0, 0.45), 0 0 18px rgba(116, 78, 40, 0.34) !important;
                 animation: mobileEarthPulse 4.2s ease-in-out infinite !important;
                 animation-delay: var(--branch-delay, 0s);
+                box-shadow: 0 0 0 1px rgba(188, 146, 96, 0.22), 0 6px 14px rgba(0, 0, 0, 0.45), 0 0 18px rgba(116, 78, 40, 0.34) !important;
             }
 
             .mobile-isolated-map .mobile-node.mobile-effect-earth::before {
                 content: "" !important;
                 display: block !important;
                 position: absolute;
-                inset: -6px;
+                inset: -8px;
                 border-radius: 999px;
                 border: 1.4px dashed rgba(196, 148, 101, 0.45);
-                opacity: 0.58;
-                animation: mobileEarthCrack 4.8s ease-in-out infinite;
-                pointer-events: none;
-            }
-
-            .mobile-isolated-map .mobile-node.mobile-effect-wood {
-                background:
-                    radial-gradient(circle at 32% 24%, #dbf8b6 0%, #83c86f 34%, #3f7d43 67%, #1d4229 100%),
-                    repeating-linear-gradient(128deg, rgba(225, 255, 200, 0.14) 0 4px, rgba(35, 66, 40, 0.18) 4px 8px) !important;
-                border-color: rgba(139, 208, 127, 0.92);
-                box-shadow: 0 0 0 1px rgba(178, 236, 169, 0.22), 0 6px 14px rgba(0, 0, 0, 0.42), 0 0 20px rgba(73, 168, 94, 0.34) !important;
-                animation: mobileWoodPulse 3.8s ease-in-out infinite !important;
-                animation-delay: var(--branch-delay, 0s);
-            }
-
-            .mobile-isolated-map .mobile-node.mobile-effect-wood::before {
-                content: "" !important;
-                display: block !important;
-                position: absolute;
-                inset: -7px;
-                border-radius: 999px;
-                border: 1.4px solid rgba(167, 235, 149, 0.52);
-                opacity: 0.6;
-                animation: mobileWoodBreathe 4.6s ease-in-out infinite;
+                opacity: 0.56;
+                animation: mobileEarthSplash 4.8s ease-in-out infinite;
                 pointer-events: none;
             }
 
@@ -2627,14 +2806,23 @@
               65% { opacity: 0.55; }
             }
 
-            @keyframes mobileWaterPulse {
+            @keyframes mobileWavePulse {
               0%, 100% { transform: translate(-50%, -50%) scale(0.985); opacity: 0.92; }
               50% { transform: translate(-50%, -50%) scale(1.03); opacity: 1; }
             }
 
-            @keyframes mobileWaterRing {
+            @keyframes mobileWaveRing {
               0%, 100% { opacity: 0.35; transform: scale(0.95); }
               50% { opacity: 0.76; transform: scale(1.06); }
+            }
+
+            @keyframes mobileHurricaneSpin {
+              to { transform: rotate(360deg); }
+            }
+
+            @keyframes mobileHurricaneBreath {
+              0%, 100% { transform: translate(-50%, -50%) scale(0.985); opacity: 0.92; }
+              50% { transform: translate(-50%, -50%) scale(1.028); opacity: 1; }
             }
 
             @keyframes mobileEarthPulse {
@@ -2642,19 +2830,9 @@
               50% { transform: translate(-50%, -50%) scale(1.02); opacity: 1; }
             }
 
-            @keyframes mobileEarthCrack {
+            @keyframes mobileEarthSplash {
               0%, 100% { opacity: 0.32; transform: rotate(0deg); }
               50% { opacity: 0.6; transform: rotate(8deg); }
-            }
-
-            @keyframes mobileWoodPulse {
-              0%, 100% { transform: translate(-50%, -50%) scale(0.985); opacity: 0.92; }
-              50% { transform: translate(-50%, -50%) scale(1.028); opacity: 1; }
-            }
-
-            @keyframes mobileWoodBreathe {
-              0%, 100% { opacity: 0.35; transform: scale(0.95); }
-              50% { opacity: 0.72; transform: scale(1.05); }
             }
         }
     </style>
@@ -2856,6 +3034,28 @@
                             specialClass: 'node-highlight-red'
                         },
                         {
+                            name: '老师的评价',
+                            modal: {
+                                key: 'teacherBlogs',
+                                title: '老师针对我的思考与探讨书写的博客',
+                                content: `
+                                    <div class="modal-link-grid">
+                                        <a class="modal-link-card" href="https://mp.weixin.qq.com/s/YJMdLXntxwl9M5rLVIa5Lw" target="_blank" rel="noopener noreferrer">
+                                            <strong>《物理与工程》博客</strong>
+                                            <span>点击跳转阅读全文</span>
+                                        </a>
+                                        <a class="modal-link-card" href="https://blog.sciencenet.cn/blog-3377-1504497.html" target="_blank" rel="noopener noreferrer">
+                                            <strong>中国科学网博客</strong>
+                                            <span>点击跳转阅读全文</span>
+                                        </a>
+                                        
+                                    </div>
+                                `
+                            },
+                            nodeType: 'large',
+                            specialClass: 'node-highlight-red'
+                        },
+                        {
                             name: '竞赛经历',
                             modal: {
                                 key: 'competition',
@@ -2989,16 +3189,15 @@
             ];
 
             const level1TypeClasses = [
-              'mobile-node-earth mobile-effect-earth mobile-branch-1',
-              'mobile-node-random mobile-effect-fire mobile-branch-2',
-              'mobile-node-repo mobile-effect-water mobile-branch-3',
-              'mobile-node-about mobile-effect-wood mobile-branch-4'
+                'mobile-node-earth mobile-effect-earth mobile-branch-1',
+                'mobile-node-random mobile-effect-fire mobile-branch-2',
+                'mobile-node-repo mobile-effect-wave mobile-branch-3',
+                'mobile-node-about mobile-effect-hurricane mobile-branch-4'
             ];
 
-            // 预留十个分支槽位（当前首屏可见节点使用前六个）
             const level2TypeClasses = [
-              'mobile-effect-fire mobile-branch-5',
-              'mobile-effect-fire mobile-branch-6'
+                'mobile-effect-fire mobile-branch-5',
+                'mobile-effect-fire mobile-branch-6'
             ];
 
             const level1Html = level1Nodes.map((item, index) => `
@@ -3542,7 +3741,8 @@
       philosophy: '关于我 · 研究理念',
       education: '教育背景 · 课程与荣誉',
       research: '科研经历 · 项目与技能',
-      competition: '竞赛经历 · 项目与奖项'
+      competition: '竞赛经历 · 项目与奖项',
+      teacherBlogs: '老师针对我的思考与探讨书写的博客'
     };
 
     function cloneWithoutIds(element) {
@@ -3610,6 +3810,23 @@
 
         const honors = document.querySelector('#competition .mt-16.max-w-5xl');
         if (honors) wrapper.appendChild(cloneWithoutIds(honors));
+        return wrapper;
+      }
+
+      if (key === 'teacherBlogs') {
+        const blogsGrid = document.createElement('div');
+        blogsGrid.className = 'grid md:grid-cols-2 gap-4';
+        blogsGrid.innerHTML = `
+          <a href="https://mp.weixin.qq.com/s/YJMdLXntxwl9M5rLVIa5Lw" target="_blank" rel="noopener noreferrer" class="block rounded-xl border border-gold/50 bg-gradient-to-br from-neon/15 to-gold/10 hover:border-gold/80 hover:bg-gradient-to-br hover:from-neon/25 hover:to-gold/20 transition-all p-5 shadow-lg shadow-gold/20">
+            <div class="text-gold text-lg font-bold mb-2">《物理与工程》博客</div>
+            <div class="text-white/80 text-sm">点击跳转阅读全文</div>
+          </a>
+          <a href="https://blog.sciencenet.cn/blog-3377-1504497.html" target="_blank" rel="noopener noreferrer" class="block rounded-xl border border-neon/40 bg-white/[0.03] hover:border-gold/60 hover:bg-white/[0.06] transition-colors p-5">
+            <div class="text-neon text-lg font-bold mb-2">中国科学网博客</div>
+            <div class="text-white/70 text-sm">点击跳转阅读全文</div>
+          </a>
+        `;
+        wrapper.appendChild(blogsGrid);
         return wrapper;
       }
 

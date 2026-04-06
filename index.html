@@ -3094,6 +3094,13 @@
           const target = String(url || '').trim();
           if (!/^https?:\/\//i.test(target)) return;
 
+          // 手机端：直接导航以保留浏览历史（这样关闭后退可回到个人网页）
+          if (isMobileLayout) {
+            window.location.href = target;
+            return;
+          }
+
+          // 桌面端：尝试打开新标签
           let popup = null;
           try {
             popup = window.open(target, '_blank', 'noopener,noreferrer');

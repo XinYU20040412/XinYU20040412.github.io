@@ -3074,6 +3074,7 @@
         };
 
         const isMobileLayout = window.matchMedia('(max-width: 767px)').matches;
+        const isLikelyMobileDevice = isMobileLayout || /Android|iPhone|iPad|iPod|Mobile|Windows Phone|HarmonyOS|MQQBrowser/i.test(navigator.userAgent || '');
         const modalElement = document.getElementById('modal');
         const modalTitleElement = document.getElementById('modalTitle');
         const modalContentElement = document.getElementById('modalContent');
@@ -3102,11 +3103,15 @@
             }
           })();
 
-          // 手机端：在 iframe 内交给父页同页跳转，保证可后退回个人页
-          if (isMobileLayout) {
+          // 手机端：同页跳转，保证后退可回到个人页
+          if (isLikelyMobileDevice) {
             if (inIframe) {
               try {
                 window.parent.postMessage({ type: 'OPEN_EXTERNAL_LINK', url: target, sameTab: true }, '*');
+                return;
+              } catch (e) {}
+              try {
+                window.parent.location.href = target;
                 return;
               } catch (e) {}
             }
@@ -3137,8 +3142,8 @@
 
         function openModal(title, content, key) {
             try {
-            // 手机端一律本页弹窗，避免父页消息链导致点击无响应
-            if (!isMobileLayout && key && window.parent && window.parent !== window) {
+            // 在首屏 iframe 中统一交给父页弹窗，保证手机/电脑端展示内容一致
+            if (key && window.parent && window.parent !== window) {
                     window.parent.postMessage({ type: 'OPEN_HERO_NODE_MODAL', key, title }, '*');
                     // 避免层级弹窗停留在旧状态导致后续点击失效
                     closeModal();
@@ -3566,17 +3571,18 @@
                 .attr('class', 'node')
                 .attr('transform', d => `rotate(${d.x * 180 / Math.PI - 90}) translate(${d.y},0) rotate(${-(d.x * 180 / Math.PI - 90)})`);
 
+            const tooltipElement = document.getElementById('tooltip');
+
             const circles = node.append('circle')
                 .attr('class', d => `node-circle node-${d.data.nodeType} ${d.data.specialClass || ''}`)
                 .on('mouseover', function(event, d) {
                     if (d.data.tooltip || d.data.fullName) {
-                        const tooltip = document.getElementById('tooltip');
-                        tooltip.innerHTML = d.data.fullName || d.data.tooltip;
-                        tooltip.classList.add('show');
+                  tooltipElement.innerHTML = d.data.fullName || d.data.tooltip;
+                  tooltipElement.classList.add('show');
                     }
                 })
                 .on('mouseout', function() {
-                    document.getElementById('tooltip').classList.remove('show');
+                tooltipElement.classList.remove('show');
                 })
                 .on('click', function(event, d) {
                     if (d.data.nodeType === 'root') {
@@ -3610,19 +3616,31 @@
                 arcAudio.currentTime=0; arcAudio.play().catch(()=>{});
             }
 
+            let tooltipRafId = 0;
+            let tooltipMouseX = 0;
+            let tooltipMouseY = 0;
+
             document.addEventListener('mousemove', (e) => {
-                const t = document.getElementById('tooltip');
-                if (t.classList.contains('show')) {
-                    t.style.left = e.pageX+10+'px';
-                    t.style.top = e.pageY+10+'px';
-                }
-            });
+              if (!tooltipElement.classList.contains('show')) return;
+              tooltipMouseX = e.pageX;
+              tooltipMouseY = e.pageY;
+              if (tooltipRafId) return;
+              tooltipRafId = requestAnimationFrame(() => {
+                tooltipElement.style.left = (tooltipMouseX + 10) + 'px';
+                tooltipElement.style.top = (tooltipMouseY + 10) + 'px';
+                tooltipRafId = 0;
+              });
+            }, { passive: true });
 
             node.append('text')
                 .attr('class', d => `node-text text-${d.data.nodeType}`)
                 .text(d => d.data.name);
 
-            window.onresize = () => location.reload();
+            let resizeReloadTimer = 0;
+            window.addEventListener('resize', () => {
+              window.clearTimeout(resizeReloadTimer);
+              resizeReloadTimer = window.setTimeout(() => location.reload(), 180);
+            }, { passive: true });
         }
     </script>
 </body>
@@ -3913,10 +3931,9 @@
         const targetUrl = String(data.url || '').trim();
         if (!/^https?:\/\//i.test(targetUrl)) return;
 
-        const sameTab = Boolean(data.sameTab);
-        const isMobileView = window.matchMedia('(max-width: 767px)').matches;
+        const sameTab = data.sameTab === true;
 
-        if (sameTab || isMobileView) {
+        if (sameTab) {
           window.location.href = targetUrl;
           return;
         }
